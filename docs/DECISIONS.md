@@ -98,3 +98,10 @@ The Fellows run sheet keeps a single argument: compare the same assumed activiti
 A presenter can use the existing previews and choices; forward chapter jumps and a separate guided engine would add state complexity without improving the central argument. The missing convenience is safe repeatability in the usual browser.
 
 The optional temporary link opens a fresh page with a constant flag and no personal context. It never acquires story/planner storage, and leaves the original tab's in-memory state alone. Closing the new page is the exit; there is no backup write that might undo newer work in the original. A quiet mode label makes the lack of saving explicit without returning to a collection or recording task.
+
+
+## Keep the place visible while the next picture arrives
+
+The ordinary recording hid a weak-network problem: each scene remount discarded the painted artwork before the next image was available. A constrained production capture made the resulting dark gaps and partial top-down painting unmistakable. More animation or a claim that a full-size wrapper was visible would not solve it.
+
+The bounded repair retains the actual outgoing DOM image and stages only the requested next image until native load and decode finish. It does not preload every city or add a cache framework. Stale completions cannot replace a newer choice. A small loading caption explains the temporary visual hold, while named controls and the existing story clock remain usable. Physical markers wait for their corresponding artwork. The same production capture must show the result before the repair is called complete.

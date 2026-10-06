@@ -103,3 +103,10 @@ The presenter-path cases begin from an unseeded default story, inspect both cond
 Temporary tests open the real target-blank link with interception installed before page boot. They must never call saved-state readers inside that page to prove isolation; inspect actual controls/clocks there and compare stored bytes from the original page. Valid, corrupt/future/empty originals, blocked in-memory state, concurrent original edits, both resets and actual file-query popups remain distinct cases.
 
 A separate negative control must deliberately exercise both storage getters and intercepted methods, block before native data access, and produce exact nonempty page/host logs without clearing them. Zero-access assertions then apply to active-document checkpoints and fresh boots. Exposed bindings can discard events while a page closes; an empty host array is not an exhaustive unload-time proof. Keep after-close original-byte checks, explicitly scoped to durable preservation, alongside the separate complete source-path audit.
+
+
+## Image readiness without concealing the original problem
+
+Readiness regressions must delay an actual incoming response or native decode in isolated tests, retain the same outgoing DOM node and show that the incoming node is promoted only after readiness. They must check actual image state, visible/hidden layers, physical versus named controls, exact committed clocks, superseded completion and media-failure behavior. A loaded rectangle, canvas decode or opacity value alone is not proof of a painted frame.
+
+The production measurement is separate and remains unmodified: no route interception, predecode, warming or seeded state hides the original network gap. It runs before and after the repair with the same synthetic profile. Video frames establish visible continuity; resource and native decode observations retain their own timing scope. Existing normal, temporary, offline, keyboard and reduced-motion checks must remain intact.

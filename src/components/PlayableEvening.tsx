@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useReducer, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import { ArrowLeft, ArrowRight, ChevronDown, Clock3, Compass, Home, MapPin, MoreHorizontal, RotateCcw, Smartphone, TrainFront, Utensils, Wallet, X } from 'lucide-react';
 import { formatClock } from '../domain/engine';
 import type { OptionId, OutingInputs, OutingOption } from '../domain/model';
@@ -48,16 +48,63 @@ type Place = {id:StoryHotspot;label:string;icon:typeof Utensils;x:number;y:numbe
 const approximateMoney = (value:number|null) => value===null?'Unknown total':`about HK$${Math.round(value).toLocaleString('en-HK')}/person`;
 const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-function SceneVisual({city,phase,children}: {city:OptionId|null;phase:string;children:React.ReactNode}) {
+type SceneStatus = 'loading'|'ready'|'failed';
+type SceneImage = {source:string;alt:string};
+type SceneFrame = {request:string;generation:number;visible:SceneImage|null;pending:SceneImage|null;failed:boolean};
+
+function SceneImageLayer({image,visible,onReady,onError}: {image:SceneImage;visible:boolean;onReady:(source:string)=>void;onError:(source:string)=>void}) {
+  const element = useRef<HTMLImageElement>(null);
+  useEffect(()=>{
+    const node=element.current;
+    if(!node || visible) return;
+    let cancelled=false;
+    let decoding=false;
+    const fail=()=>{if(!cancelled) onError(image.source);};
+    const loaded=async()=>{
+      if(decoding || !node.complete || node.naturalWidth===0) return;
+      decoding=true;
+      try {
+        await node.decode();
+        if(!cancelled) onReady(image.source);
+      } catch {fail();}
+    };
+    node.addEventListener('load',loaded);
+    node.addEventListener('error',fail);
+    // Cached and portable images may have completed before this effect attached.
+    if(node.complete){if(node.naturalWidth>0) void loaded();else fail();}
+    return ()=>{cancelled=true;node.removeEventListener('load',loaded);node.removeEventListener('error',fail);};
+  },[image.source,visible,onReady,onError]);
+  return <img ref={element} className={visible?'play-world-image':'play-scene-pending-image'} data-art={image.source} data-scene-layer={visible?'visible':'pending'} src={art(image.source)} alt={visible?image.alt:''} aria-hidden={visible?undefined:true}/>;
+}
+
+function SceneVisual({city,phase,children,onStatusChange}: {city:OptionId|null;phase:string;children:React.ReactNode;onStatusChange:(status:SceneStatus)=>void}) {
   const table = city && ['arrival','afterDinner'].includes(phase) ? tableScenes[city] : null;
   const sceneMeta=phase==='home'?homeScene:table;
   const original = sceneMeta?.image ?? (city === 'hk' ? 'hong-kong-evening.webp' : city === 'sz' ? 'shenzhen-evening.webp' : 'two-shores.webp');
   const preferred = city && phase==='walk' ? city==='hk'?'hk-evening-night.webp':'sz-evening-night.webp' : original;
-  const [source,setSource] = useState(preferred);
-  const [failed,setFailed] = useState(false);
-  useEffect(()=>{setSource(preferred);setFailed(false);},[preferred]);
-  return <div className={`play-world world-${phase==='home'?'home':city ?? 'both'} world-phase-${phase}`} style={{'--scene-ratio':sceneMeta?sceneMeta.width/sceneMeta.height:1672/941} as React.CSSProperties}>
-    {failed ? <div className="play-image-fallback" role="img" aria-label="Illustrated scene unavailable"><span>{phase==='home'?'Back home':city ? cityName(city) : 'Hong Kong · Shenzhen'}</span><p>You can still look around and make every choice using the named place controls.</p></div> : <img className="play-world-image" data-art={source} src={art(source)} onError={()=>source!==original?setSource(original):setFailed(true)} alt={sceneMeta?.alt ?? (city === 'hk' ? 'An imagined Hong Kong restaurant beside the harbor, with a table under warm lights.' : city === 'sz' ? 'An imagined Shenzhen dining terrace beside a leafy avenue and transit entrance.' : 'An imagined two-city harbor at dusk, with two inviting shores.')}/>}
+  const alt=sceneMeta?.alt ?? (city === 'hk' ? 'An imagined Hong Kong restaurant beside the harbor, with a table under warm lights.' : city === 'sz' ? 'An imagined Shenzhen dining terrace beside a leafy avenue and transit entrance.' : 'An imagined two-city harbor at dusk, with two inviting shores.');
+  const [frame,setFrame]=useState<SceneFrame>(()=>({request:preferred,generation:0,visible:null,pending:{source:preferred,alt},failed:false}));
+  // Reset only this local request before its children commit. Keep the actual
+  // decoded node, including when a rapid preview returns to the visible scene.
+  if(frame.request!==preferred) setFrame({request:preferred,generation:frame.generation+1,visible:frame.visible,pending:frame.visible?.source===preferred?null:{source:preferred,alt},failed:false});
+  const generation=frame.generation;
+  const ready=useCallback((source:string)=>setFrame(current=>{
+    if(current.generation!==generation || current.request!==preferred || current.pending?.source!==source) return current;
+    return {...current,visible:current.pending,pending:null,failed:false};
+  }),[generation,preferred]);
+  const failed=useCallback((source:string)=>setFrame(current=>{
+    if(current.generation!==generation || current.request!==preferred || current.pending?.source!==source) return current;
+    if(source!==original) return {...current,pending:current.visible?.source===original?null:{source:original,alt},failed:false};
+    return {...current,visible:null,pending:null,failed:true};
+  }),[generation,preferred,original,alt]);
+  const status:SceneStatus=frame.failed?'failed':frame.pending?'loading':'ready';
+  useEffect(()=>onStatusChange(status),[status,onStatusChange]);
+  const layers=[frame.visible,frame.pending].filter((image):image is SceneImage=>image!==null);
+  return <div className={`play-world world-${phase==='home'?'home':city ?? 'both'} world-phase-${phase}`} style={{'--scene-ratio':sceneMeta?sceneMeta.width/sceneMeta.height:1672/941} as React.CSSProperties} data-scene-state={status} data-scene-requested={preferred} data-scene-visible={frame.visible?.source} aria-busy={status==='loading'}>
+    {/* Keys follow source identity, not visible/pending role: neither the old
+        painted image nor the newly decoded image is remounted during the swap. */}
+    {layers.map(image=><SceneImageLayer key={image.source} image={image} visible={image===frame.visible} onReady={ready} onError={failed}/>)}
+    {frame.failed && <div className="play-image-fallback" role="img" aria-label="Illustrated scene unavailable"><span>{phase==='home'?'Back home':city ? cityName(city) : 'Hong Kong · Shenzhen'}</span><p>You can still look around and make every choice using the named place controls.</p></div>}
     {children}
   </div>;
 }
@@ -86,6 +133,7 @@ export default function PlayableEvening({onBrowsePlanner,onPlanner,onResearch,on
   const [attended,setAttended] = useState<StoryHotspot>('table');
   const [tableTarget,setTableTarget] = useState<keyof typeof tableObjects>(resumePanel==='wallet'?'wallet':'jun');
   const [tableFrameHeight,setTableFrameHeight] = useState<number|null>(null);
+  const [sceneStatus,setSceneStatus] = useState<SceneStatus>('loading');
   const [phoneContext,setPhoneContext] = useState<{from:Panel|null;line:number;object:keyof typeof tableObjects;returnFirst:boolean;returnIntent:RouteReturnIntent;changeRoute:boolean}>({from:null,line:0,object:'jun',returnFirst:false,returnIntent:'planned',changeRoute:false});
   const phoneSourceLabel = useRef<string|null>(null);
   const restorePhoneFocus = useRef<string|null>(null);
@@ -107,7 +155,6 @@ export default function PlayableEvening({onBrowsePlanner,onPlanner,onResearch,on
   const visualCity = city ?? 'hk';
   const atTable = phase==='arrival'||phase==='afterDinner';
   const atHome = phase==='home';
-  const sceneKey = atHome?'hong-kong-home':`${visualCity}-${atTable?'table':phase==='walk'?'night':'street'}`;
   const option = selectStoryOption(state);
   const routeView = selectRouteView(state);
   const walletWarningOption = routeView?.conditionalOption ?? option;
@@ -274,7 +321,7 @@ export default function PlayableEvening({onBrowsePlanner,onPlanner,onResearch,on
   return <section className={`playable-evening play-phase-${phase} ${atTable?'at-table':''} ${atHome?'at-home':''} ${panel?'dialogue-active':''} ${atTable&&panel?'table-dialogue-open':''} ${atHome&&panel?'home-dialogue-open':''} ${cameraMode?`scene-camera-${cameraMode}`:''}`} style={tableFrameHeight===null?undefined:{'--table-frame-height':`${tableFrameHeight}px`} as React.CSSProperties} data-temporary-demo={temporaryDemo?'true':undefined} data-camera={cameraMode??undefined} data-camera-anchor-x={cameraPlace?.x} data-attended-object={atHome&&panel?panel==='phone'||panel==='phoneNote'?'phone':'home':atTable&&panel?tableTarget:undefined} data-table-framed={atTable&&panel&&tableFrameHeight!==null?'true':undefined} data-home-framed={atHome&&panel&&tableFrameHeight!==null?'true':undefined} aria-label="Play an illustrative evening">
     <h1 className="story-screenreader-title">{phase==='home'?'Back home from an illustrative evening':'An evening between Hong Kong and Shenzhen'}</h1>
     <div className="world-scroller" ref={scene} tabIndex={panel?-1:0} role="region" aria-label="Evening scene. On a narrow screen, swipe or use the named place controls to look around." onKeyDown={event=>{if(event.target===event.currentTarget&&['ArrowLeft','ArrowRight'].includes(event.key)){event.preventDefault();scene.current?.scrollBy({left:event.key==='ArrowRight'?180:-180,behavior:reducedMotion()?'instant':'smooth'});}}}>
-      <SceneVisual key={sceneKey} city={visualCity} phase={phase}>
+      <SceneVisual city={visualCity} phase={phase} onStatusChange={setSceneStatus}>
         {atHome ? <button className="scene-place home-phone" data-scene-object="phone" data-anchor-x={homeScene.phone.x} data-anchor-y={homeScene.phone.y} style={{left:`${homeScene.phone.x}%`,top:`${homeScene.phone.y}%`}} tabIndex={panel?-1:0} aria-label="Open phone in the illustration" onClick={()=>openPanel('phone')}><Smartphone size={19}/><span>Phone</span></button> : atTable ? <>
           {(['menu','phone','wallet'] as const).map(object=>{const point=tableObjects[object];const Icon=object==='menu'?Utensils:object==='phone'?Smartphone:Wallet;const label=object==='menu'?phase==='arrival'?'Read the menu':'Look at the table':object==='phone'?'Open phone':'Open wallet';return <button key={object} className="scene-place table-object" data-scene-object={object} data-anchor-x={point.x} data-anchor-y={point.y} style={{left:`${point.x}%`,top:`${point.y}%`}} tabIndex={panel?-1:0} aria-label={`${label} in the illustration`} onClick={()=>object==='menu'?openTableMenu():openPanel(object,undefined,object)}><Icon size={19}/><span>{object}</span></button>;})}
           <button className="scene-companion table-jun" data-scene-object="jun" data-anchor-x={tableObjects.jun.x} data-anchor-y={tableObjects.jun.y} style={{left:`${tableObjects.jun.x}%`,top:`${tableObjects.jun.y}%`}} tabIndex={panel?-1:0} aria-label="Talk with Jun in the illustration" onClick={()=>openPanel(contextPanel,undefined,'jun')}>Jun <span>Talk</span></button>
@@ -286,7 +333,7 @@ export default function PlayableEvening({onBrowsePlanner,onPlanner,onResearch,on
     </div>
     <div className="scene-atmosphere" aria-hidden="true"/>
     <div className="scene-time"><span>{phase==='home'?'Back home':phase==='fork'?city?`${cityName(city)} · a look ahead`:'Hong Kong · before heading out':cityName(visualCity)}</span><span><Clock3 size={13}/><time className="story-clock" aria-label="Story clock">{formatClock(progress.clockMinutes)}</time><small>story · UTC+8</small></span></div>
-    <span className="scene-fiction">Illustrated fiction · not a map</span>
+    <div className="scene-caption"><span className="scene-fiction">Illustrated fiction · not a map</span><span className="scene-load-status" role="status" aria-atomic="true">{sceneStatus==='loading'?'Loading scene…':sceneStatus==='failed'?'Scene unavailable':''}</span></div>
     {warning && <button className="scene-save-notice" onClick={()=>openPanel('options')}>Read save notice</button>}
     {temporaryDemo && !panel && <aside className="temporary-demo-notice temporary-demo-world" aria-label="Temporary demo"><p>{TEMPORARY_DEMO_LABEL}</p><small>{TEMPORARY_DEMO_GUIDANCE}</small></aside>}
     <div className="world-interface" hidden={!!panel}>

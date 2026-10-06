@@ -208,3 +208,24 @@ Private GitHub CI initially failed before page load because downloaded Chromium 
 The first real run exposed an invalid portable export: string replacement interpreted literal dollar sequences inside the bundled React source. Callback replacement, exact embedded-source comparison and syntax validation fixed it. Subsequent offline browser execution verified the exported file, rather than relying only on static parsing.
 
 Repository visibility remains private. No public deployment or hosting configuration is included.
+
+
+## Verified constrained production observation, 6 October 2026
+
+Measurement-only revision `b26b11b589e3b7f0665e7d22813bdd0f7c1aed50` passed the unchanged **90-case browser suite** and a **separate one-case production capture**, with 138 unit/SSR tests, TypeScript and build/export. Its app and portable bytes were unchanged from verified `553006a`.
+
+[Exact run](https://github.com/bobshenruililin/crossing-lives/actions/runs/37545318441)
+
+The fresh production-preview context used 390 × 844 CSS pixels, normal motion, 4× host-relative CPU slowdown, 150 ms emulated latency, 1.6 Mbps download and 750 Kbps upload. This is one instrumented synthetic profile, not a physical-phone test or repeated speed benchmark. Core evidence passed explicit completeness checks; optional series carry separate availability status. Four evidence-file hashes and all 32 production-build hashes were independently checked.
+
+At the recording's actual 25-fps cadence, table artwork was entirely absent from 11.48 through 12.68 seconds (about 1.24 seconds); night artwork from 23.92 through 25.08 (about 1.20 seconds); home from 33.68 through 34.60 (about 0.96 seconds). Table and night then painted progressively. These are video-frame observations, not differences between page-clock marks. New-place dialogue was already visible.
+
+Resource requests started after commitment and took approximately 1.89 seconds for the table, 2.66 for night and 0.89 for home. Those are resource durations, not painted-gap durations. Native image-decode events attributable through trace identifiers were milliseconds; no multi-second decode stall was demonstrated. Immediate removal of the outgoing image while the next request was pending is consistent with the visible problem.
+
+## Retained artwork correction, pending browser and frame review
+
+The subsequent correction keeps the existing outgoing image DOM while a single requested incoming image loads and decodes. Source-keyed layers preserve both outgoing retention and incoming promotion; cancellation plus generation/request/source guards reject superseded asynchronous completion. Only the outgoing and current incoming images are mounted. There is no global preload, persistent asset cache, new asset or change to story timing/storage.
+
+A short loading status accompanies the existing fiction caption. Physical hotspots remain hidden while their image is not ready; named controls and real, idempotent story commitments remain available. A failed requested image follows the existing fallback path, ending in the honest media-unavailable view if necessary. The swap is immediate once decoded, including reduced-motion mode. No new presentation timeline is introduced.
+
+Existing 138 source tests, TypeScript and build pass locally. Additive delayed-image/decode, stale-preview and media-failure browser checks are being prepared. The production capture's spec, observer and configuration remain byte-identical for before/after comparison. No claim that the visible continuity problem is fixed is made until actual CI and frame review.

@@ -95,7 +95,7 @@ Known-tested edition `553006a3f34a9916a0b5b3318c30d1e662f0238b` passed TypeScrip
 
 See the [verification record](docs/VERIFICATION.md), [temporary-session boundary](docs/TEMPORARY_DEMO.md) and [coverage rationale](docs/TEST_COVERAGE.md). Actual temporary-mode screenshots at 360/390px were reviewed. Review is model-assisted visual/code inspection, not a human user study, a timed human presentation or full accessibility certification. Browser coverage is Chrome stable on Ubuntu with resized viewports; physical phones and Safari remain unverified.
 
-A read-only recording review found brief empty-artwork flashes at some scene changes. A separate constrained production capture is being prepared to measure the issue before a narrow rendering correction; no cold-start or real-phone performance claim is made.
+A separate constrained production capture at `b26b11b` confirmed blank and progressively filled artwork during scene changes. The subsequent retained-artwork correction is implemented but awaits its own browser/frame review. Measured timings describe one instrumented, emulated profile, not real-phone performance; see the verification record.
 
 ## Publication
 

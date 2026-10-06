@@ -24,3 +24,14 @@ export const tableScenes: Record<OptionId, { image: string; alt: string; width: 
     height: 941,
   },
 };
+
+/** One fictional shared-origin ending, never the destination city labelled home. */
+export const homeScene = {
+  image: 'hong-kong-home-arrival.webp',
+  alt: 'A fictional Hong Kong-inspired entryway with keys in a ceramic dish and a dark phone beside a closed wooden door; blue-night apartment windows glow beyond a small window.',
+  width: 1672,
+  height: 941,
+  focal: { x: 55, y: 50 },
+  phone: { x: 64.2, y: 38.1 },
+  keys: { x: 55.5, y: 35.2 },
+} as const;

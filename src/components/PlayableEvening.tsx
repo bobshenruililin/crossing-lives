@@ -2,7 +2,7 @@ import { useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import { ArrowLeft, ArrowRight, ChevronDown, Clock3, Compass, Home, MapPin, MoreHorizontal, RotateCcw, Smartphone, TrainFront, Utensils, Wallet, X } from 'lucide-react';
 import { formatClock } from '../domain/engine';
 import type { OptionId, OutingInputs, OutingOption } from '../domain/model';
-import { tableObjects, tableScenes } from '../data/scene-art';
+import { homeScene, tableObjects, tableScenes } from '../data/scene-art';
 import { RouteNote } from './RouteNote';
 import { selectRouteView } from '../story/route-view';
 import type { RouteReturnIntent } from '../story/route-view';
@@ -46,13 +46,14 @@ const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)'
 
 function SceneVisual({city,phase,children}: {city:OptionId|null;phase:string;children:React.ReactNode}) {
   const table = city && ['arrival','afterDinner'].includes(phase) ? tableScenes[city] : null;
-  const original = table?.image ?? (city === 'hk' ? 'hong-kong-evening.webp' : city === 'sz' ? 'shenzhen-evening.webp' : 'two-shores.webp');
-  const preferred = city && ['walk','home'].includes(phase) ? city==='hk'?'hk-evening-night.webp':'sz-evening-night.webp' : original;
+  const sceneMeta=phase==='home'?homeScene:table;
+  const original = sceneMeta?.image ?? (city === 'hk' ? 'hong-kong-evening.webp' : city === 'sz' ? 'shenzhen-evening.webp' : 'two-shores.webp');
+  const preferred = city && phase==='walk' ? city==='hk'?'hk-evening-night.webp':'sz-evening-night.webp' : original;
   const [source,setSource] = useState(preferred);
   const [failed,setFailed] = useState(false);
   useEffect(()=>{setSource(preferred);setFailed(false);},[preferred]);
-  return <div className={`play-world world-${city ?? 'both'} world-phase-${phase}`} style={{'--scene-ratio':table?table.width/table.height:1672/941} as React.CSSProperties}>
-    {failed ? <div className="play-image-fallback" role="img" aria-label="Illustrated scene unavailable"><span>{city ? cityName(city) : 'Hong Kong · Shenzhen'}</span><p>You can still look around and make every choice using the named place controls.</p></div> : <img className="play-world-image" data-art={source} src={art(source)} onError={()=>source!==original?setSource(original):setFailed(true)} alt={table?.alt ?? (city === 'hk' ? 'An imagined Hong Kong restaurant beside the harbor, with a table under warm lights.' : city === 'sz' ? 'An imagined Shenzhen dining terrace beside a leafy avenue and transit entrance.' : 'An imagined two-city harbor at dusk, with two inviting shores.')}/>}
+  return <div className={`play-world world-${phase==='home'?'home':city ?? 'both'} world-phase-${phase}`} style={{'--scene-ratio':sceneMeta?sceneMeta.width/sceneMeta.height:1672/941} as React.CSSProperties}>
+    {failed ? <div className="play-image-fallback" role="img" aria-label="Illustrated scene unavailable"><span>{phase==='home'?'Back home':city ? cityName(city) : 'Hong Kong · Shenzhen'}</span><p>You can still look around and make every choice using the named place controls.</p></div> : <img className="play-world-image" data-art={source} src={art(source)} onError={()=>source!==original?setSource(original):setFailed(true)} alt={sceneMeta?.alt ?? (city === 'hk' ? 'An imagined Hong Kong restaurant beside the harbor, with a table under warm lights.' : city === 'sz' ? 'An imagined Shenzhen dining terrace beside a leafy avenue and transit entrance.' : 'An imagined two-city harbor at dusk, with two inviting shores.')}/>}
     {children}
   </div>;
 }
@@ -85,7 +86,8 @@ export default function PlayableEvening({onBrowsePlanner,onPlanner,onResearch}: 
   const city = attempt.city ?? state.previewCity;
   const visualCity = city ?? 'hk';
   const atTable = phase==='arrival'||phase==='afterDinner';
-  const sceneKey = `${visualCity}-${atTable?'table':['walk','home'].includes(phase)?'night':'street'}`;
+  const atHome = phase==='home';
+  const sceneKey = atHome?'hong-kong-home':`${visualCity}-${atTable?'table':phase==='walk'?'night':'street'}`;
   const option = selectStoryOption(state);
   const routeView = selectRouteView(state);
   const walletWarningOption = routeView?.conditionalOption ?? option;
@@ -118,22 +120,24 @@ export default function PlayableEvening({onBrowsePlanner,onPlanner,onResearch}: 
   const places:Place[] = visualCity==='hk' ? [
     {id:'table',label:'the table',icon:Utensils,x:28,y:57},{id:'wander',label:'the harbor',icon:Compass,x:79,y:47},{id:'home',label:'the way home',icon:Home,x:53,y:80},
   ] : [{id:'table',label:'the table',icon:Utensils,x:28,y:59},{id:'wander',label:'the avenue',icon:Compass,x:58,y:63},{id:'home',label:'the way home',icon:TrainFront,x:90,y:50}];
-  const panTo = (x:number,animate=true) => {
+  const cameraMode=phase==='walk'?(attempt.walkChoice==='short'?'nearby':'wider'):atHome?'home':null;
+  const cameraPlace=cameraMode==='nearby'?places[0]:cameraMode==='wider'?places[1]:cameraMode==='home'?homeScene.focal:null;
+  const panTo = (x:number,animate=true,alignment=.5) => {
     const viewport=scene.current;
     if(!viewport) return;
-    viewport.scrollTo({left:viewport.scrollWidth*x/100-viewport.clientWidth/2,behavior:animate&&!reducedMotion()?'smooth':'instant'});
+    viewport.scrollTo({left:viewport.scrollWidth*x/100-viewport.clientWidth*alignment,behavior:animate&&!reducedMotion()?'smooth':'instant'});
   };
   useEffect(()=>{
     // On a phone the complete coordinate plane can be panned. Named controls
     // always bring their own physical hotspot into view; no place is cropped away.
-    const focusX=atTable ? tableObjects[tableTarget].x : state.openHotspot ? places.find(place=>place.id===state.openHotspot)!.x : city ? phase==='walk' ? (city==='hk'?79:58) : phase==='home' ? (city==='hk'?53:90) : 28 : 28;
-    const resize=()=>panTo(focusX,false);
+    const focusX=atHome?homeScene.focal.x:atTable ? tableObjects[tableTarget].x : state.openHotspot ? places.find(place=>place.id===state.openHotspot)!.x : cameraPlace ? cameraPlace.x : 28;
+    const resize=()=>panTo(focusX,false,cameraMode&&!atHome&&scene.current&&scene.current.clientWidth>900?(focusX>50?.78:.32):.5);
     const frame=requestAnimationFrame(resize);
     window.addEventListener('resize',resize);
     return ()=>{cancelAnimationFrame(frame);window.removeEventListener('resize',resize);};
-  },[city,phase]);
+  },[city,phase,attempt.walkChoice]);
   useEffect(()=>{
-    if(!atTable || !panel){setTableFrameHeight(null);return;}
+    if((!atTable&&!atHome) || !panel){setTableFrameHeight(null);return;}
     const measure=()=>{
       if(window.matchMedia('(max-width: 900px), (max-aspect-ratio: 4/3)').matches && dialogue.current?.open){
         setTableFrameHeight(Math.max(100,dialogue.current.getBoundingClientRect().top-12));
@@ -144,12 +148,13 @@ export default function PlayableEvening({onBrowsePlanner,onPlanner,onResearch}: 
     const frame=requestAnimationFrame(measure);
     window.addEventListener('resize',measure);
     return ()=>{observer.disconnect();cancelAnimationFrame(frame);window.removeEventListener('resize',measure);};
-  },[atTable,panel,line]);
+  },[atTable,atHome,panel,line]);
   useEffect(()=>{
-    if(!atTable) return;
-    const frame=requestAnimationFrame(()=>panTo(tableObjects[tableTarget].x,false));
+    if(!atTable&&!atHome) return;
+    const focusX=atHome?(panel==='phone'?homeScene.phone.x:homeScene.focal.x):tableObjects[tableTarget].x;
+    const frame=requestAnimationFrame(()=>panTo(focusX,false));
     return ()=>cancelAnimationFrame(frame);
-  },[atTable,tableTarget,tableFrameHeight,panel]);
+  },[atTable,atHome,tableTarget,tableFrameHeight,panel]);
   const openPanel = (next:Panel,place?:StoryHotspot,object?:keyof typeof tableObjects,route?:{returnFirst?:boolean;returnIntent?:RouteReturnIntent;changeRoute?:boolean}) => {
     if(!panel) returnFocus.current=document.activeElement instanceof HTMLElement ? document.activeElement : null;
     if(next==='phone'){
@@ -182,7 +187,7 @@ export default function PlayableEvening({onBrowsePlanner,onPlanner,onResearch}: 
       else (nextPlace.current ?? scene.current)?.focus({preventScroll:true});
     });
   };
-  const inspect = (place:Place) => {if(!city) action({type:'PREVIEW_CITY',city:'hk'});panTo(place.x);action({type:'INSPECT',hotspot:place.id});openPanel('observation',place.id);};
+  const inspect = (place:Place) => {if(!city) action({type:'PREVIEW_CITY',city:'hk'});panTo(place.x,true,cameraMode&&scene.current&&scene.current.clientWidth>900?(place.x>50?.78:.32):.5);action({type:'INSPECT',hotspot:place.id});openPanel('observation',place.id);};
   const chooseCity = (id:OptionId) => {action({type:'PREVIEW_CITY',city:id});setAttended('table');};
   const commit = (next:StoryAction,nextPanel:Panel) => {
     const clearsLegacyDetail = next.type==='REWIND' ? !!(attempt.journalNote || attempt.memento)
@@ -202,9 +207,11 @@ export default function PlayableEvening({onBrowsePlanner,onPlanner,onResearch}: 
   const contextPanel:Panel = phase==='fork'?'destination':phase==='arrival'?'dinner':phase==='afterDinner'?'walkChoice':phase==='walk'?'return':'home';
   const nextLabel = phase==='fork'?'Talk about dinner':phase==='arrival'?'Talk with Jun':phase==='afterDinner'?'Step outside':phase==='walk'?'Head home':'Try the other evening';
   const spot=places.find(item=>item.id===attended)!;
-  const dialogueOnLeft=atTable?(tableTarget==='phone'||tableTarget==='wallet'):panel==='observation'&&spot.x>50;
+  const dialogueOnLeft=atHome?true:atTable?(tableTarget==='phone'||tableTarget==='wallet'):panel==='walked'||panel==='return'?attempt.walkChoice==='long':panel==='observation'&&spot.x>50;
+  const dialogueAtTop=!atTable&&!atHome&&((panel==='observation'&&spot.y>=70)||(panel==='walked'&&attempt.walkChoice==='short'));
   const openTableMenu = () => {if(phase==='arrival') openPanel('dinner',undefined,'menu');else {action({type:'INSPECT',hotspot:'table'});openPanel('observation','table','menu');}};
   const dinnerResponse = attempt.dinnerChoice==='simple'?'We kept the order simple.':city==='hk'?'One dessert for the table.':'One more dish for the table.';
+  const walkResponse=`${attempt.dinnerChoice==='linger'?city==='hk'?'A shared dessert':'One more dish':'A simple dinner'}, then ${attempt.walkChoice==='short'?'a small loop nearby.':city==='hk'?'the longer way by the water.':'the longer walk along the avenue.'}`;
   const lookingBack = phase==='home';
   const tableObservation = attempt.dinnerChoice ? [
     `${lookingBack?'Earlier tonight, we':'We'} ${attempt.dinnerChoice==='linger'?city==='hk'?'stayed for one shared dessert.':'stayed for a shared order.':'kept dinner simple, without a shared order.'}`,
@@ -219,15 +226,15 @@ export default function PlayableEvening({onBrowsePlanner,onPlanner,onResearch}: 
     city==='sz'?'This was a fictional crossing. Entry eligibility, transport services and queues still need checking before a real trip.':'The modelled local journey is complete. Its travel time was an editable assumption.',
   ] : [`The way back is part of the evening too. ${option ? `${minutes(option.inwardMinutes)} is allowed for the return.` : ''}`,city==='sz'?'That includes an assumed clearance buffer. Real entry eligibility, services and queues still need checking.':'The local journey time is an editable assumption. The phone has our modelled return time.'];
   const observation = attended==='table'?tableObservation:attended==='wander'?walkObservation:homeObservation;
-  const dialogueHeading = panel==='invitation'?'Dinner, then a walk?':panel==='observation'?attended==='table'?'By the table':attended==='wander'?city==='hk'?'By the harbor':'Along the avenue':'The way home':panel==='wallet'?'Wallet':panel==='phone'?'Out and home':panel==='destination'?'Shall we eat here?':panel==='arrived'?'At the table':panel==='dinner'?'The menu':panel==='afterDinner'?'After dinner':panel==='walkChoice'?'A little walk?':panel==='walked'?city==='hk'?'By the water':'On the avenue':panel==='return'?'Time to head back?':panel==='home'?'Back home':panel==='reset'?'Begin a fresh evening?':panel==='legacyReplay'?'Clear an older saved detail?':'Story options';
-  const isJun=panel!==null&&!['wallet','phone','options','reset','legacyReplay'].includes(panel);
+  const dialogueHeading = panel==='invitation'?'Dinner, then a walk?':panel==='observation'?attended==='table'?'By the table':attended==='wander'?city==='hk'?'By the harbor':'Along the avenue':'The way home':panel==='wallet'?'Wallet':panel==='phone'?'Out and home':panel==='destination'?'Shall we eat here?':panel==='arrived'?'At the table':panel==='dinner'?'The menu':panel==='afterDinner'?'After dinner':panel==='walkChoice'?'A little walk?':panel==='walked'?attempt.walkChoice==='short'?'Just outside':city==='hk'?'By the water':'On the avenue':panel==='return'?'Time to head back?':panel==='home'?'Back home':panel==='reset'?'Begin a fresh evening?':panel==='legacyReplay'?'Clear an older saved detail?':'Story options';
+  const isJun=!atHome&&panel!==null&&!['wallet','phone','options','reset','legacyReplay'].includes(panel);
   const continueLine = () => setLine(value=>value+1);
 
-  return <section className={`playable-evening play-phase-${phase} ${atTable?'at-table':''} ${panel?'dialogue-active':''} ${atTable&&panel?'table-dialogue-open':''}`} style={tableFrameHeight===null?undefined:{'--table-frame-height':`${tableFrameHeight}px`} as React.CSSProperties} data-attended-object={atTable&&panel?tableTarget:undefined} data-table-framed={atTable&&panel&&tableFrameHeight!==null?'true':undefined} aria-label="Play an illustrative evening">
+  return <section className={`playable-evening play-phase-${phase} ${atTable?'at-table':''} ${atHome?'at-home':''} ${panel?'dialogue-active':''} ${atTable&&panel?'table-dialogue-open':''} ${atHome&&panel?'home-dialogue-open':''} ${cameraMode?`scene-camera-${cameraMode}`:''}`} style={tableFrameHeight===null?undefined:{'--table-frame-height':`${tableFrameHeight}px`} as React.CSSProperties} data-camera={cameraMode??undefined} data-camera-anchor-x={cameraPlace?.x} data-attended-object={atHome&&panel?panel==='phone'?'phone':'home':atTable&&panel?tableTarget:undefined} data-table-framed={atTable&&panel&&tableFrameHeight!==null?'true':undefined} data-home-framed={atHome&&panel&&tableFrameHeight!==null?'true':undefined} aria-label="Play an illustrative evening">
     <h1 className="story-screenreader-title">{phase==='home'?'Back home from an illustrative evening':'An evening between Hong Kong and Shenzhen'}</h1>
     <div className="world-scroller" ref={scene} tabIndex={panel?-1:0} role="region" aria-label="Evening scene. On a narrow screen, swipe or use the named place controls to look around." onKeyDown={event=>{if(event.target===event.currentTarget&&['ArrowLeft','ArrowRight'].includes(event.key)){event.preventDefault();scene.current?.scrollBy({left:event.key==='ArrowRight'?180:-180,behavior:reducedMotion()?'instant':'smooth'});}}}>
       <SceneVisual key={sceneKey} city={visualCity} phase={phase}>
-        {atTable ? <>
+        {atHome ? <button className="scene-place home-phone" data-scene-object="phone" data-anchor-x={homeScene.phone.x} data-anchor-y={homeScene.phone.y} style={{left:`${homeScene.phone.x}%`,top:`${homeScene.phone.y}%`}} tabIndex={panel?-1:0} aria-label="Open phone in the illustration" onClick={()=>openPanel('phone')}><Smartphone size={19}/><span>Phone</span></button> : atTable ? <>
           {(['menu','phone','wallet'] as const).map(object=>{const point=tableObjects[object];const Icon=object==='menu'?Utensils:object==='phone'?Smartphone:Wallet;const label=object==='menu'?phase==='arrival'?'Read the menu':'Look at the table':object==='phone'?'Open phone':'Open wallet';return <button key={object} className="scene-place table-object" data-scene-object={object} data-anchor-x={point.x} data-anchor-y={point.y} style={{left:`${point.x}%`,top:`${point.y}%`}} tabIndex={panel?-1:0} aria-label={`${label} in the illustration`} onClick={()=>object==='menu'?openTableMenu():openPanel(object,undefined,object)}><Icon size={19}/><span>{object}</span></button>;})}
           <button className="scene-companion table-jun" data-scene-object="jun" data-anchor-x={tableObjects.jun.x} data-anchor-y={tableObjects.jun.y} style={{left:`${tableObjects.jun.x}%`,top:`${tableObjects.jun.y}%`}} tabIndex={panel?-1:0} aria-label="Talk with Jun in the illustration" onClick={()=>openPanel(contextPanel,undefined,'jun')}>Jun <span>Talk</span></button>
         </> : <>
@@ -242,19 +249,19 @@ export default function PlayableEvening({onBrowsePlanner,onPlanner,onResearch}: 
     {warning && <button className="scene-save-notice" onClick={()=>openPanel('options')}>Read save notice</button>}
     <div className="world-interface" hidden={!!panel}>
       <div className="world-controls">
-        <nav className="scene-places" aria-label={atTable?'Objects on the table':city?'Places in this scene':'Look at either city'}>
+        {!atHome&&<nav className="scene-places" aria-label={atTable?'Objects on the table':city?'Places in this scene':'Look at either city'}>
           {atTable ? <><button onClick={openTableMenu} aria-label={phase==='arrival'?'Read the menu':'Look at the table'}><Utensils size={16}/><span>Menu</span></button><button onClick={()=>openPanel('phone')} aria-label="Open phone"><Smartphone size={16}/><span>Phone</span></button><button onClick={()=>openPanel('wallet')} aria-label="Open wallet"><Wallet size={16}/><span>Wallet</span></button></> : city ? places.map(place=><button key={place.id} onClick={()=>inspect(place)} aria-label={`Look at ${place.label}`}><place.icon size={17}/><span>{place.id==='table'?'Table':place.id==='wander'?city==='hk'?'Harbor':'Avenue':'Way home'}</span></button>) : (['hk','sz'] as const).map(id=><button key={id} onClick={()=>chooseCity(id)} aria-label={`Look at ${cityName(id)}`}><MapPin size={17}/><span>{cityName(id)}</span></button>)}
-        </nav>
+        </nav>}
         <div className="scene-actions">
           {city && <button className="scene-next" ref={nextPlace} onClick={()=>phase==='home'?commit({type:'TRY_OTHER_CITY'},'destination'):openPanel(contextPanel,undefined,atTable?'jun':undefined)}>{nextLabel}<ArrowRight size={17}/></button>}
           <div className="pocket-tools" role="group" aria-label="Things with you">{!atTable&&<><button onClick={()=>openPanel('wallet')} aria-label="Open wallet"><Wallet size={21}/><span>Wallet</span></button><button onClick={()=>openPanel('phone')} aria-label="Open phone"><Smartphone size={21}/><span>Phone</span></button></>}<button onClick={()=>openPanel('options')} aria-label="Story options"><MoreHorizontal size={23}/><span>More</span></button></div>
         </div>
       </div>
       {city && phase==='fork' && <button className="other-shore" onClick={()=>chooseCity(city==='hk'?'sz':'hk')} aria-label={`Look at ${cityName(city==='hk'?'sz':'hk')}`}><ArrowLeft size={14}/> Look at {cityName(city==='hk'?'sz':'hk')}</button>}
-      <span className="scene-pan-hint">Swipe to look around · or choose a place below</span>
+      {!atHome&&<span className="scene-pan-hint">Swipe to look around · or choose a place below</span>}
     </div>
 
-    <dialog className={`world-dialogue ${dialogueOnLeft?'dialogue-left':'dialogue-right'} ${!atTable&&panel==='observation'&&spot.y>=70?'dialogue-top':''} ${isJun&&!atTable?'with-jun':'object-dialogue'} ${atTable?'table-dialogue':''}`} ref={dialogue} aria-labelledby="world-dialogue-title" onKeyDown={containDialogueFocus} onCancel={event=>{event.preventDefault();closePanel();}} onClick={event=>{if(event.target===event.currentTarget) closePanel();}}>
+    <dialog className={`world-dialogue ${dialogueOnLeft?'dialogue-left':'dialogue-right'} ${dialogueAtTop?'dialogue-top':''} ${isJun&&!atTable?'with-jun':'object-dialogue'} ${atTable?'table-dialogue':''} ${atHome?'home-dialogue':''}`} ref={dialogue} aria-labelledby="world-dialogue-title" onKeyDown={containDialogueFocus} onCancel={event=>{event.preventDefault();closePanel();}} onClick={event=>{if(event.target===event.currentTarget) closePanel();}}>
       {panel && <div className="dialogue-surface">
         <button className="dialogue-close" aria-label="Return to the scene" onClick={closePanel}><X size={20}/></button>
         {isJun && !atTable && <div className="dialogue-portrait"><JunPortrait/><span>JUN {panel==='invitation'&&<small>Fictional companion</small>}</span></div>}
@@ -268,9 +275,9 @@ export default function PlayableEvening({onBrowsePlanner,onPlanner,onResearch}: 
           {panel==='dinner' && <><p className="spoken-line">Keep it simple, or stay for another dish?</p><div className="menu-choices">{([{id:'simple',title:'Let’s keep dinner simple.',body:'60 minutes · no shared order.'},{id:'linger',title:'Let’s have one more dish.',body:`90 minutes · one shared ${city==='hk'?'dessert':'order'}.`}] as const).map(choice=><Choice key={choice.id} state={state} action={{type:'COMMIT_DINNER',choice:choice.id}} title={choice.title} body={choice.body} dispatch={next=>commit(next,'afterDinner')}/>)}</div></>}
           {panel==='afterDinner' && <><p className="spoken-line">{dinnerResponse} {progress.delayApplied?'Dinner ran half an hour longer than expected.':'Shall we step outside?'}</p><p className="fictional-event play-event-note">{progress.delayApplied?'The disclosed dinner delay has added 30 minutes once. It adds no extra charge.':'This is the calm version. No fictional delay is applied.'}</p><button className="dialogue-next" onClick={()=>openPanel('walkChoice')}>Step outside <ArrowRight size={17}/></button><DirectReturn state={state} dispatch={next=>commit(next,'home')} onRoute={()=>openRoute(true,'direct')}/></>}
           {panel==='walkChoice' && <><p className="spoken-line">A small loop nearby, or the longer way round?</p><div className="menu-choices">{([{id:'long',title:'Let’s take the longer walk.',body:city==='hk'?'45 minutes along the harbor.':'45 minutes along the avenue.'},{id:'short',title:'A short loop sounds good.',body:'15 minutes nearby · home 30 minutes earlier.'}] as const).map(choice=><Choice key={choice.id} state={state} action={{type:'COMMIT_WALK',choice:choice.id}} title={choice.title} body={choice.body} dispatch={next=>commit(next,'walked')}/>)}</div><DirectReturn state={state} dispatch={next=>commit(next,'home')} onRoute={()=>openRoute(true,'direct')}/></>}
-          {panel==='walked' && <><p className="spoken-line">{attempt.walkChoice==='long'?city==='hk'?'We took the longer way round by the water.':'We took the longer way round along the avenue.':'Just a small loop near the table.'}</p><p className="spoken-line secondary-line">{city==='hk'?'The restaurant lights reach down to the water.':'The avenue looks different with the lights on.'} We can head back when you’re ready.</p><button className="dialogue-next" onClick={closePanel}>Look around <ChevronDown size={17}/></button></>}
+          {panel==='walked' && <><p className="spoken-line">{walkResponse}</p><p className="spoken-line secondary-line">We can head back from here.</p><button className="dialogue-next" onClick={closePanel}>Look around <ChevronDown size={17}/></button></>}
           {panel==='return' && <><p className="spoken-line">Ready to call it an evening?</p>{option&&<><p className="departure-facts">{minutes(option.inwardMinutes)} back · modelled home arrival {formatClock(option.returnMinutes)}<br/>Whole outing estimate {money(option.perPersonHKD)}/person</p><ConstraintWarnings option={option} entry/></>}<button className="object-model-link" onClick={()=>openRoute(true)}>Check the return route <ArrowRight size={15}/></button><button className="dialogue-commit" onClick={()=>commit({type:'RETURN_HOME'},'home')}>Follow the return journey <ArrowRight size={17}/></button></>}
-          {panel==='home' && <><p className="spoken-line">Made it back. Good night.</p><p className="departure-facts">Home at {formatClock(progress.clockMinutes)} in this model.</p>{option&&<ConstraintWarnings option={option} entry/>}<button className="dialogue-next" onClick={closePanel}>Finish the evening <ChevronDown size={17}/></button></>}
+          {panel==='home' && <><p className="spoken-line">You’re back.</p><p className="departure-facts">Home at {formatClock(progress.clockMinutes)} in this model.</p>{option&&<ConstraintWarnings option={option} entry/>}<button className="dialogue-next" onClick={closePanel}>Finish the evening <ChevronDown size={17}/></button></>}
           {panel==='options' && <><p className="object-intro">A fictional evening for two adults. Dialogue, costs and travel durations are authored examples. No booking, live queue, eligibility check or AI conversation is taking place.</p>{warning&&<p className="save-warning" role="status">{warning}</p>}<details className="story-setup"><summary>Evening setup <ChevronDown size={15}/></summary><p>{preset.label} · {formatClock(state.baseInputs.departureMinutes)}–{formatClock(homeDeadline)} · allowance {money(state.baseInputs.budgetPerPersonHKD)}/person</p><p>{state.delayScenario==='dinner30'?'Includes one fictional 30-minute dinner delay.':'Calm version · no fictional delay.'}</p>{phase==='fork'&&!state.previousAttempt&&<><div className="setup-presets" role="group" aria-label="Choose the shape of the evening">{STORY_PRESETS.map(item=><button key={item.id} aria-pressed={item.id===state.presetId} onClick={()=>action({type:'RECONFIGURE',presetId:item.id,delayScenario:state.delayScenario})}><strong>{item.label}</strong><small>{formatClock(item.departureMinutes)}–{formatClock(item.homeByMinutes)} · HK${item.budgetPerPersonHKD}/person</small></button>)}</div><label className="delay-setting"><input type="checkbox" checked={state.delayScenario==='dinner30'} onChange={event=>action({type:'RECONFIGURE',delayScenario:event.target.checked?'dinner30':'none'})}/>Include one fictional 30-minute dinner delay</label></>}</details><div className="story-option-actions"><button onClick={()=>{closePanel();onBrowsePlanner();}}>Open my plan <ArrowRight size={16}/></button><button onClick={()=>{closePanel();onResearch();}}>Open research desk <ArrowRight size={16}/></button>{phase!=='fork'&&<button onClick={()=>commit({type:'REWIND',checkpoint:'fork'},'destination')}><RotateCcw size={15}/> Rewind to the fork</button>}{['afterDinner','walk','home'].includes(phase)&&<button onClick={()=>commit({type:'REWIND',checkpoint:'arrival'},'dinner')}>Reconsider dinner</button>}{['walk','home'].includes(phase)&&<button onClick={()=>commit({type:'REWIND',checkpoint:'afterDinner'},'walkChoice')}>Reconsider the walk</button>}<button onClick={()=>openPanel('reset')}>Start a fresh evening</button></div><p className="dialogue-footnote">Progress resumes in this browser when storage is available. Your practical planner has a separate save.</p></>}
           {panel==='legacyReplay' && pendingReplay && <><p className="object-intro">{pendingReplay.action.type==='TRY_OTHER_CITY'?'Continuing will replace an older saved note or detail from the previous evening.':'Rewinding will clear an older saved note or detail from this evening.'}</p><div className="story-option-actions"><button onClick={closePanel}>Keep this evening</button><button className="dialogue-commit" onClick={()=>{const next=pendingReplay;setPendingReplay(null);action(next.action);setLine(0);setPanel(next.nextPanel);}}>Clear older detail and continue</button></div></>}
           {panel==='reset' && <><p className="object-intro">This replaces both saved story attempts, including any notes from older versions. Your separate practical planner stays as it is.</p><div className="story-option-actions"><button className="dialogue-commit" onClick={()=>commit({type:'RESET',presetId:'wander'},'invitation')}>Start a fresh story</button><button onClick={()=>openPanel('options')}>Keep this evening</button></div></>}

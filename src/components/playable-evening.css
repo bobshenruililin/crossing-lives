@@ -166,3 +166,28 @@
 @media(prefers-reduced-motion:reduce){.play-world{animation:none!important}}
 
 .departure-selected-route{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:5px 12px;padding:7px 0;border-block:1px solid var(--scene-line);font-size:13px;line-height:1.5}.departure-selected-route>span{flex:1;min-width:140px}.departure-selected-route>button{display:flex;align-items:center;gap:7px;padding:8px 0;font-size:13px;line-height:1.5;color:#f2d7aa}.complete-evening-estimate>strong{display:block;font-size:12px;font-weight:650;letter-spacing:.3px;color:#e1c7a0;margin-bottom:5px}.departure-forecast{border-left:2px solid #be9761;padding-left:10px}.direct-return .object-model-link{font-size:12px;padding:8px 0}
+
+/* The committed walk changes attention, never the clock or the image coordinates.
+   A nearby loop stays close to the restaurant; the longer walk opens the shore.
+   Height caps keep every original scene hotspot vertically reachable on wide screens. */
+@media(min-width:901px) and (min-aspect-ratio:4/3){
+  .scene-camera-nearby .play-world{width:min(125%,calc(145svh * var(--scene-ratio)));height:auto;margin:0 auto}
+  .scene-camera-wider .play-world{width:min(108%,calc(115svh * var(--scene-ratio)));height:auto;margin:0 auto}
+}
+@media(max-width:900px),(max-aspect-ratio:4/3){
+  .scene-camera-nearby .play-world{height:100svh;width:calc(100svh * var(--scene-ratio));min-width:0;margin:0 auto}
+  .scene-camera-wider .play-world{height:92svh;width:calc(92svh * var(--scene-ratio));min-width:0;margin:0 auto}
+}
+
+/* A shared fictional Hong Kong entryway ends every route. Keys remain scenery,
+   with no collection action. Longer optional phone views keep the console visible. */
+.at-home .world-controls{justify-content:flex-end}
+.at-home .scene-next{background:#211d19a8;border-color:#e9dbc13b;font-size:13px;font-weight:400}
+.world-dialogue.home-dialogue{width:min(500px,calc(100% - 48px));top:auto;bottom:4vh}
+.home-dialogue .dialogue-surface{padding:25px 28px 22px}
+@media(max-width:900px),(max-aspect-ratio:4/3){
+  .home-dialogue-open .world-scroller{align-items:flex-start}
+  .home-dialogue-open .play-world{height:var(--table-frame-height,45svh);width:calc(var(--table-frame-height,45svh) * var(--scene-ratio));min-width:0;margin:0 auto}
+  .world-dialogue.home-dialogue,.world-dialogue.home-dialogue.dialogue-left{top:auto;bottom:16px;left:12px;right:12px;width:auto;max-height:calc(100svh - 180px)}
+}
+@media(max-width:700px){.home-dialogue .dialogue-surface{padding:18px 18px 16px}.at-home .world-controls{bottom:31px}.at-home .scene-next{font-size:12px;line-height:1.5}}

@@ -42,3 +42,10 @@ A committed journey needs a visual payoff. Two original close table scenes put J
 The phone opens one schematic out-and-back route rather than a dashboard of tickets. Rail and road can be compared before commitment. After departure, the map remembers the chosen route; reconsidering it is explicit. A conditional forecast includes the disclosed dinner delay and names the meal/walk assumption. Published clearance hours do not become a promise of a last train, available bus, live queue or permission to enter.
 
 An actual phone screenshot exposed a wrapped final currency digit after all automated cases had passed. Complete monetary strings now stay on one line, with direct text-line checks added. This is a useful reminder that the acceptance target is the person's experience, not a count of passing cases.
+
+
+## Let the choice change the view
+
+The short loop now attends to the nearby restaurant while the longer walk opens the harbor or avenue. Both use the same original scene and shared image coordinates, with the conversation placed away from the attended region. A brief line recognizes the actual dinner/walk combination without turning it into a score, memory task or claim about how the player feels.
+
+Returning from Shenzhen previously left its night painting beneath a home label. One restrained fictional Hong Kong entryway resolves that visual contradiction for both branches. It introduces no new travel, home address or collection mechanic. Destination inspections disappear at home; the evening can end quietly, with replay optional.

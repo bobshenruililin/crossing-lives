@@ -57,13 +57,23 @@ Human inspection found a defect the then-current suite missed: at 390px, the Wal
 
 The exact verified portable is 5,758,453 bytes with SHA-256 `7b4fab48f85ac63fe7fb1b6a6d719aca62fb5888e6ff6d9c2cd6be804a3da514`. It is the tested fallback, with the two review findings above disclosed.
 
-## Unfolding route note, pending exact-commit verification
+## Verified route-note calculations and interaction, 6 October 2026
 
-The next source pass replaces stacked route details with one optional phone schematic of the outward and return journeys. Before departure, choosing rail or road previews consequences without advancing time. After departure the chosen route is read-only; changing it goes through the existing explicit reconsideration. Leg, cost and source details open one at a time.
+Commit `8f8014219b7d7e77d54a5405682c21dcf17dfb00` passed TypeScript, build/export, all **94 unit tests** and all **62 browser cases on their first attempt**.
 
-A pure presentation selector composes existing story previews. Its conditional full-evening forecast includes the disclosed delay and states the assumed simple dinner and walk, while the actual story clock remains separate. It does not invent a live queue, timetable, last service, fare or venue location. Thirteen new unit tests cover these contracts, bringing the source suite to 94. An independent read-only source/component audit also checked 288 scenario combinations and 8,064 route views against the ordinary completed-engine outcomes. It found and verified a correction to Wallet timing warnings, which had still excluded the future delay. This is calculation/component evidence, not browser or visual clearance.
+[Exact passing run](https://github.com/bobshenruililin/crossing-lives/actions/runs/37505936849)
 
-The Wallet correction keeps complete currency strings together without shrinking essential text. Rendered text-line and clipping checks are required at 360px and 390px, including larger amounts. Actual map captures, radio/back focus, return-route clarity and the offline loop must be inspected from the new exact-commit browser run before this pass is called verified.
+This pass replaces stacked route details with one optional phone schematic of the outward and return journeys. Before departure, choosing rail or road previews consequences without advancing time. After departure the chosen route is read-only; changing it goes through the existing explicit reconsideration. Leg, cost and source details open one at a time.
+
+A pure presentation selector composes existing story previews. Its conditional full-evening forecast includes the disclosed delay and states the assumed simple dinner and walk, while the actual story clock remains separate. It does not invent a live queue, timetable, last service, fare or venue location. Thirteen new unit tests cover these contracts, bringing the source suite to 94. An independent read-only source/component audit also checked 288 scenario combinations and 8,064 route views against the ordinary completed-engine outcomes. It found and verified a correction to Wallet timing warnings, which had still excluded the future delay. This independent audit is calculation/component evidence; the exact browser result is recorded separately above.
+
+The Wallet correction keeps complete currency strings together without shrinking essential text. Rendered text-line and clipping checks passed at 360px and 390px, including larger amounts. The exact run exercised actual radio selection, Back/focus restoration, return-route state, the forecast-warning consistency regression and the offline local/rail/road flow. Human review of the 390px rail/road notes and Wallet found the content legible and the currency wrapping fixed. It also found the route note still text-heavy: a clearer visible crossing and spatial path are a future craft refinement, not something established by the passing suite. A subsequently added keyboard-arrow radio case is not included in this 62-case result.
+
+## Choice-specific night framing and shared home arrival, in progress
+
+The next presentation pass gives short and long walks different attention within the same original night scene. It recognizes the actual meal/walk combination in one authored line; no feelings, spare time or score are inferred. A separate original fictional home-arrival scene is prepared so a Shenzhen return does not leave the player looking at Shenzhen under a home label.
+
+These new camera, ending and media changes need their own exact-commit browser captures, complete-evening recording and human review. The passing route-note build does not clear them automatically.
 
 ## Browser infrastructure and export history
 

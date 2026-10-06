@@ -2,12 +2,12 @@ import { test, expect } from '@playwright/test';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import {
-  cityPreview, closeDialogue, dialogue, expectJun, expectPhase, expectSceneAssets,
+  cityPreview, closeDialogue, dialogue, expectJun, expectHomeScene, expectPhase, expectSceneAssets,
   openAction, storyClock,
 } from './story-helpers';
 
-test('record a real 60–90 second world-first opening from invitation to an ordinary decision', async ({ browser, baseURL }, testInfo) => {
-  test.setTimeout(120_000);
+test('record one real complete evening from invitation through dinner, walk, return route and shared home', async ({ browser, baseURL }, testInfo) => {
+  test.setTimeout(210_000);
   const commit = process.env.GITHUB_SHA ?? process.env.CROSSING_COMMIT_SHA ?? null;
   if (process.env.CI) expect(commit, 'CI footage must identify its exact source commit.').toMatch(/^[a-f0-9]{40}$/i);
   const dir = path.resolve('artifacts/walkthrough');
@@ -73,11 +73,46 @@ test('record a real 60–90 second world-first opening from invitation to an ord
     await expect(storyClock(page)).toHaveText('16:45');
     await expect(dialogue(page).getByRole('heading', { name: 'At the table', exact: true })).toBeFocused();
     await hold('The first real commitment advances time and changes the setting to the close table scene with Jun.', 6000);
+    await page.getByRole('button', { name: 'Read the menu', exact: true }).click();
+    await expectJun(page);
+    await hold('Read the menu at the actual table and compare the two dinner choices.', 10000);
+    await page.getByRole('button', { name: /^Let’s have one more dish\./ }).click();
+    await expectPhase(page, 'afterDinner');
+    await expect(storyClock(page)).toHaveText('18:45');
+    await expect(page.locator('.play-event-note')).toContainText('added 30 minutes once');
+    await hold('A shared dessert and the disclosed delay bring the story clock to 18:45.', 8000);
+    await page.getByRole('button', { name: 'Step outside', exact: true }).click();
+    await hold('Choose a short loop, a longer walk or a direct return with the consequences visible.', 9000);
+    await page.getByRole('button', { name: /^Let’s take the longer walk\./ }).click();
+    await expectPhase(page, 'walk');
+    await expect(storyClock(page)).toHaveText('19:30');
+    await expectSceneAssets(page, 'hk-evening-night.webp');
+    await expect(dialogue(page).locator('.spoken-line').first()).toHaveText('A shared dessert, then the longer way by the water.');
+    await hold('The wider harbor view and Jun’s response follow both actual choices.', 7000);
+    await page.getByRole('button', { name: 'Look around', exact: true }).click();
+    await hold('Take in the night view with the dialogue out of the way.', 5000);
+    await openAction(page, 'Head home');
+    await hold('Decide to return with the complete home journey still visible.', 5000);
+    await page.getByRole('button', { name: 'Check the return route', exact: true }).click();
+    await expect(page.locator('.route-loop-directions > button').first()).toHaveAccessibleName(/^Coming home/);
+    await expect(page.getByRole('button', { name: /^Coming home/ })).toContainText('19:30–19:45');
+    await hold('Unfold the return-first route: the local journey gets us home at 19:45.', 9000);
+    await page.getByRole('button', { name: /^Coming home/ }).click();
+    await expect(page.locator('.route-note-legs')).toContainText('Local return journey');
+    await hold('The optional leg detail spells out the return allowance.', 5000);
+    await page.getByRole('button', { name: 'Back to Jun', exact: true }).click();
+    await page.getByRole('button', { name: 'Follow the return journey', exact: true }).click();
+    await expectHomeScene(page);
+    await expect(storyClock(page)).toHaveText('19:45');
+    await hold('Arrive at the shared home entryway. The destination and in-person companion stay behind.', 8000);
+    await page.getByRole('button', { name: 'Finish the evening', exact: true }).click();
+    await expectHomeScene(page);
+    await hold('A quiet home ending, with optional practical tools and no recording or collection prompt.', 6000);
     expect(errors).toEqual([]);
     complete = true;
   } finally {
     await context.close();
-    const basename = `world-first-opening-${commit ?? 'local-unidentified'}`;
+    const basename = `complete-evening-${commit ?? 'local-unidentified'}`;
     const videoPath = path.join(dir, `${basename}.webm`);
     await video.saveAs(videoPath);
     const metadataPath = path.join(dir, `${basename}.json`);
@@ -85,7 +120,7 @@ test('record a real 60–90 second world-first opening from invitation to an ord
       commit, complete, test: testInfo.title,
       viewport: { width: 1440, height: 900 },
       recording: 'Playwright BrowserContext recordVideo; actual browser interactions and original animations',
-      requestedLengthSeconds: [60, 90],
+      scope: 'Complete evening: invitation, inspection, money and route, dinner, walk, return map and shared home',
       readingPausesMs: beats.reduce((total, beat) => total + beat.pauseMs, 0),
       elapsedMs: Date.now() - started,
       browserVersion: browser.version(),
@@ -93,7 +128,7 @@ test('record a real 60–90 second world-first opening from invitation to an ord
       runAttempt: process.env.GITHUB_RUN_ATTEMPT ?? null,
       project: testInfo.project.name, beats, errors,
     }, null, 2));
-    await testInfo.attach('World-first opening, recorded in the browser', { path: videoPath, contentType: 'video/webm' });
-    await testInfo.attach('Exact commit and readable opening beats', { path: metadataPath, contentType: 'application/json' });
+    await testInfo.attach('Complete evening, recorded in the browser', { path: videoPath, contentType: 'video/webm' });
+    await testInfo.attach('Exact commit and complete-evening beats', { path: metadataPath, contentType: 'application/json' });
   }
 });

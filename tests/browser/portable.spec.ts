@@ -4,7 +4,7 @@ import path from 'node:path';
 import { existsSync } from 'node:fs';
 import {
   chooseDinner, chooseWalk, closeDialogue, depart, dialogue, expectClock,
-  expectJun, expectPhase, expectSceneAssets, openAction, openOptions, openPlanner,
+  expectJun, expectHomeScene, expectPhase, expectSceneAssets, openAction, openOptions, openPlanner,
   returnHome, showcase, startStory,
 } from './story-helpers';
 
@@ -57,6 +57,9 @@ test('portable production file keeps both cities, Jun, choices and quiet resume 
   await closeDialogue(page);
   await showcase(page, 'portable-hk-night-offline');
   await returnHome(page);
+  await expectHomeScene(page, true);
+  await allAssetsEmbedded();
+  await showcase(page, 'portable-home-from-hk-offline');
   await expectClock(page, '19:45');
   await expect(page.getByRole('textbox')).toHaveCount(0);
 
@@ -102,17 +105,29 @@ test('portable production file keeps both cities, Jun, choices and quiet resume 
   await closeDialogue(page);
   await showcase(page, 'portable-sz-night-offline');
   await returnHome(page);
+  await expectHomeScene(page, true);
+  await allAssetsEmbedded();
+  await showcase(page, 'portable-home-from-sz-offline');
   await expectClock(page, '21:45');
   await allAssetsEmbedded();
   await page.reload();
   await startStory(page);
   await expectPhase(page, 'home');
-  await expectSceneAssets(page, 'sz-evening-night.webp', true);
+  await expectHomeScene(page, true);
   await expectClock(page, '21:45');
   await openAction(page, 'Open phone');
   await expect(dialogue(page)).toContainText(/entry.*unverified/i);
   await allAssetsEmbedded();
   await closeDialogue(page);
+
+  await openOptions(page);
+  await page.getByRole('button', { name: 'Reconsider the walk', exact: true }).click();
+  await openAction(page, 'Step outside');
+  await page.getByRole('button', { name: /^Let’s head home now\./ }).click();
+  await expectHomeScene(page, true);
+  await expectClock(page, '21:30');
+  await allAssetsEmbedded();
+  await showcase(page, 'portable-direct-home-offline');
 
   await openOptions(page);
   await page.getByRole('button', { name: 'Start a fresh evening', exact: true }).click();

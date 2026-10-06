@@ -271,3 +271,59 @@ test('Wallet and phone use the same disclosed-delay deadline forecast after genu
   await expect(storyClock(page)).toHaveText('17:00');
   await captureMap(page, 'route-short-delayed-forecast-390');
 });
+
+test('route radios support keyboard activation, arrow selection and Back without advancing time or losing focus', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  const initial = storyReducer(createStoryState(), { type: 'PREVIEW_CITY', city: 'sz' });
+  await seedStory(page, initial);
+  await page.goto('/');
+  await expectPhase(page, 'fork');
+  await expect(page.locator('.world-dialogue')).not.toBeVisible();
+  // The fixture only positions the player at a free city preview. Every route
+  // interaction below uses the keyboard, with no click(), check() or focus().
+  const tabTo = async (target: ReturnType<Page['getByRole']>) => {
+    for (let count = 0; count < 40 && !(await target.evaluate(element => element === document.activeElement)); count += 1) {
+      await page.keyboard.press('Tab');
+    }
+    await expect(target).toBeFocused();
+    await expect(target).toBeInViewport();
+  };
+  const talk = page.getByRole('button', { name: 'Talk about dinner', exact: true });
+  await tabTo(talk);
+  await page.keyboard.press('Enter');
+  const change = page.getByRole('button', { name: 'Change route', exact: true });
+  await tabTo(change);
+  await page.keyboard.press('Space');
+  await expect(dialogue(page).getByRole('heading', { name: 'Out and home', exact: true })).toBeFocused();
+  const rail = page.getByRole('radio', { name: 'Rail via Lo Wu', exact: true });
+  const road = page.getByRole('radio', { name: 'Bus via Lok Ma Chau road crossing', exact: true });
+  await tabTo(rail);
+  await expect(rail).toBeChecked();
+  await page.keyboard.press('ArrowDown');
+  await expect(road).toBeFocused();
+  await expect(road).toBeInViewport();
+  await expect(road).toBeChecked();
+  await expect(note(page).locator('.route-note-forecast')).toContainText('modeled home 23:15');
+  await expect(storyClock(page)).toHaveText('16:30');
+  await page.keyboard.press('ArrowUp');
+  await expect(rail).toBeFocused();
+  await expect(rail).toBeChecked();
+  await expect(note(page).locator('.route-note-forecast')).toContainText('modeled home 22:15');
+  await page.keyboard.press('ArrowRight');
+  await expect(road).toBeFocused();
+  await expect(road).toBeChecked();
+  await page.keyboard.press('Space');
+  await expect(road).toBeFocused();
+  await expect(road).toBeInViewport();
+  await expect(road).toBeChecked();
+  await tabTo(page.getByRole('button', { name: 'Back to Jun', exact: true }));
+  await page.keyboard.press('Enter');
+  await expect(change).toBeFocused();
+  await expect(change).toBeInViewport();
+  await expect(page.locator('.departure-forecast')).toContainText('modeled home 23:15');
+  await expect(storyClock(page)).toHaveText('16:30');
+  expect(await readStorySave(page)).toEqual({ ...initial, currentAttempt: { ...initial.currentAttempt, route: 'bus' } });
+  await page.keyboard.press('Escape');
+  await expect(talk).toBeFocused();
+  await expect(talk).toBeInViewport();
+});

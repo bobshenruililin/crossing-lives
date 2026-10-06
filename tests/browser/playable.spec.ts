@@ -4,7 +4,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { legacyCompletedStory, seedStory, seedStoryRaw, STORY_KEY } from './story-fixtures';
 import {
   chooseDinner, chooseWalk, cityPreview, closeDialogue, depart, dialogue,
-  expectClock, expectJun, expectNoOverflow, expectPhase, expectSceneAssets, expectWorldViewport,
+  expectClock, expectJun, expectHomeScene, expectNoOverflow, expectPhase, expectSceneAssets, expectWorldViewport,
   openAction, openOptions, openPlanner, openResearch, readStorySave, returnHome, showcase, startStory,
 } from './story-helpers';
 
@@ -72,6 +72,8 @@ for (const width of [1440, 390, 360]) {
     await expectSceneAssets(page, 'hk-evening-night.webp');
     await expectWorldViewport(page, `world-hk-night-${width}`);
     await returnHome(page);
+    await expectHomeScene(page);
+    await showcase(page, `home-arrival-from-hk-${width}`);
     await expectClock(page, '19:45');
     await expect(page.getByRole('textbox')).toHaveCount(0);
     await expect(page.getByRole('button', { name: /memento|Remember the conversation|Keep the view/i })).toHaveCount(0);
@@ -106,6 +108,8 @@ for (const width of [1440, 390, 360]) {
     await expectSceneAssets(page, 'sz-evening-night.webp');
     await expectWorldViewport(page, `world-sz-night-${width}`);
     await returnHome(page);
+    await expectHomeScene(page);
+    await showcase(page, `home-arrival-from-sz-${width}`);
     await expectClock(page, '21:45');
     await openAction(page, 'Open phone');
     await expect(dialogue(page)).toContainText(/entry.*unconfirmed|entry.*unverified|verify.*entry/i);
@@ -143,10 +147,17 @@ test('each committed phase quietly resumes and rewinds with exact clock and no r
     await expect(page.getByRole('heading', { name: 'Dinner, then a walk?', exact: true })).toHaveCount(0);
     await startStory(page);
     await expectClock(page, clock);
-    await openAction(page, phase === 'arrival' || phase === 'afterDinner' ? 'Talk with Jun in the illustration' : 'Talk with Jun');
-    const titles = { fork: 'Shall we eat here?', arrival: 'The menu', afterDinner: 'A little walk?', walk: 'Time to head back?', home: 'Back home' };
-    await expect(dialogue(page).getByRole('heading', { name: titles[phase], exact: true })).toBeFocused();
-    await expectJun(page);
+    if (phase === 'home') {
+      // At the shared origin the phone remains useful; Jun is no longer present.
+      await openAction(page, 'Open phone');
+      await expect(dialogue(page).getByRole('heading', { name: 'Out and home', exact: true })).toBeFocused();
+      await expectHomeScene(page);
+    } else {
+      await openAction(page, phase === 'arrival' || phase === 'afterDinner' ? 'Talk with Jun in the illustration' : 'Talk with Jun');
+      const titles = { fork: 'Shall we eat here?', arrival: 'The menu', afterDinner: 'A little walk?', walk: 'Time to head back?' };
+      await expect(dialogue(page).getByRole('heading', { name: titles[phase], exact: true })).toBeFocused();
+      await expectJun(page);
+    }
     await closeDialogue(page);
   };
   await restore('fork', '16:30');
@@ -448,11 +459,11 @@ test('explicit app reset wins in this tab when removal fails without destroying 
 });
 
 for (const city of ['Hong Kong', 'Shenzhen'] as const) {
-  test(`${city}: free observations follow committed dinner, walk and home without changing them`, async ({ page }) => {
+  test(`${city}: free observations follow committed dinner and walk, then home leaves the destination behind`, async ({ page }) => {
     await page.goto('/');
     await startStory(page);
     await depart(page, city);
-    const inspect = async (place: string, first: RegExp, second: RegExp, capture?: string) => {
+    const inspect = async (place: string, first: RegExp, second: RegExp) => {
       await closeDialogue(page);
       const before = await readStorySave(page);
       const bill = selectStoryOption(before)?.perPersonHKD;
@@ -465,7 +476,6 @@ for (const city of ['Hong Kong', 'Shenzhen'] as const) {
       await expect(dialogue(page)).not.toContainText('There’s no need to decide yet.');
       await expect(dialogue(page)).not.toContainText('when you sit down');
       await expect(page.getByLabel('Story clock', { exact: true })).toHaveText(clock);
-      if (capture) await showcase(page, capture);
       await closeDialogue(page);
       const after = await readStorySave(page);
       expect({ ...after.currentAttempt, inspectedHotspots: [] }).toEqual({ ...before.currentAttempt, inspectedHotspots: [] });
@@ -479,9 +489,11 @@ for (const city of ['Hong Kong', 'Shenzhen'] as const) {
     const shore = city === 'Hong Kong' ? 'harbor' : 'avenue';
     await inspect(`the ${shore}`, new RegExp(`We took the 45-minute walk along the ${shore}\\.`), /We can head back when you’re ready\./);
     await returnHome(page);
-    await inspect('the table', /Earlier tonight, we stayed for/, /That part of the evening is over\./);
-    await inspect(`the ${shore}`, new RegExp(`Earlier tonight, we took the 45-minute walk along the ${shore}\\.`), /The walk is over and we’re back home now\./);
-    await inspect('the way home', /We’re home now\. The return took/, city === 'Hong Kong' ? /The modelled local journey is complete\./ : /This was a fictional crossing\./, `world-home-observation-${city === 'Hong Kong' ? 'hk' : 'sz'}`);
+    // Destination table/harbor/avenue observations no longer exist at home.
+    // Keep the committed observation checks above and verify truthful continuity.
+    await expectHomeScene(page);
+    await expect(page.getByLabel('Story clock', { exact: true })).toHaveText(city === 'Hong Kong' ? '19:45' : '22:45');
+    await showcase(page, `home-after-observations-${city === 'Hong Kong' ? 'hk' : 'sz'}`);
     await expectBill(page, city === 'Hong Kong' ? 'HK$336.00' : 'HK$291.83');
   });
 }
@@ -560,15 +572,19 @@ for (const city of ['Hong Kong', 'Shenzhen'] as const) {
     expect(option.perPersonHKD).toBe(beforeOption.perPersonHKD);
     expect(option.groupHKD).toBe(beforeOption.groupHKD);
     await expectBill(page, city === 'Hong Kong' ? 'HK$304.00' : 'HK$260.22');
-    await page.getByRole('button', { name: city === 'Hong Kong' ? 'Look at the harbor' : 'Look at the avenue', exact: true }).click();
-    await expect(dialogue(page).locator('.spoken-line')).toHaveText('Earlier tonight, we headed straight home after dinner, without a walk.');
-    await page.getByRole('button', { name: 'Continue dialogue', exact: true }).click();
-    await expect(dialogue(page).locator('.spoken-line')).toHaveText('There was no walking time in this outing.');
+    await expectHomeScene(page);
+    const homePhone = page.getByRole('button', { name: 'Open phone in the illustration', exact: true });
+    await homePhone.click();
+    await expect(dialogue(page).getByRole('heading', { name: 'Out and home', exact: true })).toBeFocused();
+    await page.getByRole('button', { name: 'Whole-outing cost detail', exact: true }).click();
+    await expect(page.locator('.route-note-detail')).toContainText('No walk · chosen direct return');
     await closeDialogue(page);
+    await expect(homePhone).toBeFocused();
     await page.reload();
     await expectPhase(page, 'home');
     await expect(page.locator('.world-dialogue')).not.toBeVisible();
     await expectClock(page, directHome);
+    await expectHomeScene(page);
     expect((await readStorySave(page)).currentAttempt.walkChoice).toBe('none');
     await rewind(page, 'Reconsider the walk', 'afterDinner');
     expect((await readStorySave(page)).currentAttempt.walkChoice).toBeNull();

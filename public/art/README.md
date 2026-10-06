@@ -32,3 +32,7 @@ No exclusive copyright or trademark clearance is asserted by this note. No third
 ## Close table compositions
 
 The next arrival-stage pair is documented in [TABLE-ASSETS.md](TABLE-ASSETS.md). It uses only this project’s original city scenes and fictional adult Jun as references, with no third-party art. The shared normalized object anchors are defined in `src/data/scene-art.ts`; rendered mobile framing must be verified separately.
+
+## Shared home arrival
+
+The quiet common-origin ending is documented in [HOME-ASSET.md](HOME-ASSET.md). It is a fictional Hong Kong-inspired entryway for either city branch, with no real address, person or private possessions. Its keys are scenery, not a collectible. The image-plane phone and focal anchors are defined in `src/data/scene-art.ts`; actual ending and offline rendering require separate browser verification.

@@ -85,9 +85,9 @@ See [architecture](docs/ARCHITECTURE.md), [creative decisions](docs/DECISIONS.md
 
 ## Verification status
 
-Known-tested table baseline `004b5a9125214f45b82021654c311c07e45db17d` passed TypeScript, build/export, 81 unit tests and all 52 browser cases on their first attempt. This includes both city flows, original close table scenes, offline play, actual opening footage, keyboard focus, protected saved data and a zero-walk return.
+Known-tested route baseline `8f8014219b7d7e77d54a5405682c21dcf17dfb00` passed TypeScript, build/export, 94 unit tests and all 62 browser cases on their first attempt. The route note, conditional forecasts, Wallet correction and offline local/rail/road paths were exercised. Human review of exact captures remains separate from automated clearance.
 
-Human review then found a wrapped currency amount and an unclear phone forecast. The new route-note and money-layout corrections are a separate source pass awaiting exact-commit browser and visual review. See the [verification record](docs/VERIFICATION.md) and [coverage rationale](docs/TEST_COVERAGE.md) for evidence and limits. Passing tests alone do not establish a finished experience.
+Choice-specific night framing and a shared fictional home-arrival setting are a subsequent presentation pass. Earlier results do not clear those changes. See the [verification record](docs/VERIFICATION.md) and [coverage rationale](docs/TEST_COVERAGE.md) for evidence and limits.
 
 ## Publication
 

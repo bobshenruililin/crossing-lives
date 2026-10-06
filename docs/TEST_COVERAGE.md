@@ -37,3 +37,10 @@ Inspect what is actually attended to, how a decision changes the place, whether 
 The map's full-evening forecast intentionally differs from the earlier incomplete phone prediction: it now includes the future disclosed dinner delay by composing the same guarded story previews used by meal choices. Tests must assert the actual unchanged clock during inspection, the stated assumptions, rail/road consequences, full outward and return legs, and the committed-route restriction. A new prediction is not accepted merely because its text changed.
 
 The Wallet test measures rendered text-line boxes, clipping and readable font size, alongside exact amounts. A no-overflow check of the page would not catch a final digit wrapping within its own cell. Phone-sized source and route folds need real screenshots and focus behavior checks as well as DOM assertions.
+
+
+## Night and home continuity
+
+Short and long walks must differ in actual rendered framing, not only a class name or hidden state. New tests compare image scale, pan, original-image anchor coordinates and attended artwork regions, then retain exact clocks and costs. Jun's line is a brief authored acknowledgment of the selected meal and walk, not an inferred feeling or a reward.
+
+A home arrival must use the shared fictional Hong Kong setting after either branch. Destination table/harbor/avenue inspections and an in-person Jun portrait no longer belong in that room. Removing those home-only assertions is intentional; after-dinner and walking observations, preserved legacy save bytes and exact return outcomes remain covered. The keys are scenery, not a task. Offline tests must actually decode the new scene, and the real recording should show the complete return rather than stop at dinner arrival.

@@ -1,5 +1,6 @@
 import { expect, type Locator, type Page } from '@playwright/test';
 import type { StoryPhase, StoryState } from '../../src/story/model';
+import { homeScene } from '../../src/data/scene-art';
 
 export const story = (page: Page) => page.getByRole('region', { name: 'Play an illustrative evening', includeHidden: true });
 export const dialogue = (page: Page) => page.getByRole('dialog');
@@ -236,4 +237,20 @@ export async function expectSingleLineMoney(values: Locator) {
     expect(box.right, `${box.text} must not be clipped or require horizontal scrolling.`).toBeLessThanOrEqual(box.allowedRight + 1);
     expect(box.fontSize, 'Keep the wallet amount readable rather than shrinking it to conceal wrapping.').toBeGreaterThanOrEqual(20);
   }
+}
+
+
+/** Both branches return to the shared origin. Destination observations and an
+ * in-person Jun portrait would contradict that world state, even if hidden. */
+export async function expectHomeScene(page: Page, portable = false) {
+  await expectPhase(page, 'home');
+  await expectSceneAssets(page, homeScene.image, portable);
+  await expect(page.locator('.jun-avatar')).toHaveCount(0);
+  await expect(page.getByRole('button', { name: /^Talk with Jun(?: in the illustration)?$/, includeHidden: true })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: /^Look at the (?:table|harbor|avenue|way home)(?: in the illustration)?$/, includeHidden: true })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: /^Read the menu(?: in the illustration)?$/, includeHidden: true })).toHaveCount(0);
+  for (const name of ['Open phone', 'Open wallet', 'Story options', 'Try the other evening']) {
+    await expect(page.getByRole('button', { name, exact: true, includeHidden: true })).toHaveCount(1);
+  }
+  await expect(page.getByRole('button', { name: 'Open phone in the illustration', exact: true, includeHidden: true })).toHaveCount(1);
 }

@@ -45,3 +45,10 @@ The research desk owns the fixed-pool allocation experiment. It is not part of a
 `src/business/context.ts` whitelists only the selected city, actual modeled party count, engine-provided HKD per-person/group totals and explicit illustrative/whole-outing metadata. It performs no allocation, revenue or profit calculation and carries no inputs or notes. Missing totals stay null.
 
 App navigation holds this context only while opening the existing Business questions lens. Returning from a story Wallet visit requests that panel once and restores focus through the existing in-tab story state; it does not copy story choices into the separate planner. The fixed-pool component receives no spending-context prop. A practical receipt can open the same lens using its own actual party count.
+
+
+## Institutional evidence is a separate reading model
+
+`src/business/membership-evidence.ts` records source URLs, check/source dates, retrieval limits and three specific questions about two organizations. Evidence statuses distinguish documented self-description, a gap in reviewed sources and historical operating detail. This module imports no outing, price, allocation or persistence logic.
+
+`MembershipLens` owns only its current reading selection. It accepts no spending context or pool values. The separate illustrative outing and fixed-pool controls remain unchanged when a question is selected; the two real cases are never assigned to either fictional dinner business. Source updates should preserve historical/current distinctions and avoid converting missing disclosure into proof of absent rights.

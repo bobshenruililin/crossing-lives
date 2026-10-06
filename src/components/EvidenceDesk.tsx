@@ -3,6 +3,7 @@ import { ArrowLeft, ArrowUpRight, BookOpen, Check, ChevronDown, CircleHelp, Flas
 
 import { sources } from '../data/evidence';
 import type { SpendingContext } from '../business/context';
+import MembershipLens from './MembershipLens';
 import SurplusLab from './SurplusLab';
 
 type DeskSection = 'sources' | 'economics' | 'roadmap';
@@ -71,6 +72,7 @@ export default function EvidenceDesk({onBack, initialSection = 'sources', spendi
             : `${exactHKD(spendingContext.perPersonHKD)} per person · ${exactHKD(spendingContext.groupHKD)} for ${spendingContext.partySize} ${spendingContext.partySize === 1 ? 'person' : 'people'} (HKD), including dinner, drinks and return travel.`}</p>
           <p>That is modeled customer spending across the whole outing, including transport. We haven’t verified any restaurant’s wages, costs, ownership or profit.</p>
         </div></div> : <div className="research-banner"><CircleHelp size={22}/><div><strong>Research scaffold, not a completed market study</strong><p>No business cost dataset is connected. No causal claims or extra returns are estimated.</p></div></div>}
+        <MembershipLens/>
         <div className="business-grid">{[{title:'What explains the price?',subtitle:'Cost structure',text:'Collect comparable rent, labor, ingredients, taxes, scale and service-format evidence. A menu price alone cannot identify the cause.',fields:'Needed: venue type · period · currency · source · comparability'}, {title:'Who keeps the margin?',subtitle:'Distribution',text:'Separate revenue from profit, and wages from ownership returns. Track who bears risk as well as who receives a share.',fields:'Needed: contracts · ownership · costs · distribution rules'}, {title:'What might change?',subtitle:'Governance',text:'A fixed-pool allocation is a thought experiment. Compare rules for an existing surplus without assuming ownership creates additional returns.',fields:'Needed: defined pool · decision rights · consent · constraints'}].map(item => <article key={item.title}><p className="eyebrow">{item.subtitle}</p><h2>{item.title}</h2><p>{item.text}</p><small>{item.fields}</small><span className="open-question">Evidence needed</span></article>)}</div>
         <p className="business-pool-boundary">The fixed-pool exercise below is a separate hypothetical amount. It is not calculated from this outing estimate.</p>
         <SurplusLab/>

@@ -82,3 +82,10 @@ The research area has no global website header. Tests open its actual Sections d
 The 360/390px spending cases now measure the unchanged question and complete context in the untouched first viewport, before a test scroll or disclosure. Fourteen-pixel scope/caveat text must remain visible; shrinking it or checking only the full-height wrapper is not sufficient. All exact amounts, unknown-evidence boundaries, independent pool and blocked-storage/receipt return checks remain.
 
 Walkthrough packaging preserves every captured action, assertion and reading pause. Canonical filenames include the retry so failed attempts remain distinct; metadata records the actual file path, size and hash. The report points to that canonical video instead of embedding a duplicate.
+
+
+## Membership rights without hidden economic coupling
+
+Typed source/render tests cover all three question states, exact official links, dates and retrieval limits, historical 2022 terms, unknown-versus-absent rights, candidacy uncertainty and the closed initial disclosure. Rendering both cities, every supported party count and incomplete totals must leave the membership view and independent pool identical.
+
+The new phone cases use native keyboard radio navigation, require one active question and two reading rows, and inspect material historical/current limits with Sources still closed. They preserve story/planner/session bytes and the independently edited allocation controls. Source retrieval detail is tested only after opening its real disclosure. The production portable must also open the topics without network requests. These are additional checks awaiting their exact-commit browser run, not retrospective claims about the earlier recovery build.

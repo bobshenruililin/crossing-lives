@@ -173,6 +173,23 @@ test('portable production file keeps both cities, Jun, choices and quiet resume 
   await expect(page.locator('.spending-context')).toContainText('including transport');
   await page.locator('.surplus-lab > summary').click();
   await expect(page.getByLabel('Hypothetical pool · HKD', { exact: true })).toHaveValue('120');
+  const membership = page.locator('.membership-lens');
+  await expect(membership).toHaveJSProperty('open', false);
+  await membership.locator(':scope > summary').click();
+  await membership.getByRole('radio', { name: 'Worker decisions', exact: true }).check();
+  await expect(membership.locator('.membership-reading > h3')).toHaveText('What decision rights do workers have?');
+  await expect(membership.locator('.membership-reading-row')).toHaveCount(2);
+  await expect(membership.locator('.membership-sources')).toHaveJSProperty('open', false);
+  await expect(membership.locator('.membership-reading-row').nth(1).locator('.membership-limit')).toContainText('current admission or meeting rules were not verified');
+  await membership.getByRole('radio', { name: 'Surplus', exact: true }).check();
+  await expect(membership.locator('.membership-reading > h3')).toHaveText('Who has a documented claim on surplus?');
+  await expect(membership.locator('.membership-reading-row').nth(1).locator('.membership-status')).toHaveText('Historical 2022 detail');
+  await expect(membership.locator('.membership-reading-row').nth(1).locator('.membership-limit')).toContainText('current terms and audited finances were not verified');
+  await expect(membership.locator('.membership-reading-row').nth(1).getByRole('link')).toHaveAttribute('href', 'https://cheeseboardcollective.coop/wp-content/uploads/2022/09/Collective-Hiring-Notice-202200930.pdf');
+  await expect(page.getByLabel('Hypothetical pool · HKD', { exact: true })).toHaveValue('120');
+  await expect(page.locator('.allocation-proof')).toContainText('HK$60.00 + HK$24.00 + HK$36.00 = HK$120.00');
+  expect(requests).toEqual([]);
+  await membership.locator(':scope > summary').click();
   // The desk has no bitmap images to decode; the request recorder still gates
   // the entire offline excursion, then every restored scene image is decoded.
   expect(requests).toEqual([]);

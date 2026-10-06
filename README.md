@@ -14,6 +14,7 @@ It begins inside an original illustrated place. Short conversations and ordinary
 - Rule-based explanations, with unknown data and unresolved eligibility kept visible
 - Quiet local resume, with no collection, streak, recording or completion task in play; older notes remain preserved
 - A separate research desk with published references, assumptions and honest business-research scaffolding
+- Two sourced institutional examples separating customer membership benefits, worker decision rights and historical surplus claims
 - An optional fixed-surplus allocation lab that conserves the same pool to the cent
 - Original generated illustrations, self-hosted fonts, reduced-motion styling, keyboard dialogs and media/storage recovery
 
@@ -74,6 +75,8 @@ The art is an imagined setting, not a geographic or transport map. See [asset pr
 - `src/persistence/journal.ts`: versioned practical-plan storage, distinct from story storage
 - `src/components/EvidenceDesk.tsx`: separate research workspace
 - `src/business/context.ts`: immutable, whitelisted whole-outing spending context; no business-cost inference
+- `src/business/membership-evidence.ts`: dated institutional claims, source scope and explicit evidence limits
+- `src/components/MembershipLens.tsx`: optional question-led evidence reading, independent of the outing and pool
 - `tests/domain.test.ts`: money, timing, unknown data and preference edge cases
 - `tests/story.test.ts`: idempotent commitments, explicit rewind, immutable alternate and safe decoding
 - `tests/persistence.test.ts`: corrupt/blocked storage and last-valid-save protection
@@ -82,13 +85,13 @@ The art is an imagined setting, not a geographic or transport map. See [asset pr
 
 New cities and scenarios should add domain data and route/cost contracts before UI proliferation. A future AI layer should consume the same auditable engine and evidence records; it should never replace known constraints with invented facts.
 
-See [architecture](docs/ARCHITECTURE.md), [creative decisions](docs/DECISIONS.md), the [short presenter path](docs/PRESENTER_PATH.md) and the [verification record](docs/VERIFICATION.md).
+See [architecture](docs/ARCHITECTURE.md), [creative decisions](docs/DECISIONS.md), the [short presenter path](docs/PRESENTER_PATH.md), [business case sources and limits](docs/BUSINESS_CASES.md), and the [verification record](docs/VERIFICATION.md).
 
 ## Verification status
 
-Known-tested recovery baseline `5a27d92d95ca7c3a3d3c59c81bfc2c73d52a259a` passed TypeScript, build/export, 115 unit/SSR tests and all 76 browser cases on their first attempt. It includes the complete evening, optional spending bridge, byte-preserving emergency reload and receipt-return visibility.
+Known-tested compact research/navigation baseline `f9df5f68322dc53ed8b526f26f9c8fa2cb5b39c6` passed TypeScript, build/export, 115 unit/SSR tests and all 76 browser cases without retries. It includes the complete evening, spending bridge, nondestructive recovery, compact evidence landing and genuine phone-sized planner entry/return focus.
 
-The compact research landing and one-copy walkthrough packaging are subsequent refinements awaiting their own exact-commit browser run. See the [verification record](docs/VERIFICATION.md) and [coverage rationale](docs/TEST_COVERAGE.md) for evidence and limits. Review is model-assisted visual/code inspection, not a human user study or full accessibility certification. Browser coverage is Chrome stable on Ubuntu with resized viewports; physical phones and Safari remain unverified.
+The sourced membership lens is a subsequent refinement awaiting its own exact-commit browser evidence. See the [verification record](docs/VERIFICATION.md) and [coverage rationale](docs/TEST_COVERAGE.md) for evidence and limits. Review is model-assisted visual/code inspection, not a human user study or full accessibility certification. Browser coverage is Chrome stable on Ubuntu with resized viewports; physical phones and Safari remain unverified.
 
 ## Publication
 

@@ -6,7 +6,7 @@ This is a three-to-four-minute route through the same interactive evening, suita
 
 Use the tested portable HTML or static build. The portable experience needs no account, sound or network. The two fictional adults start from the same Hong Kong origin.
 
-Use **More → Story options → Evening setup** to check **Room to wander**: 16:30 departure, 23:30 home deadline, HK$400 per-person allowance and one disclosed fictional 30-minute dinner delay. If you need a clean start, **Start a fresh evening → Start a fresh story** explicitly clears this browser’s two story attempts, including any notes from older versions. Use a separate browser profile if you want to preserve those records.
+Use **More (Story options) → Evening setup** to check **Room to wander**: 16:30 departure, 23:30 home deadline, HK$400 per-person allowance and one disclosed fictional 30-minute dinner delay. If you need a clean start, **Start a fresh evening → Start a fresh story** explicitly clears this browser’s two story attempts, including any notes from older versions. Use a separate browser profile if you want to preserve those records.
 
 Say once: “The dialogue, prices and travel buffers are examples. Published border hours have sources. The demo does not check anyone’s immigration eligibility.”
 
@@ -43,6 +43,8 @@ Say: “We changed the meal and walk as well as the city. This is a comparison o
 **Wallet → Compare this evening** explicitly sends the story’s current choices to the practical comparison. **More → Open my plan** instead opens the separate practical plan without replacing it. Change a budget or return deadline and show the nearby two-city feedback.
 
 For the business lens, use **Wallet → Who benefits from this spending?** This opens Business questions with the selected illustrative whole-outing estimate, including transport. Ask what evidence would explain the price and who decides how a surplus is used. The amount is customer spending, not restaurant revenue or verified profit. The fixed-pool exercise redistributes one hypothetical amount. It does not equate a customer saving with company profit or assume that ownership creates extra returns.
+
+If the discussion is about governance, open **What does membership let you do?** and choose **Worker decisions** instead of extending the arithmetic demonstration. The two cases distinguish customer access from worker rights; an undisclosed right is not proof that it is absent, and the Cheese Board operating details are historical. This is an optional discussion route, not an extra step required to finish the evening.
 
 End with one question: “Which assumption would you verify first?” No live AI, invented finding or collection mechanic is needed.
 

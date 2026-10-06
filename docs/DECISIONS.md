@@ -77,3 +77,10 @@ The whole outing includes transport and is not one restaurant's revenue. Actual 
 Opening a spending question should reveal that question, rather than a second website entrance. The research area now has one compact Return control, a restrained paper palette and Sections on request. It keeps exact spending context and evidence limits together before the business questions. This is a reading space, not another layer of play or a replacement for the evening.
 
 The complete recorded evening is kept once per actual test attempt, with paths and a hash in the test report. This reduces duplicated review media without shortening the capture, losing failed-attempt evidence or changing runtime behavior.
+
+
+## A membership is a set of rights, not a financial conclusion
+
+The first research space honestly identified missing evidence but offered little documented material to examine. An optional question-led comparison now uses Home Market and The Cheese Board Collective to separate a customer benefit, a worker decision right and a claim on surplus. Its closed entry follows the spending context, before the generic research prompts. Only one question is active; two reading rows replace a wall of additional cards.
+
+These organizations are in different settings and are not a controlled comparison. Cheese Board's detailed operating rules are explicitly historical 2022 evidence with current terms unverified. Home Market's cited pages not establishing worker voting rights is a source limitation, not a finding that workers lack voice. The source ledger is available on request, while dates and material limits stay beside each claim. This adds a due-diligence question without estimating either firm's finances or changing the evening.

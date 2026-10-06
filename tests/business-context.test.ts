@@ -25,7 +25,7 @@ const freeze = <T,>(value: T): T => {
 const renderBusiness = (spendingContext: SpendingContext | null = null) => renderToStaticMarkup(createElement(EvidenceDesk, {
   onBack: () => {}, initialSection: 'economics', spendingContext,
 }));
-const contextMarkup = (html: string) => html.match(/<div class="research-banner spending-context">([\s\S]*?)<div class="business-grid">/)?.[1] ?? '';
+const contextMarkup = (html: string) => html.match(/<div class="research-banner spending-context">([\s\S]*?)<details class="membership-lens">/)?.[1] ?? '';
 
 test('spending context copies both engine totals for each city and every supported party count', () => {
   for (const city of ['hk', 'sz'] as const) {

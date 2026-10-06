@@ -131,11 +131,23 @@ The same correction allows a returned receipt action to scroll into view, with a
 
 The verified portable is 5,962,996 bytes with SHA-256 `6d5832108e7342e54ad9c535b7ea4579a776672032759871618d7214f10869cf`.
 
-## Compact research landing and capture packaging, pending exact-commit verification
+## Verified compact research landing and capture packaging, 6 October 2026
 
 The optional desk replaces its large branded header and green sidebar with a small Return control and a collapsed Sections disclosure. The business question and unchanged spending context come first. Section selection moves focus to the visible heading; Escape closes navigation and restores its trigger. A new scoped stylesheet keeps this reading area separate from the story and practical planner.
 
-The future artifact upload retains one canonical walkthrough video and full metadata per recorded attempt, with a small path/hash pointer in the HTML report. It excludes only the duplicate raw recording path. Failure traces, screenshots and reports remain available, and no past artifacts are removed. The captured actions, assertions and reading pauses are unchanged. Actual navigation, 360/390px composition and uploaded archive contents still require their own run.
+The future artifact upload retains one canonical walkthrough video and full metadata per recorded attempt, with a small path/hash pointer in the HTML report. It excludes only the duplicate raw recording path. Failure traces, screenshots and reports remain available, and no past artifacts are removed. The captured actions, assertions and reading pauses are unchanged. Run [37526514969](https://github.com/bobshenruililin/crossing-lives/actions/runs/37526514969), commit `5267ad8bbb20993074757a92a6ca06bcaee9e1e3`, passed 115 unit/SSR tests and 74 of 76 browser cases. Actual 360/390px spending captures show the complete question/context in the first viewport. The uploaded archive contains exactly one walkthrough WebM, with a matching report path, byte count and SHA-256.
+
+The two phone failures were at the new return-to-planner focus assertion. The actual trace shows that the helper did not find the expected mobile Research desk name, entered the story's research route instead, then correctly returned to Jun. A narrow repair gives the real nav control a stable accessible name and makes the test assert/click the intended planner entry directly. Its return-focus assertions are unchanged. The separate two-file repair `f9df5f68322dc53ed8b526f26f9c8fa2cb5b39c6` passed all **115 unit/SSR tests** and **76 browser cases without retries**, including the direct planner entry and return focus at 360/390px, build/export and production offline use.
+
+[Exact passing repair run](https://github.com/bobshenruililin/crossing-lives/actions/runs/37528956253)
+
+Archive inspection of the initial compact run verified one canonical 16,758,462-byte video, with SHA-256 `311de561221cb73ec8c58762cad6aeb7f219eb218354f2b379cf58823cb23084` matching its report pointer. Recording actions and readable pauses were not shortened to achieve this.
+
+## Optional membership-rights evidence, pending exact-commit verification
+
+The next bounded addition is an initially closed, question-led comparison of Home Market and The Cheese Board Collective. It separates customer benefits, worker decisions and surplus claims, with immediate limits and exact sources. Cheese Board's 2022 operating details stay historical; current terms and audited amounts remain unverified. Sources retrieved through official indexed text are not described as a successful fresh PDF fetch.
+
+The view accepts no outing or pool inputs and changes only its local reading selection. Thirteen new unit/render checks bring the source suite to **128 tests**. Two additional phone cases and the expanded offline path bring the planned browser suite to **78 cases**. They require native radio behavior, visible uncertainty, actual source disclosures, unchanged saved data and independent allocation controls. Browser, pixel and release clearance are still pending.
 
 ## Delivery and coverage limits
 

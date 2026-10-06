@@ -182,6 +182,11 @@
   background: #fffcf6;
 }
 
+.evidence-desk .business-grid article > p:not(.eyebrow) {
+  font-size: 14px;
+  line-height: 1.7;
+}
+
 .evidence-desk .open-question {
   position: static;
   display: inline-block;
@@ -209,6 +214,174 @@
 
 .evidence-desk .desk-disclaimer p {
   margin-bottom: 0;
+}
+
+/* The optional rights lens stays a reading sequence, not another card grid. */
+.evidence-desk .membership-lens {
+  margin-top: 28px;
+  border-block: 1px solid var(--line);
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+.evidence-desk .membership-lens > summary {
+  min-height: 60px;
+  padding-block: 16px;
+  cursor: pointer;
+}
+
+.evidence-desk .membership-lens > summary h2 {
+  display: inline;
+  margin: 0;
+  font-size: 23px;
+  line-height: 1.4;
+  letter-spacing: -.025em;
+}
+
+.evidence-desk .membership-lens summary:focus-visible,
+.evidence-desk .membership-lens input:focus-visible {
+  outline: 3px solid #92653c;
+  outline-offset: 4px;
+}
+
+.evidence-desk .membership-body {
+  padding: 0 0 20px;
+}
+
+.evidence-desk .membership-lens p {
+  margin: 0 0 12px;
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+.evidence-desk .membership-intro,
+.evidence-desk .membership-limit,
+.evidence-desk .membership-citation,
+.evidence-desk .membership-sources p {
+  color: var(--muted);
+}
+
+.evidence-desk .membership-boundary {
+  padding-left: 12px;
+  border-left: 2px solid #bba58c;
+}
+
+.evidence-desk .membership-topics {
+  min-width: 0;
+  margin: 24px 0;
+  padding: 0;
+  border: 0;
+}
+
+.evidence-desk .membership-topics legend {
+  margin-bottom: 8px;
+  padding: 0;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.evidence-desk .membership-topics > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+}
+
+.evidence-desk .membership-topics label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 8px 4px;
+  cursor: pointer;
+}
+
+.evidence-desk .membership-topics input {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: #6c5037;
+  flex-shrink: 0;
+}
+
+.evidence-desk .membership-topics input:checked + span {
+  font-weight: 750;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.evidence-desk .membership-reading h3 {
+  margin: 0 0 16px;
+  font-size: 19px;
+  line-height: 1.45;
+}
+
+.evidence-desk .membership-reading-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2.4fr);
+  gap: 24px;
+  padding: 20px 0;
+  border-top: 1px solid var(--line);
+}
+
+.evidence-desk .membership-reading-row h4 {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+.evidence-desk .membership-reading-row > div {
+  min-width: 0;
+}
+
+.evidence-desk .membership-status {
+  font-weight: 650;
+  color: #6c5037;
+}
+
+.evidence-desk .membership-source-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 18px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.evidence-desk .membership-lens a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: #6c5037;
+  overflow-wrap: anywhere;
+}
+
+.evidence-desk .membership-question {
+  padding: 16px 0;
+  border-block: 1px solid var(--line);
+}
+
+.evidence-desk .membership-question strong {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.evidence-desk .membership-sources > summary {
+  min-height: 44px;
+  padding: 10px 0;
+  cursor: pointer;
+}
+
+.evidence-desk .membership-sources > ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.evidence-desk .membership-sources li {
+  padding-block: 8px;
+}
+
+.evidence-desk .membership-sources li p {
+  margin-bottom: 8px;
 }
 
 @media (max-width: 640px) {
@@ -249,5 +422,14 @@
 
   .evidence-desk .business-grid article {
     padding: 22px;
+  }
+
+  .evidence-desk .membership-reading-row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+  }
+
+  .evidence-desk .membership-lens > summary h2 {
+    font-size: 22px;
   }
 }

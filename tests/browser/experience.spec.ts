@@ -93,7 +93,13 @@ for (const width of [360,390,1440]) {
     await expect(page.locator('.option-hk .time-legend')).toContainText('Total outing: 2h 45m');
     await expect(page.locator('.option-sz .time-legend')).toContainText('Total outing: 5h 45m');
     await showcase(page, `explore-${width}`);
-    await openResearch(page);
+    // Verify this is the practical planner's real research entry. A helper
+    // fallback through the story would silently change the intended return path.
+    await expect(page.getByRole('heading', { name: 'Shape your evening', exact: true })).toBeVisible();
+    const researchEntry = page.locator('.top-nav').getByRole('button', { name: 'Research desk', exact: true });
+    await expect(researchEntry).toBeVisible();
+    await researchEntry.click();
+    await expect(page.getByLabel('Search evidence')).toBeVisible();
     await noOverflow(page);
     await expect(page.locator('.site-header, .site-footer')).toHaveCount(0);
     const sections = page.getByRole('button', { name: 'Sections', exact: true });

@@ -118,7 +118,7 @@ function App() {
     <a className="skip-link" href="#main-content">Skip to content</a>
     {workspace === 'evening' && mode !== 'story' && <header className="site-header">
       <button className="brand" onClick={startStory} aria-label="Between home"><span className="brand-glyph">b<span/></span><span>between<small>兩地之間</small></span></button>
-      <nav className="top-nav" aria-label="Main navigation"><button className={workspace === 'evening' && ['intro','story'].includes(mode) ? 'active' : ''} onClick={startStory}>The story</button><button className={workspace === 'evening' && ['explore','receipt'].includes(mode) ? 'active' : ''} onClick={() => changeMode('explore')}>Your evening</button><button id="research-desk-entry" onClick={openEvidenceDesk}>Research desk <ArrowUpRight size={13}/></button></nav>
+      <nav className="top-nav" aria-label="Main navigation"><button className={workspace === 'evening' && ['intro','story'].includes(mode) ? 'active' : ''} onClick={startStory}>The story</button><button className={workspace === 'evening' && ['explore','receipt'].includes(mode) ? 'active' : ''} onClick={() => changeMode('explore')}>Your evening</button><button id="research-desk-entry" aria-label="Research desk" onClick={openEvidenceDesk}>Research desk <ArrowUpRight size={13} aria-hidden="true"/></button></nav>
       <span className="edition"><span className="status-dot"/> A FIELD GUIDE · VOL. 01</span>
     </header>}
     {workspace === 'desk' ? <EvidenceDesk key={deskVisit} initialSection={deskSection} spendingContext={spendingContext} onBack={returnFromDesk}/> : <>

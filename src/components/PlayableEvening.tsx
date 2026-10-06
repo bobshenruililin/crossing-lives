@@ -211,7 +211,7 @@ export default function PlayableEvening({onBrowsePlanner,onPlanner,onResearch}: 
   const nextLabel = phase==='fork'?'Talk about dinner':phase==='arrival'?'Talk with Jun':phase==='afterDinner'?'Step outside':phase==='walk'?'Head home':'Try the other evening';
   const spot=places.find(item=>item.id===attended)!;
   const dialogueOnLeft=atHome?true:atTable?(tableTarget==='phone'||tableTarget==='wallet'):panel==='walked'||panel==='return'?attempt.walkChoice==='long':panel==='observation'&&spot.x>50;
-  const dialogueAtTop=!atTable&&!atHome&&((panel==='observation'&&spot.y>=70)||(panel==='walked'&&attempt.walkChoice==='short'));
+  const dialogueAtTop=!atTable&&!atHome&&((panel==='observation'&&spot.y>=70)||(panel==='walked'&&(attempt.walkChoice==='short'||(city==='sz'&&attempt.walkChoice==='long'))));
   const openTableMenu = () => {if(phase==='arrival') openPanel('dinner',undefined,'menu');else {action({type:'INSPECT',hotspot:'table'});openPanel('observation','table','menu');}};
 
   const lookingBack = phase==='home';

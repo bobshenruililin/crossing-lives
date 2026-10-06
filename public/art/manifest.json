@@ -1,0 +1,26 @@
+{
+  "overview": {
+    "src": "/art/two-shores.webp",
+    "width": 1672,
+    "height": 941,
+    "alt": "An illustrated twilight harbor between warm Hong Kong neighborhoods and Shenzhen's modern tree-lined waterfront.",
+    "mobilePresentation": "Prefer full-width panorama; central cover cropping loses the two shores.",
+    "hotspotAnchors": { "hongKong": [0.27, 0.68], "shenzhen": [0.82, 0.4], "crossing": [0.57, 0.48] }
+  },
+  "hongKong": {
+    "src": "/art/hong-kong-evening.webp",
+    "width": 1672,
+    "height": 941,
+    "alt": "A warmly lit Hong Kong noodle shop with street tables beneath apartment balconies, opening onto the harbor at sunset.",
+    "objectPosition": "30% center",
+    "hotspotAnchors": { "dinner": [0.28, 0.57], "neighborhood": [0.46, 0.23], "harbor": [0.79, 0.47] }
+  },
+  "shenzhen": {
+    "src": "/art/shenzhen-evening.webp",
+    "width": 1672,
+    "height": 941,
+    "alt": "A Shenzhen dining terrace beside a leafy pedestrian avenue, with illuminated glass towers and a transit entrance at twilight.",
+    "objectPosition": "55% center",
+    "hotspotAnchors": { "dinner": [0.28, 0.59], "avenue": [0.58, 0.63], "transit": [0.9, 0.5] }
+  }
+}

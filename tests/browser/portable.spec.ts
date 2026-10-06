@@ -1,0 +1,24 @@
+import {test,expect} from '@playwright/test';
+import {pathToFileURL} from 'node:url';
+import path from 'node:path';
+import {existsSync} from 'node:fs';
+const artifact = path.resolve('artifacts/crossing-lives-portable.html');
+test('portable production build opens from file with no network and completes a choice',async({page,context})=>{
+  expect(existsSync(artifact),'Run npm run export:portable before browser verification.').toBe(true);
+  const failures:string[]=[];
+  page.on('pageerror',error=>failures.push(error.message));
+  await context.setOffline(true);
+  await page.goto(pathToFileURL(artifact).href);
+  await expect(page.getByRole('heading',{name:'One evening. Two possibilities.'})).toBeVisible();
+  const hero=page.locator('.hero-world img');
+  await expect(hero).toHaveAttribute('src',/^data:image\/webp;base64,/);
+  expect(await hero.evaluate((image:HTMLImageElement)=>image.complete && image.naturalWidth>0)).toBe(true);
+  await page.getByRole('button',{name:'Your evening',exact:true}).click();
+  await expect(page.locator('.option-card')).toHaveCount(2);
+  await page.getByLabel('Budget per person').fill('500');
+  await page.locator('.option-hk .choose-button').click();
+  await expect(page.getByRole('heading',{name:'Your evening, pencilled in.'})).toBeVisible();
+  await page.getByLabel('What makes this the right evening for you?').fill('An offline evening.');
+  await page.screenshot({path:'artifacts/portable-offline.png',fullPage:true});
+  expect(failures).toEqual([]);
+});

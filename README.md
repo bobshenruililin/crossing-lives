@@ -13,6 +13,7 @@ It begins inside an original illustrated place. Short conversations and ordinary
 - Native-currency line items, per-person and group costs, explicit shared orders
 - Rule-based explanations, with unknown data and unresolved eligibility kept visible
 - Quiet local resume, with no collection, streak, recording or completion task in play; older notes remain preserved
+- An optional temporary demo in a fresh tab, using the same engine without reading or writing personal story/plan storage
 - A separate research desk with published references, assumptions and honest business-research scaffolding
 - Two sourced institutional examples separating customer membership benefits, worker decision rights and historical surplus claims
 - An optional fixed-surplus allocation lab that conserves the same pool to the cent
@@ -73,6 +74,7 @@ The art is an imagined setting, not a geographic or transport map. See [asset pr
 - `src/story/`: pure, guarded, replayable narrative state, authored branch-copy selection and engine-derived route forecasts
 - `src/components/RouteNote.tsx`: optional phone schematic and progressive route details
 - `src/persistence/journal.ts`: versioned practical-plan storage, distinct from story storage
+- `src/runtime-mode.ts`: page-local temporary flag and context-free new-tab URL builder
 - `src/components/EvidenceDesk.tsx`: separate research workspace
 - `src/business/context.ts`: immutable, whitelisted whole-outing spending context; no business-cost inference
 - `src/business/membership-evidence.ts`: dated institutional claims, source scope and explicit evidence limits
@@ -89,9 +91,9 @@ See [architecture](docs/ARCHITECTURE.md), [creative decisions](docs/DECISIONS.md
 
 ## Verification status
 
-Known-tested membership edition `cb8fb485e90e2355b75d634ec00512279963c583` passed TypeScript, build/export, 128 unit/SSR tests and all 78 browser cases without retries. It includes the complete evening, spending bridge, nondestructive recovery, compact evidence landing and sourced membership questions. Phone-sized captures of the initial entry and worker/surplus questions were visually reviewed.
+Known-tested consent/presenter edition `d901c5783b4646000ff18435bf0a5b36f3e4886a` passed TypeScript, build/export, 128 unit/SSR tests and all 83 browser cases without retries. Every planner import now needs explicit replacement consent. Both same-assumption presenter paths were exercised through one complete evening and the worker-rights question.
 
-See the [verification record](docs/VERIFICATION.md) and [coverage rationale](docs/TEST_COVERAGE.md) for exact evidence and limits. Review is model-assisted visual/code inspection, not a human user study or full accessibility certification. Browser coverage is Chrome stable on Ubuntu with resized viewports; physical phones and Safari remain unverified.
+The temporary-demo capability is a subsequent implementation whose exact browser and visual gate is still pending. See the [verification record](docs/VERIFICATION.md), [temporary-session boundary](docs/TEMPORARY_DEMO.md) and [coverage rationale](docs/TEST_COVERAGE.md). Review is model-assisted visual/code inspection, not a human user study, a timed human presentation or full accessibility certification. Browser coverage is Chrome stable on Ubuntu with resized viewports; physical phones and Safari remain unverified.
 
 ## Publication
 

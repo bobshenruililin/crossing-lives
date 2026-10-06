@@ -96,3 +96,10 @@ The new phone cases use native keyboard radio navigation, require one active que
 Planner-import tests must distinguish opening an explanation from actually replacing inputs. A modified separate plan and legacy story bytes should remain identical through cancellation, Escape and close; only explicit confirmation may transfer the current inputs. The older browse-only action remains separate. Offline and blocked-storage behavior need real controls and state checks, not a direct reducer call or test-side restoration.
 
 The presenter-path cases begin from an unseeded default story, inspect both conditional city forecasts while the actual clock stays 16:30, take one branch through a simple dinner and 45-minute walk with the disclosed delay, then open the worker-rights question. They validate reachable controls and scenario arithmetic. No artificial ten-minute wait, claim of a human rehearsal or audience-comprehension assertion is added.
+
+
+## Temporary pages and honest observation limits
+
+Temporary tests open the real target-blank link with interception installed before page boot. They must never call saved-state readers inside that page to prove isolation; inspect actual controls/clocks there and compare stored bytes from the original page. Valid, corrupt/future/empty originals, blocked in-memory state, concurrent original edits, both resets and actual file-query popups remain distinct cases.
+
+A separate negative control must deliberately exercise both storage getters and intercepted methods, block before native data access, and produce exact nonempty page/host logs without clearing them. Zero-access assertions then apply to active-document checkpoints and fresh boots. Exposed bindings can discard events while a page closes; an empty host array is not an exhaustive unload-time proof. Keep after-close original-byte checks, explicitly scoped to durable preservation, alongside the separate complete source-path audit.

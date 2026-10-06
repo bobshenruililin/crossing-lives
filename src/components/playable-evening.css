@@ -204,3 +204,16 @@
 .wallet-business-bridge{border-top:1px solid var(--scene-line);padding-top:7px;margin:14px 0}
 .wallet-business-bridge .object-model-link{width:100%;justify-content:space-between;font-size:13px;line-height:1.5;text-align:left;padding:10px 0}
 .wallet-business-bridge .dialogue-footnote{font-size:13px;line-height:1.6;margin:0 0 4px}
+
+/* The temporary mode is explicit, with no chrome added to the normal story. */
+.story-option-actions>a{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:44px;font-size:14px;line-height:1.5;padding:11px 0;text-align:left;border-bottom:1px solid var(--scene-line);color:#f6e5ca;text-decoration:underline;text-underline-offset:4px}
+.story-option-actions>a:focus-visible{outline:3px solid #f0c785;outline-offset:4px}
+.temporary-demo-notice{padding:10px 20px;background:#eee6d8;color:#473a2d;font-size:13px;line-height:1.5;border-bottom:1px solid #77634a38;overflow-wrap:anywhere}
+.temporary-demo-notice p{margin:0;font-weight:600}
+.temporary-demo-notice small{display:block;font-size:12px;line-height:1.5;margin-top:3px}
+.temporary-demo-world{position:absolute;top:76px;left:18px;right:18px;z-index:2;width:fit-content;max-width:calc(100% - 36px);padding:8px 10px;background:#211c16e8;color:#f5efdf;border:1px solid #e9dbc133;border-radius:3px;pointer-events:none}
+[data-temporary-demo=true] .other-shore{top:165px}
+.temporary-demo-dialogue-note,.dialog-content>.temporary-demo-dialogue-note{margin:0 0 15px;font-size:13px;line-height:1.5;font-weight:500;overflow-wrap:anywhere}
+.temporary-demo-dialogue-note small{display:block;font-size:12px;line-height:1.5;font-weight:400;margin-top:3px}
+.world-dialogue .temporary-demo-dialogue-note{color:#e4d4b9}
+@media(max-width:700px){.temporary-demo-notice{padding:9px 14px}.temporary-demo-world{padding:8px 10px}.temporary-demo-dialogue-note{margin-bottom:13px}}

@@ -157,13 +157,29 @@ Visual inspection of actual 360/390px images confirmed the closed evidence entry
 
 The exact verified portable is 5,977,643 bytes with SHA-256 `1237abfcd1dacfdef829a6bf841e0390465f5fc59343e8718f70075e2bd08dae`.
 
-## Explicit planner import and presenter run sheet, pending verification
+## Verified explicit planner import and presenter controls, 6 October 2026
 
 A presenter-flow review found that the former “Compare this evening” label could suggest a comparison of two completed stories. The actual selector transfers current story choices into the separate practical planner and recalculates the other city from starting assumptions. It can replace a user's existing planner inputs.
 
 The Wallet now calls this action “Use this evening in planner”, explains replacement and requires “Replace plan and explore” before invoking the unchanged import callback. Cancel, Escape and the confirmation's close control return to the Wallet without transferring inputs; focus returns to the import action. There is no new comparison engine, data migration or historical-playthrough renderer.
 
-The presenter document now proposes one ten-minute arc: free same-assumption previews, one audience city choice, one completed evening and the direct worker-rights question. Its timings are a rehearsal plan, not observed human comprehension or an already recorded presentation. Dedicated browser paths and import-cancellation/offline checks are being added; their exact run is still pending. Temporary-demo isolation is a separately approved, unmerged implementation at this point.
+The presenter document now proposes one ten-minute arc: free same-assumption previews, one audience city choice, one completed evening and the direct worker-rights question. Its timings are a rehearsal plan, not observed human comprehension or an already recorded presentation. The initial consent run, commit `cee74c96c681c64f51d930904ac6b6c7e98ad141`, passed 80 of 83 browser cases. The three remaining cases stalled while preparing a modified plan: exact `getByLabel` did not resolve a wrapping select label. The actual failure accessibility tree exposed the correctly named “Shenzhen route” combobox and both options. A test-only repair targeted that exact role/name, preserving the route edit, value check and every consent assertion. No production bytes changed in the repair.
+
+Commit `d901c5783b4646000ff18435bf0a5b36f3e4886a` passed all **128 unit/SSR tests** and **83 browser cases without retries**, plus TypeScript, build/export and offline execution. All four cancellation routes, modified-plan preservation, blocked storage and explicit import were exercised. Both unseeded same-assumption presenter paths completed an evening and reached Worker decisions. These establish actual controls and arithmetic, not human pacing or comprehension.
+
+[Exact passing run](https://github.com/bobshenruililin/crossing-lives/actions/runs/37540439667)
+
+The portable is byte-identical across the test-only repair: 5,978,895 bytes, SHA-256 `4356bc94765e5477d91c6f2e9e922f59340eb12e403f6c07a55131bc2d37c307`. Actual 360px consent inspection confirmed the replacement explanation, preserved-story boundary, explicit confirm, cancel and close are legible. Temporary-demo isolation remains the separate next browser gate.
+
+## Temporary demo, pending browser verification
+
+A five-file implementation adds a page-local temporary flag, a real new-tab link and quiet unsaved-mode identity. It uses the existing Room to wander story and skips all story/planner storage reads, writes and removals, including reset/legacy paths. It does not restore a saved backup or create another engine.
+
+Ten new unit/SSR checks bring the source suite to **138 tests**. Independent full-component execution for HTTPS and file URLs exercised initialization, replay, remount, planner import/receipt/research and both resets with zero storage acquisitions/adapter calls. The final five-file delta was hash-checked onto the latest consent source; it did not replace newer browser tests or documentation with an older staged tree.
+
+The prepared suite has **90 browser cases**: it retains the prior 83, adds six grouped temporary-session scenarios and a separate observer negative control, and extends the existing offline case. Actual new-tab navigation, active-document storage getter/method instrumentation, blocked original in-memory state, file-query offline use and phone identity/geometry remain browser gates. No passing temporary-mode browser result is claimed here yet.
+
+Independent test review identified that exposed bindings may discard events once a page closes. The corrected design requires exact nonempty canary logs without native data access or log clearing, preserves all active-document zero-access assertions, and compares original bytes after close. It does not certify an unobservable unload interval from an empty host array.
 
 ## Delivery and coverage limits
 

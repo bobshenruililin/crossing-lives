@@ -10,6 +10,7 @@ import type { SpendingContext } from './business/context';
 import PlayableEvening, { resetPlayableSave } from './components/PlayableEvening';
 import { readJournal, writeJournal } from './persistence/journal';
 import type { SavedJournal, JournalMode } from './persistence/journal';
+import { temporaryDemo, TEMPORARY_DEMO_LABEL, TEMPORARY_DEMO_GUIDANCE } from './runtime-mode';
 
 type Mode = JournalMode;
 type Saved = SavedJournal;
@@ -19,7 +20,7 @@ const currency = (amount: number | null) => amount === null ? 'Not yet known' : 
 const duration = (minutes: number) => `${Math.floor(minutes / 60) ? `${Math.floor(minutes / 60)}h ` : ''}${minutes % 60 ? `${minutes % 60}m` : ''}`.trim() || '0m';
 const clockValue = (minutes: number) => `${String(Math.floor(minutes % 1440 / 60)).padStart(2,'0')}:${String(minutes % 60).padStart(2,'0')}`;
 const fromClock = (value: string) => {const [hour, minute] = value.split(':').map(Number); return hour * 60 + minute;};
-const restoredJournal = readJournal();
+const restoredJournal = temporaryDemo ? {status:'empty' as const} : readJournal();
 const initial = {
   saved: restoredJournal.status === 'loaded' ? restoredJournal.saved : null,
   warning: restoredJournal.status === 'unavailable' ? 'Saving is unavailable in this browser. You can still explore the whole experience.' : restoredJournal.status === 'corrupt' || restoredJournal.status === 'unsupported-version' ? 'This saved planner could not be restored. Its original data is untouched. You can plan in this tab, or explicitly reset to replace it.' : '',
@@ -70,7 +71,7 @@ function App() {
     return next;
   });
   useEffect(() => {
-    if (protectPlannerBytes.current) return;
+    if (temporaryDemo || protectPlannerBytes.current) return;
     // Merely entering the world must not create or replace a separate planner save.
     if ((mode === 'intro' || mode === 'story') && !hasSave) return;
     // Do not replace a valid saved plan with a half-edited invalid input.
@@ -81,6 +82,7 @@ function App() {
     else if (result.status === 'unavailable') {setSaveWarning('Saving is unavailable in this browser. Keep this tab open to retain your changes.');}
   }, [inputs, mode, step, selected, notes, completed, hasSave]);
   useEffect(() => {window.scrollTo({top: 0, behavior: 'instant'});}, [mode, workspace, step]);
+  useEffect(() => {if (temporaryDemo) document.title = 'Between · Temporary demo';}, []);
   function startStory() {setStoryResumePanel(undefined);deskReturn.current='default';setWorkspace('evening'); setMode('story'); setStep(0); setHotspot(null);}
   function openEvidenceDesk() {
     deskReturnFocus.current=document.activeElement instanceof HTMLElement?document.activeElement:null;
@@ -107,15 +109,18 @@ function App() {
     resetPlayableSave();
     protectPlannerBytes.current=false;
     const resetInputs=structuredClone(defaultInputs);
-    const result=writeJournal({version:1,inputs:resetInputs,mode:'story',step:0,selected:null,notes:'',completed:false});
-    if(result.status==='saved'){setHasSave(true);setSaveWarning('');}
-    else setSaveWarning('The plan was reset in this tab, but saving is unavailable. An older saved copy may return after a reload.');
+    if (!temporaryDemo) {
+      const result=writeJournal({version:1,inputs:resetInputs,mode:'story',step:0,selected:null,notes:'',completed:false});
+      if(result.status==='saved'){setHasSave(true);setSaveWarning('');}
+      else setSaveWarning('The plan was reset in this tab, but saving is unavailable. An older saved copy may return after a reload.');
+    } else {setHasSave(false);setSaveWarning('');}
     setStoryKey(value=>value+1);setInputs(resetInputs);setSelected(null);setNotes('');setCompleted(false);setStep(0);setMode('story');setShowReset(false);
   }
   function choose(id: OptionId) {setSelected(id); setCompleted(true); setMode('receipt');}
   function changeMode(next: Mode) {setStoryResumePanel(undefined);deskReturn.current='default';setMode(next); setWorkspace('evening');}
   return <>
     <a className="skip-link" href="#main-content">Skip to content</a>
+    {temporaryDemo && (workspace === 'desk' || mode !== 'story') && <aside className="temporary-demo-notice" data-temporary-demo="true" aria-label="Temporary demo"><p>{TEMPORARY_DEMO_LABEL}</p><small>{TEMPORARY_DEMO_GUIDANCE}</small></aside>}
     {workspace === 'evening' && mode !== 'story' && <header className="site-header">
       <button className="brand" onClick={startStory} aria-label="Between home"><span className="brand-glyph">b<span/></span><span>between<small>兩地之間</small></span></button>
       <nav className="top-nav" aria-label="Main navigation"><button className={workspace === 'evening' && ['intro','story'].includes(mode) ? 'active' : ''} onClick={startStory}>The story</button><button className={workspace === 'evening' && ['explore','receipt'].includes(mode) ? 'active' : ''} onClick={() => changeMode('explore')}>Your evening</button><button id="research-desk-entry" aria-label="Research desk" onClick={openEvidenceDesk}>Research desk <ArrowUpRight size={13} aria-hidden="true"/></button></nav>
@@ -145,7 +150,7 @@ function App() {
       {mode !== 'story' && <footer className="site-footer"><div><span className="brand-word">between</span><span>A little more thought. A better evening.</span></div><div><button onClick={() => setShowSources(true)}>Data & assumptions</button><button onClick={() => setShowReset(true)}>Replay the story</button><span>Hong Kong ↔ Shenzhen · Vol. 01</span></div></footer>}
     </>}
     {showSources && <Dialog title="A little clarity before you go." onClose={() => setShowSources(false)}><p>This is an interactive prototype with authored, editable prices and journey assumptions. It is not a booking service, live route planner or entry-eligibility check.</p><ul><li>Costs are in HKD per person, with CNY converted using your explicit assumed rate.</li><li>Only costs labelled “shared” are divided across the group.</li><li>Travel includes outward and return journeys. Queues are assumptions, never live estimates.</li><li>Published border hours were checked on 6 Oct 2026. Normal hours can change.</li><li>Preferences express your priorities. No feelings are converted into money.</li><li>The surplus experiment is a separate hypothetical pool, not a saving or new return created by ownership.</li></ul><button className="button-primary" onClick={() => {setShowSources(false);openEvidenceDesk();}}>Open the evidence library <ArrowRight size={16}/></button></Dialog>}
-    {showReset && <Dialog title="Begin with a blank evening?" onClose={() => setShowReset(false)}><p>This replaces this demo’s local choices and note with the original story preset. There is no server copy.</p><div className="dialog-actions"><button className="button-primary" onClick={resetStory}>Reset and replay <RotateCcw size={16}/></button><button className="text-button" onClick={() => setShowReset(false)}>Keep my evening</button></div></Dialog>}
+    {showReset && <Dialog title="Begin with a blank evening?" onClose={() => setShowReset(false)}><p>{temporaryDemo ? 'This resets only this temporary demo’s story and planner. Your saved evening stays as it is.' : 'This replaces this demo’s local choices and note with the original story preset. There is no server copy.'}</p><div className="dialog-actions"><button className="button-primary" onClick={resetStory}>Reset and replay <RotateCcw size={16}/></button><button className="text-button" onClick={() => setShowReset(false)}>Keep my evening</button></div></Dialog>}
   </>;
 }
 
@@ -160,6 +165,6 @@ Another possibility.`}</h2><p className="option-route"><MapPin size={13}/>{optio
 function Dialog({title, children, onClose}: {title: string; children: React.ReactNode; onClose: () => void}) {
   const ref = useRef<HTMLDialogElement>(null);
   useEffect(() => {const dialog = ref.current; const previouslyFocused = document.activeElement as HTMLElement | null; dialog?.showModal(); return () => {dialog?.close(); previouslyFocused?.focus();};}, []);
-  return <dialog className="dialog" ref={ref} onCancel={event => {event.preventDefault();onClose();}} onClick={event => {if (event.target === ref.current) onClose();}} aria-labelledby="dialog-title"><div className="dialog-content"><button className="dialog-close" aria-label="Close dialog" onClick={onClose}><X size={20}/></button><p className="eyebrow">THE SMALL PRINT, IN PLAIN LANGUAGE</p><h2 id="dialog-title">{title}</h2>{children}</div></dialog>;
+  return <dialog className="dialog" ref={ref} onCancel={event => {event.preventDefault();onClose();}} onClick={event => {if (event.target === ref.current) onClose();}} aria-labelledby="dialog-title"><div className="dialog-content"><button className="dialog-close" aria-label="Close dialog" onClick={onClose}><X size={20}/></button><p className="eyebrow">THE SMALL PRINT, IN PLAIN LANGUAGE</p><h2 id="dialog-title">{title}</h2>{temporaryDemo && <p className="temporary-demo-dialogue-note">{TEMPORARY_DEMO_LABEL}<small>{TEMPORARY_DEMO_GUIDANCE}</small></p>}{children}</div></dialog>;
 }
 export default App;

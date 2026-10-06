@@ -52,3 +52,10 @@ App navigation holds this context only while opening the existing Business quest
 `src/business/membership-evidence.ts` records source URLs, check/source dates, retrieval limits and three specific questions about two organizations. Evidence statuses distinguish documented self-description, a gap in reviewed sources and historical operating detail. This module imports no outing, price, allocation or persistence logic.
 
 `MembershipLens` owns only its current reading selection. It accepts no spending context or pool values. The separate illustrative outing and fixed-pool controls remain unchanged when a question is selected; the two real cases are never assigned to either fictional dinner business. Source updates should preserve historical/current distinctions and avoid converting missing disclosure into proof of absent rights.
+
+
+## Page-local temporary demo
+
+`src/runtime-mode.ts` captures a constant, explicit URL flag once per page. Its URL builder carries no user state and strips unrelated query/hash/credentials. The same story/planner components render normally, but their six storage entry points return before any storage acquisition in temporary mode. The persistence adapter and domain/story reducers are unchanged.
+
+A real new-tab link leaves the original page and its in-memory cache intact; no backup is restored on exit. The temporary cache supports ordinary in-tab navigation only. Reload starts the same known preset again. See [the temporary-session boundary and acceptance requirements](TEMPORARY_DEMO.md).

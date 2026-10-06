@@ -8,7 +8,9 @@ One audience decision, one complete evening, one business question. This uses th
 
 Use the exact verified portable or static build identified in the verification record. The complete experience works without an account, sound or network; opening external source links needs connectivity.
 
-Until an explicitly tested temporary-demo capability is available, use a dedicated clean demo browser profile. A second tab on the same origin does not isolate saves. Do not reset a personal story as a harmless presentation shortcut: **Start a fresh evening → Start a fresh story** replaces both saved story attempts, including older notes. Reset only a disposable demo profile.
+For an edition whose verification record covers temporary mode, use **More → Start temporary demo**. The new tab is titled **Between · Temporary demo** and explicitly says changes will not be saved. Keep the original tab open; close only the temporary tab when finished. Reloading that temporary page starts over.
+
+Until that mode's exact browser gate is verified, or for an older edition without the link, use a dedicated clean demo browser profile. Merely opening another normal tab on the same origin does not isolate saves. Do not reset a personal story as a harmless presentation shortcut: **Start a fresh evening → Start a fresh story** replaces both saved story attempts, including older notes. Reset only a disposable demo context.
 
 In that profile, open **More (Story options) → Evening setup**. Confirm **Room to wander**: two fictional adults at the same Kowloon/Tsim Sha Tsui origin, departure **16:30**, home deadline **23:30**, allowance **HK$400/person**, and the disclosed **30-minute dinner delay** enabled. Use **Rail via Lo Wu** for the Shenzhen preview. Keep the simple dinner and 45-minute walk the same in both forecasts.
 

@@ -91,3 +91,10 @@ These organizations are in different settings and are not a controlled compariso
 “Compare this evening” was too easy to read as a comparison of two completed playthroughs. The planner actually receives current story inputs and regenerates the other city from starting assumptions. The action now names that import and explains that it replaces separate-plan inputs. A small confirmation reuses the existing scene dialog; cancellation returns to the Wallet without copying anything. Every import asks, avoiding a brittle guess about which saved plans matter.
 
 The Fellows run sheet keeps a single argument: compare the same assumed activities before departure, take one audience city choice, complete that evening, then ask about documented worker rights. It does not tour every tool or pretend an annual company ratio explains a dinner bill. A ten-minute script is a rehearsal aid, not evidence of audience understanding.
+
+
+## Repeat an example without replacing a personal evening
+
+A presenter can use the existing previews and choices; forward chapter jumps and a separate guided engine would add state complexity without improving the central argument. The missing convenience is safe repeatability in the usual browser.
+
+The optional temporary link opens a fresh page with a constant flag and no personal context. It never acquires story/planner storage, and leaves the original tab's in-memory state alone. Closing the new page is the exit; there is no backup write that might undo newer work in the original. A quiet mode label makes the lack of saving explicit without returning to a collection or recording task.

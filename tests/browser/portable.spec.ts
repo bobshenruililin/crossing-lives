@@ -1,5 +1,5 @@
 import { junWords } from './story-fixtures';
-import { test, expect } from '@playwright/test';
+import { test, expect, type BrowserContext, type Page } from '@playwright/test';
 import { pathToFileURL } from 'node:url';
 import path from 'node:path';
 import { existsSync } from 'node:fs';
@@ -10,6 +10,58 @@ import {
 } from './story-helpers';
 
 const artifact = path.resolve('artifacts/crossing-lives-portable.html');
+
+/** File-mode popup audit: installed before boot, with no Storage acquisition
+ * during setup. Checks cover active documents before/after reload and before
+ * close. Binding delivery is not exhaustive during unload/close. */
+async function auditPortableTemporaryStorage(context: BrowserContext) {
+  const touches: unknown[] = [];
+  await context.exposeBinding('__reportPortableDemoStorage', (_source, event: unknown) => { touches.push(event); });
+  await context.addInitScript(() => {
+    if (new URLSearchParams(location.search).get('temporary-demo') !== '1') return;
+    const auditWindow = window as typeof window & {
+      __portableDemoStorageAudit: { ready: boolean; events: unknown[]; pending: Promise<unknown>[] };
+      __reportPortableDemoStorage: (event: unknown) => Promise<unknown>;
+    };
+    const audit = { ready: false, events: [] as unknown[], pending: [] as Promise<unknown>[] };
+    auditWindow.__portableDemoStorageAudit = audit;
+    const record = (event: unknown) => { audit.events.push(event); audit.pending.push(auditWindow.__reportPortableDemoStorage(event).catch(() => undefined)); };
+    for (const area of ['localStorage', 'sessionStorage']) {
+      let owner: object | null = window;
+      let descriptor: PropertyDescriptor | undefined;
+      while (owner && !descriptor) { descriptor = Object.getOwnPropertyDescriptor(owner, area); owner = Object.getPrototypeOf(owner); }
+      if (!descriptor?.get) throw new Error(`Cannot instrument ${area}`);
+      // Deliberately throw if accessed: this portable demo must work without
+      // even attempting to acquire either personal storage area.
+      Object.defineProperty(window, area, { configurable: true, get() {
+        record({ kind: 'acquire', area });
+        throw new DOMException('Portable test storage unavailable', 'SecurityError');
+      } });
+    }
+    for (const operation of ['getItem', 'setItem', 'removeItem', 'clear', 'key'] as const) {
+      const original = Storage.prototype[operation];
+      Object.defineProperty(Storage.prototype, operation, { configurable: true, writable: true, value: function (this: Storage, ...args: unknown[]) {
+        record({ kind: 'operation', operation });
+        return Reflect.apply(original, this, args);
+      } });
+    }
+    const nativeLength = Object.getOwnPropertyDescriptor(Storage.prototype, 'length')!.get!;
+    Object.defineProperty(Storage.prototype, 'length', { configurable: true, get: function (this: Storage) {
+      record({ kind: 'operation', operation: 'length' }); return nativeLength.call(this);
+    } });
+    audit.ready = true;
+  });
+  return {
+    async expectZero(demo: Page) {
+      const report = await demo.evaluate(async () => {
+        const audit = (window as typeof window & { __portableDemoStorageAudit: { ready: boolean; events: unknown[]; pending: Promise<unknown>[] } }).__portableDemoStorageAudit;
+        await Promise.all(audit.pending); return { ready: audit.ready, events: audit.events };
+      });
+      expect(report).toEqual({ ready: true, events: [] });
+      expect(touches).toEqual([]);
+    },
+  };
+}
 
 test('portable production file keeps both cities, Jun, choices and quiet resume fully offline', async ({ page, context }) => {
   test.setTimeout(90_000);
@@ -200,6 +252,62 @@ test('portable production file keeps both cities, Jun, choices and quiet resume 
   await expect(page.getByRole('button', { name: 'Open wallet', exact: true })).toBeFocused();
   await expectHomeScene(page, true);
   await expectClock(page, '21:30');
+  await allAssetsEmbedded();
+
+  const temporaryAudit = await auditPortableTemporaryStorage(context);
+  const originalBytes = () => page.evaluate(() => {
+    const entries = (storage: Storage) => Object.keys(storage).sort().map(key => [key, storage.getItem(key)]);
+    return { local: entries(localStorage), session: entries(sessionStorage) };
+  });
+  const beforeDemo = await originalBytes();
+  await expect(page).toHaveTitle('Between · One evening, two possibilities');
+  await openOptions(page);
+  const temporaryLink = page.getByRole('link', { name: 'Start temporary demo', exact: true });
+  await expect(temporaryLink).toHaveAttribute('target', '_blank');
+  await expect(temporaryLink).toHaveAttribute('rel', /\bnoopener\b/);
+  await expect(temporaryLink).toHaveAttribute('rel', /\bnoreferrer\b/);
+  const temporaryUrl = new URL((await temporaryLink.getAttribute('href'))!);
+  expect(temporaryUrl.protocol).toBe('file:');
+  expect(temporaryUrl.pathname).toBe(new URL(page.url()).pathname);
+  expect(temporaryUrl.search).toBe('?temporary-demo=1');
+  expect(temporaryUrl.hash).toBe('');
+  const opening = context.waitForEvent('page');
+  await temporaryLink.click();
+  const demo = await opening;
+  try {
+    demo.on('pageerror', error => errors.push(error.message));
+    await demo.waitForLoadState('domcontentloaded');
+    await demo.setViewportSize({ width: 390, height: 844 });
+    await expect(demo).toHaveURL(temporaryUrl.href);
+    await expect(demo).toHaveTitle('Between · Temporary demo');
+    await expect(page).toHaveTitle('Between · One evening, two possibilities');
+    expect(await demo.evaluate(() => window.opener === null)).toBe(true);
+    await expectPhase(demo, 'fork');
+    await expect(demo.getByLabel('Story clock', { exact: true })).toHaveText('16:30');
+    await expect(dialogue(demo).locator('.temporary-demo-dialogue-note')).toContainText('Temporary demo · changes won’t be saved');
+    await expectSceneAssets(demo, 'hong-kong-evening.webp', true);
+    await expectJun(demo, true);
+    await temporaryAudit.expectZero(demo);
+    await showcase(demo, 'portable-temporary-invitation-390-offline');
+    await depart(demo, 'Hong Kong');
+    await expectSceneAssets(demo, 'hong-kong-table.webp', true);
+    await expectJun(demo, true);
+    await expect(demo.getByLabel('Story clock', { exact: true })).toHaveText('16:45');
+    await temporaryAudit.expectZero(demo);
+    await demo.reload();
+    await expect(demo).toHaveTitle('Between · Temporary demo');
+    await expectPhase(demo, 'fork');
+    await expect(demo.getByLabel('Story clock', { exact: true })).toHaveText('16:30');
+    await expectSceneAssets(demo, 'hong-kong-evening.webp', true);
+    await temporaryAudit.expectZero(demo);
+    expect(requests).toEqual([]);
+  } finally { await demo.close(); }
+  await expect(page).toHaveTitle('Between · One evening, two possibilities');
+  // After close, preserved original bytes are evidence of no durable overwrite;
+  // they cannot establish that no read occurred during unload/close.
+  expect(await originalBytes()).toEqual(beforeDemo);
+  await closeDialogue(page); await expectHomeScene(page, true);
+  await expect(page.getByLabel('Story clock', { exact: true })).toHaveText('21:30');
   await allAssetsEmbedded();
 
   await openAction(page, 'Open wallet');

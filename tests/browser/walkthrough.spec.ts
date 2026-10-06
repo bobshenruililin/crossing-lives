@@ -56,8 +56,10 @@ test('record a real 60–90 second world-first opening from invitation to an ord
     await closeDialogue(page);
     await openAction(page, 'Open phone');
     await expect(storyClock(page)).toHaveText('16:30');
+    await expect(dialogue(page).getByRole('heading', { name: 'Out and home', exact: true })).toBeVisible();
+    await expect(page.locator('.route-note-forecast')).toContainText('modeled home 19:15');
     await expect(dialogue(page)).toContainText('30-minute dinner delay');
-    await hold('Check the clock, return plan and disclosed one-time delay.', 12000);
+    await hold('Unfold the out-and-back route: the conditional 19:15 home forecast includes the disclosed delay while the actual clock remains 16:30.', 12000);
     await closeDialogue(page);
     await hold('Put the phone away and return to the scene.', 3000);
     await openAction(page, 'Talk about dinner');

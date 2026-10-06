@@ -30,3 +30,10 @@ Browser cases verify the real choices, clock and bill in both cities. Rounded ch
 ## Human review
 
 Inspect what is actually attended to, how a decision changes the place, whether the next action is understandable, and whether dialogue obscures its subject. Watch the real opening rather than inferring pacing from screenshots. A scene can satisfy dimensions yet still feel static or overloaded; that remains a design defect to address.
+
+
+## Route-note and monetary-layout increment
+
+The map's full-evening forecast intentionally differs from the earlier incomplete phone prediction: it now includes the future disclosed dinner delay by composing the same guarded story previews used by meal choices. Tests must assert the actual unchanged clock during inspection, the stated assumptions, rail/road consequences, full outward and return legs, and the committed-route restriction. A new prediction is not accepted merely because its text changed.
+
+The Wallet test measures rendered text-line boxes, clipping and readable font size, alongside exact amounts. A no-overflow check of the page would not catch a final digit wrapping within its own cell. Phone-sized source and route folds need real screenshots and focus behavior checks as well as DOM assertions.

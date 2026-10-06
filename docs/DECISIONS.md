@@ -1,5 +1,7 @@
 # Creative and product decisions
 
+The early sections record the evolution of the prototype. Later audience feedback supersedes the original field-note and sketchbook framing; the current world-led experience has no recording or collection task.
+
 - **A field guide, not a winner board.** The audience starts with an evening, a friend and a question. The story gives them a reason to care before opening the planner.
 - **Original dusk illustrations.** Amber Hong Kong dining streets and teal Shenzhen avenues establish one coherent world. Generated original scenes plus a lightweight original SVG are documented in `public/art/README.md`. The scenes are explicitly imagined settings, separate from the sourced transport schematic.
 - **A tangible decision loop.** Notice a possibility → set a priority → consider the return trip → compare → keep a field note → revise or replay. Narrative language is authored and does not pretend to read the visitor’s mind.
@@ -31,3 +33,12 @@ Audience feedback overruled the smaller-sidebar direction: a world surrounded by
 The palette follows the original scenes, with restrained neutral dialogue rather than a universal green shell. No extra avatar movement framework is needed. A wallet shows an illustrative spending allowance and projected bill, not cash on hand or a connected bank balance. The human evening remains suitable for adult professional audiences without inventing a supplier meeting or a business-trip history. Both fictional adults still start from the same modeled origin.
 
 No memento selection, collection count, streak, mandatory journal or reward appears in play. Quiet technical resume remains and existing saved notes are preserved. Business research and the practical planner are available on request; opening an existing plan is distinct from explicitly copying story choices into it.
+
+
+## The table and the way home
+
+A committed journey needs a visual payoff. Two original close table scenes put Jun and ordinary menu, wallet and phone props in the place where the next decision happens. A short transition has no input lock; reduced motion changes scenes immediately. Real UI text and hit targets stay separate from generated art.
+
+The phone opens one schematic out-and-back route rather than a dashboard of tickets. Rail and road can be compared before commitment. After departure, the map remembers the chosen route; reconsidering it is explicit. A conditional forecast includes the disclosed dinner delay and names the meal/walk assumption. Published clearance hours do not become a promise of a last train, available bus, live queue or permission to enter.
+
+An actual phone screenshot exposed a wrapped final currency digit after all automated cases had passed. Complete monetary strings now stay on one line, with direct text-line checks added. This is a useful reminder that the acceptance target is the person's experience, not a count of passing cases.

@@ -1,8 +1,10 @@
 import { test, expect, type Locator, type Page } from '@playwright/test';
 import { tableObjects, tableScenes } from '../../src/data/scene-art';
+import { createStoryState } from '../../src/story/engine';
+import { seedStory } from './story-fixtures';
 import {
   chooseDinner, closeDialogue, depart, dialogue, expectJun, expectNoClippedText,
-  expectNoOverflow, expectPhase, expectSceneAssets, expectTouchTarget, openAction,
+  expectNoOverflow, expectPhase, expectSceneAssets, expectTouchTarget, expectSingleLineMoney, openAction,
   readStorySave, showcase, startStory, story, storyClock,
 } from './story-helpers';
 
@@ -97,7 +99,10 @@ for (const width of [1440, 390, 360]) {
       for (const object of ['wallet', 'phone'] as const) {
         await openAction(page, `Open ${object}`);
         await captureAttention(page, object, `table-${object}-${city}-${width}`);
-        if (object === 'wallet') await expect(dialogue(page)).toContainText(city === 'hk' ? 'HK$304.00' : 'HK$260.22');
+        if (object === 'wallet') {
+          await expect(dialogue(page).locator('.pocket-facts dd')).toHaveText(['HK$400.00', city === 'hk' ? 'HK$304.00' : 'HK$260.22']);
+          await expectSingleLineMoney(dialogue(page).locator('.pocket-facts dd'));
+        }
         await closeDialogue(page);
         await expect(story(page)).not.toHaveAttribute('data-table-framed', 'true');
         await (await expectPhysicalControl(page, object)).click();
@@ -168,5 +173,24 @@ for (const reducedMotion of ['no-preference', 'reduce'] as const) {
     await home.click();
     await expectPhase(page, 'home');
     await expect(storyClock(page)).toHaveText('18:45');
+  });
+}
+
+
+for (const width of [360, 390]) {
+  test(`wallet ${width}px: large allowance and both city totals keep exact currency tokens on one rendered line`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 844 });
+    await seedStory(page, createStoryState('wander', {
+      baseInputs: { budgetPerPersonHKD: 10000, hkMealPerPersonHKD: 9999, szMealPerPersonCNY: 9999 },
+    }));
+    await page.goto('/');
+    await startStory(page);
+    await openAction(page, 'Open wallet');
+    const amounts = dialogue(page).locator('.pocket-facts dd');
+    await expect(amounts).toHaveText(['HK$10,000.00', 'HK$10,055.00', 'HK$11,019.61']);
+    await expectSingleLineMoney(amounts);
+    await expectNoOverflow(page);
+    await expectNoClippedText(dialogue(page));
+    await showcase(page, `wallet-large-amounts-${width}`);
   });
 }

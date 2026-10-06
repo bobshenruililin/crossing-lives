@@ -1,12 +1,12 @@
 # Between · Architecture
 
-An original, individual-first Hong Kong–Shenzhen outing decision journal. This GitHub-targeted application has no live AI, booking service, tracking, external runtime API, account, or private data dependency.
+An original, individual-first Hong Kong–Shenzhen interactive evening and practical comparison. This GitHub-targeted application has no live AI, booking service, tracking, external runtime API, account, or private data dependency.
 
 ## Vertical slice
 
-1. Illustrated introduction and a replayable six-beat fictional evening, with a fixed illustrative persona and meaningful branches.
+1. A world-led fictional evening, with one adult companion, free observations and meaningful commitments.
 2. Editable two-option planner: whole-outing cost, transport, border assumptions, experience time, home deadline and eligibility.
-3. Explicit choice saved locally, replayable journey, return to editing.
+3. Quiet optional local resume, explicit reconsideration and an ordinary home ending. Older saved notes remain compatible but are not a task in play.
 4. Evidence workspace separates published facts, authored estimates, and a hypothetical fixed-pool allocation.
 
 ## Boundaries
@@ -23,6 +23,13 @@ Test budget/party/exchange/deadline/crossing/missing-data/math; exercise story/r
 
 ## Playable-evening boundary
 
-`src/story` derives time, bill and journal from immutable commitments plus phase. It never keeps independent mutable money/time counters and never confirms real entry eligibility. `src/domain` handles per-itinerary duration, optional shared orders, a labelled authored delay and explicit familiarity. Unknown familiarity is not a low score. The story does not render a composite winner. The practical planner and fictional story use separate versioned local saves; explicit copying to the planner retains an open entry check.
+`src/story` derives time, bill and retained legacy journal data from immutable commitments plus phase. It never keeps independent mutable money/time counters and never confirms real entry eligibility. `src/domain` handles per-itinerary duration, optional shared orders, a labelled authored delay and explicit familiarity. Unknown familiarity is not a low score. The story does not render a composite winner. The practical planner and fictional story use separate versioned local saves; explicit copying to the planner retains an open entry check.
 
 The research desk owns the fixed-pool allocation experiment. It is not part of a consumer saving calculation. Jun and all dialogue are authored fiction, with no generated chat or hidden emotion score.
+
+
+## Route presentation
+
+`src/story/route-view.ts` is a pure presentation selector over the same story/domain engine. Before meal commitment it composes departure and simple-dinner previews, including the disclosed future delay, then labels the walk and meal as conditional. It retains the actual progress clock separately. It never dispatches actions or owns a second timing formula.
+
+`RouteNote` renders one schematic out-and-back journey in the existing native phone dialogue. Its mutually exclusive folds are transient React state, not saved story progress. Route changes are accepted only at the fork; later changes use the same explicit rewind and legacy-data protection as other reconsiderations. The host owns modal focus, Back navigation and attended-object framing.

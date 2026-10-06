@@ -45,13 +45,25 @@ This run resolved the modal-focus defect and warning-locator ambiguity. It also 
 
 The verified portable is 4,789,137 bytes with SHA-256 `9aa1a4fc213b45c1c777ed491d4ad230e20310a99f814cef314d0e774a36dbf8`. This is now the known-good fallback. The new close table-art integration is a separate unverified change until its own browser run and visual review.
 
-## Table-arrival staging, pending exact-commit verification
+## Verified table-arrival staging, 6 October 2026
 
-The next source pass adds two original close table compositions, so committing the journey visibly changes the setting rather than only advancing the clock over the same wide street. Jun is part of the new painting; a second portrait must not be overlaid. Menu, phone and wallet remain real HTML controls aligned to shared image coordinates, with named keyboard/touch alternatives.
+Commit `004b5a9125214f45b82021654c311c07e45db17d` passed TypeScript, build/export, all **81 unit tests** and all **52 browser cases on their first attempt**.
 
-Asset inspection alone does not clear the integration. The next exact-commit run must decode both table files in the offline export, exercise their object controls, and capture the arrival/menu/phone/wallet at phone and desktop sizes. Dialogue must leave the attended face or object visible; reduced motion must preserve the same decisions without a timed input lock. Choice-specific acknowledgments must follow actual commitments without inventing spare time or emotions.
+[Exact passing run](https://github.com/bobshenruililin/crossing-lives/actions/runs/37498416872)
 
-The known-good world-first correction above remains the fallback. The real opening recording and independent visual review will judge the new payoff and pacing; passing calculations alone is not evidence that the place is engaging.
+Committing the journey now visibly changes to one of two original close table compositions. Jun is part of the painting, without a duplicate portrait. Menu, phone and wallet use semantic controls aligned to the image coordinate plane. Both table files decode in the offline export. Actual arrival/menu/phone/wallet captures were reviewed at phone sizes, and the real recording includes the arrival transition.
+
+Human inspection found a defect the then-current suite missed: at 390px, the Wallet's `HK$304.00` wrapped its final digit onto a new line. The phone also forecast home before including the future disclosed dinner delay, while the menu included it. The next pass addresses both rather than treating the passing count as visual clearance.
+
+The exact verified portable is 5,758,453 bytes with SHA-256 `7b4fab48f85ac63fe7fb1b6a6d719aca62fb5888e6ff6d9c2cd6be804a3da514`. It is the tested fallback, with the two review findings above disclosed.
+
+## Unfolding route note, pending exact-commit verification
+
+The next source pass replaces stacked route details with one optional phone schematic of the outward and return journeys. Before departure, choosing rail or road previews consequences without advancing time. After departure the chosen route is read-only; changing it goes through the existing explicit reconsideration. Leg, cost and source details open one at a time.
+
+A pure presentation selector composes existing story previews. Its conditional full-evening forecast includes the disclosed delay and states the assumed simple dinner and walk, while the actual story clock remains separate. It does not invent a live queue, timetable, last service, fare or venue location. Thirteen new unit tests cover these contracts, bringing the source suite to 94. An independent read-only source/component audit also checked 288 scenario combinations and 8,064 route views against the ordinary completed-engine outcomes. It found and verified a correction to Wallet timing warnings, which had still excluded the future delay. This is calculation/component evidence, not browser or visual clearance.
+
+The Wallet correction keeps complete currency strings together without shrinking essential text. Rendered text-line and clipping checks are required at 360px and 390px, including larger amounts. Actual map captures, radio/back focus, return-route clarity and the offline loop must be inspected from the new exact-commit browser run before this pass is called verified.
 
 ## Browser infrastructure and export history
 

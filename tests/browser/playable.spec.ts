@@ -225,11 +225,15 @@ test('explicit story-to-planner transfer copies route and familiarity but never 
   await cityPreview(page, 'Shenzhen').click();
   await closeDialogue(page);
   await openAction(page, 'Talk about dinner');
-  const routes = page.getByRole('group', { name: 'Shenzhen crossing route' });
-  await expect(routes.getByRole('button', { name: /^Rail · Lo Wu/ })).toHaveAttribute('aria-pressed', 'true');
-  await expect(routes.getByRole('button', { name: /^Rail · Lo Wu/ })).toContainText('1h 45m');
-  await routes.getByRole('button', { name: /^Road · Lok Ma Chau/ }).click();
-  await expect(routes.getByRole('button', { name: /^Road · Lok Ma Chau/ })).toHaveAttribute('aria-pressed', 'true');
+  await page.getByRole('button', { name: 'Change route', exact: true }).click();
+  await expect(page.getByRole('radio', { name: 'Rail via Lo Wu', exact: true })).toBeChecked();
+  await expect(page.getByRole('button', { name: /^Going out/ })).toContainText('1h 45m');
+  await page.getByRole('radio', { name: 'Bus via Lok Ma Chau road crossing', exact: true }).check();
+  await expect(page.getByRole('radio', { name: 'Bus via Lok Ma Chau road crossing', exact: true })).toBeChecked();
+  await expect(page.getByRole('button', { name: /^Going out/ })).toContainText('2h 15m');
+  await expect(page.locator('.route-note-forecast')).toContainText('modeled home 23:15');
+  await page.getByRole('button', { name: 'Back to Jun', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Change route', exact: true })).toBeFocused();
   await page.getByRole('button', { name: 'Take the road route', exact: true }).click();
   await chooseDinner(page, 'simple');
   await chooseWalk(page, 'short');
@@ -397,6 +401,8 @@ test('next-day deadline remains explicitly labelled in the optional phone view',
   await seedStory(page, createStoryState('wander', { baseInputs: { departureMinutes: 23 * 60, homeByMinutes: 60 } }));
   await page.goto('/');
   await startStory(page);
+  // The schematic needs a selected city; the actual next-day deadline is unchanged.
+  await cityPreview(page, 'Hong Kong').click();
   await openAction(page, 'Open phone');
   await expect(dialogue(page)).toContainText('01:00 (+1d)');
 });

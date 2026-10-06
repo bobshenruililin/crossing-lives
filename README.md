@@ -9,7 +9,7 @@ It begins inside an original illustrated place. Short conversations and ordinary
 - A scene-led fictional Saturday with Jun, free observations, natural spoken choices and explicit travel/meal/walk commitments
 - Dinner/shared-order choices, a disclosed optional delay, short/long walks or going straight home after dinner, and an ordinary home ending
 - Editable departure, return deadline, budget, party size and personal weights
-- Complete local and cross-border outings, including return travel and border closing margins
+- Complete local and cross-border outings, including an optional out-and-back phone schematic, return travel and border closing margins
 - Native-currency line items, per-person and group costs, explicit shared orders
 - Rule-based explanations, with unknown data and unresolved eligibility kept visible
 - Quiet local resume, with no collection, streak, recording or completion task in play; older notes remain preserved
@@ -69,7 +69,8 @@ The art is an imagined setting, not a geographic or transport map. See [asset pr
 - `src/data/evidence.ts`: source-labelled claims and limitations
 - `src/App.tsx`: application shell and practical planner
 - `src/components/PlayableEvening.tsx`: scene interactions and the fictional evening
-- `src/story/`: pure, guarded, replayable narrative state and derived journal
+- `src/story/`: pure, guarded, replayable narrative state and engine-derived route forecasts
+- `src/components/RouteNote.tsx`: optional phone schematic and progressive route details
 - `src/persistence/journal.ts`: versioned practical-plan storage, distinct from story storage
 - `src/components/EvidenceDesk.tsx`: separate research workspace
 - `tests/domain.test.ts`: money, timing, unknown data and preference edge cases
@@ -84,9 +85,9 @@ See [architecture](docs/ARCHITECTURE.md), [creative decisions](docs/DECISIONS.md
 
 ## Verification status
 
-Known-green world-first baseline `bde888c04222024c627750e33f03558eeec0ea73` passed TypeScript, build/export, 81 unit tests and all 44 browser cases on their first attempt. This includes both city flows, offline play, actual opening footage, keyboard focus, protected saved data, a zero-walk return and genuine artwork coverage on phones and portrait tablets.
+Known-tested table baseline `004b5a9125214f45b82021654c311c07e45db17d` passed TypeScript, build/export, 81 unit tests and all 52 browser cases on their first attempt. This includes both city flows, original close table scenes, offline play, actual opening footage, keyboard focus, protected saved data and a zero-walk return.
 
-The close table-arrival scene integration is a separate next pass. Earlier clearance does not silently apply to new assets or framing. See the [verification record](docs/VERIFICATION.md) and [coverage rationale](docs/TEST_COVERAGE.md) for exact-commit evidence and limits. Human visual and interaction review remains part of acceptance.
+Human review then found a wrapped currency amount and an unclear phone forecast. The new route-note and money-layout corrections are a separate source pass awaiting exact-commit browser and visual review. See the [verification record](docs/VERIFICATION.md) and [coverage rationale](docs/TEST_COVERAGE.md) for evidence and limits. Passing tests alone do not establish a finished experience.
 
 ## Publication
 

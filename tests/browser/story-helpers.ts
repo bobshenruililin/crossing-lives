@@ -161,6 +161,9 @@ export async function expectNoClippedText(locator: Locator) {
   await expect(locator).toBeVisible();
   expect(await locator.evaluate(element => {
     const clipped = (node: Element) => {
+      // This live announcement is intentionally screen-reader-only. Keep all
+      // visible route copy, warnings and currency subject to clipping checks.
+      if (node.closest('.route-note-sr-only')) return false;
       const style = getComputedStyle(node);
       return (['hidden', 'clip'].includes(style.overflowY) && node.scrollHeight > node.clientHeight + 1)
         || (['hidden', 'clip'].includes(style.overflowX) && node.scrollWidth > node.clientWidth + 1);
@@ -200,4 +203,37 @@ export async function expectWorldViewport(page: Page, filename: string) {
   await expect(page.locator('.site-footer')).not.toBeVisible();
   await expect(page.getByRole('textbox')).toHaveCount(0);
   await showcase(page, filename);
+}
+
+/** Measure actual text fragments: CSS nowrap alone does not prove that a
+ * currency token is readable, and soft wrapping is invisible to text matching. */
+export async function expectSingleLineMoney(values: Locator) {
+  expect(await values.count(), 'The wallet exposes at least one amount.').toBeGreaterThan(0);
+  for (const value of await values.all()) {
+    await expect(value).toBeVisible();
+    await expect(value).toHaveText(/^(?:HK\$[\d,]+\.\d{2}|Unknown)$/);
+    const measure = async () => value.evaluate(async element => {
+      await document.fonts.ready;
+      const range = document.createRange();
+      range.selectNodeContents(element);
+      const rects = [...range.getClientRects()].filter(rect => rect.width > 0 && rect.height > 0);
+      const rows: number[] = [];
+      for (const rect of rects) if (!rows.some(top => Math.abs(top - rect.top) <= 1)) rows.push(rect.top);
+      const pane = element.closest('dialog')!.getBoundingClientRect();
+      return {
+        text: element.textContent,
+        rowCount: rows.length,
+        left: Math.min(...rects.map(rect => rect.left)),
+        right: Math.max(...rects.map(rect => rect.right)),
+        allowedLeft: Math.max(0, pane.left),
+        allowedRight: Math.min(innerWidth, pane.right),
+        fontSize: Number.parseFloat(getComputedStyle(element).fontSize),
+      };
+    });
+    await expect.poll(async () => (await measure()).rowCount, { message: 'Each currency amount must render on one line, including both cent digits.' }).toBe(1);
+    const box = await measure();
+    expect(box.left, `${box.text} must not extend beyond the visible wallet.`).toBeGreaterThanOrEqual(box.allowedLeft - 1);
+    expect(box.right, `${box.text} must not be clipped or require horizontal scrolling.`).toBeLessThanOrEqual(box.allowedRight + 1);
+    expect(box.fontSize, 'Keep the wallet amount readable rather than shrinking it to conceal wrapping.').toBeGreaterThanOrEqual(20);
+  }
 }

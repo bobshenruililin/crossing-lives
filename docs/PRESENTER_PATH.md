@@ -1,6 +1,6 @@
 # A short presenter path
 
-This is a three-to-four-minute route through the same interactive evening, suitable for a longer discussion with Fellows or a business audience. The speaking times are rehearsal suggestions. The world-first revision needs its exact-commit browser and visual review before presenting it as tested.
+This is a three-to-four-minute route through the same interactive evening, suitable for a longer discussion with Fellows or a business audience. The speaking times are rehearsal suggestions. Use the exact tested revision listed in the verification record; new route-note changes require their own browser and visual review.
 
 ## Before presenting
 
@@ -16,7 +16,7 @@ The first screen is the Hong Kong scene, with Jun asking whether to eat nearby o
 
 Look at the table or harbor. Advance the short observation, then return to the scene. The clock stays at 16:30. No other observation must be completed.
 
-Open the **Wallet**. It shows an illustrative spending allowance and projected outing bill, not cash holdings or a connected balance. Put it away. Open the **Phone** to see the deadline and return assumptions, then put it away.
+Open the **Wallet**. It shows an illustrative spending allowance and projected outing bill, not cash holdings or a connected balance. Put it away. After choosing a city with Jun, open the **Phone** to unfold the outward and return journeys. The forecast states the assumed simple dinner, walk and disclosed delay. Rail/road changes are free previews before departure; they do not change the story clock. Close the phone to return to the conversation.
 
 Ask: “Which part of this evening would you protect: time at the table, time outside, or the allowance?” These are personal priorities, not a score or a claim about belonging.
 

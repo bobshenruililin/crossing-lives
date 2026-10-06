@@ -168,6 +168,9 @@ test('practical receipt bridge uses the real three-person bill and returns to th
   expect(await savedBytes(page)).toEqual(before);
   await page.getByRole('button', { name: 'Return to your evening', exact: true }).click();
   await expect(page.getByRole('button', { name: bridgeName, exact: true })).toBeFocused();
+  // Focus restoration must be visible on the long phone receipt; do not let
+  // a focused element below the current scroll position masquerade as success.
+  await expect(page.getByRole('button', { name: bridgeName, exact: true })).toBeInViewport({ ratio: 1 });
   await expect(page.getByRole('heading', { name: 'Your evening, pencilled in.' })).toBeVisible();
   expect(await savedBytes(page)).toEqual(before);
 });

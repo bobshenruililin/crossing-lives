@@ -53,7 +53,7 @@ Commit `004b5a9125214f45b82021654c311c07e45db17d` passed TypeScript, build/expor
 
 Committing the journey now visibly changes to one of two original close table compositions. Jun is part of the painting, without a duplicate portrait. Menu, phone and wallet use semantic controls aligned to the image coordinate plane. Both table files decode in the offline export. Actual arrival/menu/phone/wallet captures were reviewed at phone sizes, and the real recording includes the arrival transition.
 
-Human inspection found a defect the then-current suite missed: at 390px, the Wallet's `HK$304.00` wrapped its final digit onto a new line. The phone also forecast home before including the future disclosed dinner delay, while the menu included it. The next pass addresses both rather than treating the passing count as visual clearance.
+Visual inspection found a defect the then-current suite missed: at 390px, the Wallet's `HK$304.00` wrapped its final digit onto a new line. The phone also forecast home before including the future disclosed dinner delay, while the menu included it. The next pass addresses both rather than treating the passing count as visual clearance.
 
 The exact verified portable is 5,758,453 bytes with SHA-256 `7b4fab48f85ac63fe7fb1b6a6d719aca62fb5888e6ff6d9c2cd6be804a3da514`. It is the tested fallback, with the two review findings above disclosed.
 
@@ -107,11 +107,31 @@ Eight new pure selector tests bring the source suite to 102. They check approved
 
 The verified portable is 5,957,641 bytes with SHA-256 `ec5cac38f407fcbd797256b5894303593d0573dd4c59d1f338979a5151bd227d`.
 
-## Optional spending-to-research bridge, pending exact-commit verification
+## Verified optional spending-to-research bridge, 6 October 2026
 
-A subsequent bounded bridge lets the Wallet open the existing Business questions section with a frozen whitelist of the selected whole-outing HKD totals and party count. It includes transport; no restaurant revenue, wage, cost or profit is inferred. Missing totals remain incomplete, no selection creates no amount, and the independent fixed surplus pool is unchanged.
+Commit `edb9fdcd0ea87308928fdc1383b14bfc0bbdcafb` passed TypeScript, build/export, all **115 unit/SSR tests** and all **75 browser cases on their first attempt**.
 
-The source suite adds 13 focused context/SSR tests for 115 total. They include all supported party counts, unknown/zero values, rounding, nonmutation, source navigation and byte-identical fixed-pool markup across contexts. This is not browser clearance. Actual entry/return focus, blocked-storage preservation, optional receipt context, mobile readability and offline interaction still need the new exact-commit run. The same pass makes Jun's Shenzhen long-walk memory refer to the visible café lights under the trees.
+[Exact passing run](https://github.com/bobshenruililin/crossing-lives/actions/runs/37520682531)
+
+This bounded bridge lets the Wallet open the existing Business questions section with a frozen whitelist of the selected whole-outing HKD totals and party count. It includes transport; no restaurant revenue, wage, cost or profit is inferred. Missing totals remain incomplete, no selection creates no amount, and the independent fixed surplus pool is unchanged.
+
+The source suite adds 13 focused context/SSR tests for 115 total. They include all supported party counts, unknown/zero values, rounding, nonmutation, source navigation and byte-identical fixed-pool markup across contexts. The actual browser run verified Wallet entry/return focus, blocked-storage preservation, the optional receipt's real party count, no-selection behavior and offline use. Visual inspection of 360/390px captures found the spending context legible and the pool boundary clear. A subsequent strict receipt-return viewport check is separate: the first run asserted restored focus but did not establish that the bottom receipt action was onscreen. The same pass makes Jun's Shenzhen long-walk memory refer to the visible café lights under the trees.
+
+The verified portable is 5,962,118 bytes with SHA-256 `3c48f1bdc9b34b3e55132dc856002c0d3faba9c291003b434fa48caf94f5c811`.
+
+## Recovery and delivery corrections, pending exact-commit verification
+
+A read-only delivery audit found that the emergency reset label promised more than its planner-only deletion performed. The emergency view now offers a non-destructive reload with a clear unsaved-change warning; normal explicit reset flows remain separate. A fault-injected browser case must verify the actual boundary, all stored bytes and successful reload without reseeding the fixture.
+
+The same correction allows a returned receipt action to scroll into view, with a new strict viewport assertion rather than a test-side scroll. It records the bundled CJK font's exact Adobe copyright metadata alongside the retained OFL/distribution notices, and removes remaining wording that implied human user testing. None of these changes is cleared merely by the earlier bridge run.
+
+## Delivery and coverage limits
+
+The verified browser setup is Chrome stable on Ubuntu, with desktop and resized phone/tablet viewports. Physical phones, Safari and full assistive-technology behavior have not been verified. Automated axe checks gate serious/critical findings; they are not full WCAG certification. Most interaction tests run against Vite development output, while the offline file test exercises the actual production portable build.
+
+All scene/font data, JavaScript and notices were checked against embedded source bytes in the portable export. No required runtime external service is present. Optional source links require connectivity. Resource sizes and CI timing do not establish low-end mobile performance.
+
+Ship the private repository or a clean manifest-only source archive plus the identified portable file. Working snapshot directories contain local dependency symlinks and generated verification files and are not a distribution package.
 
 ## Browser infrastructure and export history
 

@@ -656,3 +656,20 @@ License: GPL-3+
  .
  On Debian systems, the complete text of the GNU General
  Public License version 3 can be found in "/usr/share/common-licenses/GPL-3".
+
+========================================================================
+Between CJK Subset — exact bundled font metadata
+========================================================================
+The bundled src/assets/between-cjk-subset.woff is a renamed subset.
+Its font name table identifies the following copyright and license:
+
+© 2017-2024 Adobe (http://www.adobe.com/).
+
+This Font Software is licensed under the SIL Open Font License, Version 1.1.
+This Font Software is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+CONDITIONS OF ANY KIND, either express or implied. See the SIL Open Font
+License for the specific language, permissions and limitations governing
+your use of this Font Software.
+
+Font metadata license URL: http://scripts.sil.org/OFL
+The full SIL Open Font License text and distribution notices above are retained.

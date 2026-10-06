@@ -1,7 +1,8 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
-import { seedLegacyPlanner } from './story-fixtures';
-import { expectNoOverflow as noOverflow, expectPhase, showcase, startStory, openPlanner, openResearch } from './story-helpers';
+import { defaultInputs } from '../../src/domain/data';
+import { legacyCompletedStory, seedLegacyPlanner } from './story-fixtures';
+import { dialogue, expectHomeScene, expectNoClippedText, expectNoOverflow as noOverflow, expectPhase, expectTouchTarget, readStorySave, showcase, startStory, openPlanner, openResearch, storyClock } from './story-helpers';
 
 test('independent practical edits preserve older notes without asking the player to record anything', async ({ page }) => {
   const legacy = await seedLegacyPlanner(page);
@@ -122,6 +123,66 @@ test('corrupt browser storage recovers without losing app access', async ({page}
   await openPlanner(page);
   await expect(page.locator('.storage-notice')).toHaveText('This saved planner could not be restored. Its original data is untouched. You can plan in this tab, or explicitly reset to replace it.');
   await expect(page.locator('.option-card')).toHaveCount(2);
+});
+
+test('a real dialog fault reaches non-destructive recovery and Reload restores the exact saved evening', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  const injectedError = 'Test-injected showModal failure for recovery verification';
+  const pageErrors: string[] = [];
+  page.on('pageerror', error => pageErrors.push(error.message));
+  const savedStory = legacyCompletedStory({ note: 'Mock legacy story detail survives emergency recovery.' });
+  const savedPlan = { version: 1, inputs: structuredClone(defaultInputs), mode: 'receipt', step: 0, selected: 'hk', notes: 'Mock separate practical detail survives emergency recovery.', completed: true };
+  // Seed once on the real origin, then reload. An init script that reseeds
+  // missing keys after every reload could conceal destructive recovery.
+  await page.goto('/'); await startStory(page);
+  await page.evaluate(({ story, plan }) => {
+    localStorage.setItem('between-playable-v2', JSON.stringify(story));
+    localStorage.setItem('between-journal-v1', JSON.stringify(plan));
+    localStorage.setItem('recovery-unrelated-local', 'Leave unrelated local bytes alone.');
+    sessionStorage.setItem('recovery-unrelated-session', 'Leave unrelated session bytes alone.');
+  }, { story: savedStory, plan: savedPlan });
+  await page.reload(); await startStory(page);
+  await expectHomeScene(page);
+  await expect(storyClock(page)).toHaveText('19:45');
+  await expect.poll(() => readStorySave(page)).toEqual(savedStory);
+  await page.evaluate(async () => { await document.fonts.ready; });
+  const bytes = () => page.evaluate(() => {
+    const entries = (storage: Storage) => Object.keys(storage).sort().map(key => [key, storage.getItem(key)]);
+    return { local: entries(localStorage), session: entries(sessionStorage) };
+  });
+  const before = await bytes();
+  const nativeBefore = await page.evaluate(() => HTMLDialogElement.prototype.showModal.toString());
+  await page.evaluate(message => {
+    HTMLDialogElement.prototype.showModal = function () { throw new Error(message); };
+  }, injectedError);
+  await page.getByRole('button', { name: 'Open wallet', exact: true }).click();
+  const fallback = page.locator('.error-page');
+  await expect(fallback.getByRole('heading', { name: 'Let’s find our way back.', exact: true })).toBeVisible();
+  await expect(fallback).toContainText('Changes this browser could not save may be lost.');
+  await expect(fallback).toContainText('Reloading does not reset this demo’s saved story or separate plan.');
+  await expect(fallback.getByRole('button')).toHaveCount(1);
+  await expect(page.getByRole('button', { name: /reset|clear|delete|erase|fresh/i })).toHaveCount(0);
+  const reload = fallback.getByRole('button', { name: 'Reload the evening', exact: true });
+  await expectTouchTarget(reload);
+  await expect(reload).toBeInViewport({ ratio: 1 });
+  expect(await reload.evaluate(element => Number.parseFloat(getComputedStyle(element).fontSize))).toBeGreaterThanOrEqual(14);
+  await expectNoClippedText(fallback); await noOverflow(page);
+  expect(await bytes()).toEqual(before);
+  expect(pageErrors.filter(message => message !== injectedError)).toEqual([]);
+  await showcase(page, 'non-destructive-error-recovery-390');
+  await Promise.all([page.waitForEvent('domcontentloaded'), reload.click()]);
+  await expect(fallback).toHaveCount(0);
+  await expectHomeScene(page);
+  await expect(storyClock(page)).toHaveText('19:45');
+  expect(await page.evaluate(() => HTMLDialogElement.prototype.showModal.toString())).toBe(nativeBefore);
+  await expect.poll(bytes).toEqual(before);
+  expect(await readStorySave(page)).toEqual(savedStory);
+  await page.getByRole('button', { name: 'Open wallet', exact: true }).click();
+  await expect(dialogue(page).getByRole('heading', { name: 'Wallet', exact: true })).toBeFocused();
+  expect(await bytes()).toEqual(before);
+  // React may contain the injected error without emitting pageerror. Anything
+  // else reported by the page is still a failure, including after recovery.
+  expect(pageErrors.filter(message => message !== injectedError)).toEqual([]);
 });
 
 test('no critical or serious accessibility violations in the world, optional planner and research desk', async ({page}) => {

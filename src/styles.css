@@ -49,3 +49,5 @@
 
 /* Keep the research return control easy to reach by touch as well as keyboard. */
 .evidence-layout .desk-back{min-height:44px;padding:10px 0}
+/* Emergency recovery remains readable and touchable without deleting saved data. */
+.error-page button{min-height:44px;min-width:44px;font-size:14px;line-height:1.5}

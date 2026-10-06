@@ -1,6 +1,6 @@
 # What verification is intended to prove
 
-Test counts are evidence of coverage, not a measure of whether the place is engaging. The release gate combines exact-commit browser execution, actual viewport captures and a recorded interaction reviewed by a person.
+Test counts are evidence of coverage, not a measure of whether the place is engaging. The release gate combines exact-commit browser execution, actual viewport captures and a recorded interaction inspected in an independent visual/code review.
 
 ## Preserved calculation and ownership checks
 
@@ -65,3 +65,12 @@ The home note is authored fiction. Opening, closing or rereading it must not cre
 Context tests whitelist only engine totals and party/city scope, preserve unknowns and valid zero, and prohibit private notes or inferred business outputs. Server rendering proves incomplete/default copy and identical independent fixed-pool markup. There is no genuine user-interface path that removes a fixture cost, so the missing-total state is unit/SSR coverage, not a claimed browser interaction.
 
 Browser coverage must exercise the real Wallet link, exact per-person/group context, null city selection, independent pool, and the one-time Wallet return/focus path with normal and blocked storage. The separate practical planner and legacy bytes must remain unchanged. Existing receipt entry uses its real party count, and general research links still open the evidence library.
+
+
+## Emergency recovery and delivery limits
+
+The emergency page must never silently reset saved state. Its fault-injected browser case loads real valid legacy story and planner data, captures stored bytes after settling, then deliberately fails a native dialog call. Reload must restore native behavior and the same data without a test reseeding it. Only the intended injected error is accepted.
+
+The receipt return also needs its focused control actually in the viewport; focus alone can hide a scroll-restoration defect. Tests must not scroll that control to manufacture a pass.
+
+Coverage is Chrome stable on Ubuntu with resized viewports, not physical-device/Safari or full screen-reader testing. Axe gates serious/critical violations rather than certifying WCAG. Development-server interaction checks are complemented by the production portable-file offline case; neither CI speed nor asset size establishes real-phone performance.

@@ -86,9 +86,9 @@ See [architecture](docs/ARCHITECTURE.md), [creative decisions](docs/DECISIONS.md
 
 ## Verification status
 
-Known-tested Jun/staging baseline `1c723b5449b8094a5af7e871517757fb28141d30` passed TypeScript, build/export, 102 unit tests and all 71 browser cases on their first attempt. The initial Jun pass exposed a genuine scene-overlap issue; a one-condition placement repair passed the unchanged geometry gate. The optional fictional home note, exact state/bytes, mobile text fit and offline paths were exercised and visually reviewed.
+Known-tested spending-bridge baseline `edb9fdcd0ea87308928fdc1383b14bfc0bbdcafb` passed TypeScript, build/export, 115 unit/SSR tests and all 75 browser cases on their first attempt. The Wallet's read-only spending context, independent pool, blocked-storage return, real party scope and offline use were exercised and visually reviewed.
 
-An optional whole-outing spending bridge into the existing business-research workspace is a subsequent pass. It adds no business-profit estimate or allocation formula, but its navigation/focus and mobile context still require their own browser review. See the [verification record](docs/VERIFICATION.md) and [coverage rationale](docs/TEST_COVERAGE.md) for exact evidence and limits. Visual/code review is not a human user study.
+A non-destructive emergency-reload correction and stricter receipt-return visibility check are subsequent fixes requiring their own run. See the [verification record](docs/VERIFICATION.md) and [coverage rationale](docs/TEST_COVERAGE.md) for exact evidence and limits. Review is model-assisted visual/code inspection, not a human user study or full accessibility certification. Browser coverage is Chrome stable on Ubuntu with resized viewports; physical phones and Safari remain unverified.
 
 ## Publication
 

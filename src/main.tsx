@@ -8,6 +8,6 @@ import './styles.css';
 class ErrorBoundary extends React.Component<{children: React.ReactNode}, {failed: boolean}> {
   state = {failed: false};
   static getDerivedStateFromError() { return {failed: true}; }
-  render() { return this.state.failed ? <main className="error-page"><p className="eyebrow">BETWEEN · A SMALL DETOUR</p><h1>Let’s find our way back.</h1><p>Something interrupted this view. Your device may still have your saved evening.</p><button onClick={() => window.location.reload()}>Reload the journal</button><button onClick={() => {try {localStorage.removeItem('between-journal-v1');} catch {/* Storage may be unavailable. */} window.location.reload();}}>Reset this demo’s saved state</button></main> : this.props.children; }
+  render() { return this.state.failed ? <main className="error-page"><p className="eyebrow">BETWEEN · A SMALL DETOUR</p><h1>Let’s find our way back.</h1><p>Something interrupted this view. You can reload to try again. Changes this browser could not save may be lost.</p><button onClick={() => window.location.reload()}>Reload the evening</button><p>Reloading does not reset this demo’s saved story or separate plan.</p></main> : this.props.children; }
 }
 ReactDOM.createRoot(document.getElementById('root')!).render(<React.StrictMode><ErrorBoundary><App/></ErrorBoundary></React.StrictMode>);

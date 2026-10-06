@@ -97,7 +97,7 @@ function App() {
     if(target!=='wallet') requestAnimationFrame(()=>{
       const previous=deskReturnFocus.current;
       if(previous?.isConnected) previous.focus({preventScroll:true});
-      else if(target==='receipt') document.getElementById('receipt-business-lens')?.focus({preventScroll:true});
+      else if(target==='receipt') document.getElementById('receipt-business-lens')?.focus();
       else (document.querySelector<HTMLElement>('.world-scroller')??document.getElementById('main-content'))?.focus({preventScroll:true});
     });
   }

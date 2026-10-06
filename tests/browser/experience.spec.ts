@@ -60,7 +60,7 @@ test('live constraints, costs, return route, allocation and evidence controls', 
   await expect(page.locator('.option-sz .cost-breakdown')).toContainText('Shared across 2');
   await page.locator('.surplus-lab > summary').click();
   await page.getByLabel('Hypothetical pool · HKD',{exact:true}).fill('100');
-  for (const label of ['Workers','Community','Business reserve']) {const slider = page.getByLabel(label,{exact:false}); await slider.focus(); await slider.press('Home'); await slider.press('ArrowRight');}
+  for (const label of ['Workers','Community','Business reserve']) {const slider = page.getByRole('slider',{name:new RegExp(label)}); await slider.focus(); await slider.press('Home'); await expect(slider).toHaveValue('0'); await slider.press('ArrowRight'); await expect(slider).toHaveValue('1');}
   await expect(page.locator('.allocation-proof')).toContainText('HK$33.34 + HK$33.33 + HK$33.33 = HK$100.00');
   await page.getByRole('button',{name:/Research desk/}).click();
   await page.getByLabel('Search evidence').fill('nonexistent');
@@ -80,6 +80,7 @@ for (const width of [360,390,1440]) {
     await page.setViewportSize({width,height:900});
     await page.goto('/');
     await noOverflow(page);
+    for (const name of ['The story','Your evening','Research desk']) await expect(page.getByRole('button',{name:new RegExp(name)})).toBeInViewport();
     await expect(page.locator('.hero-world img')).toBeVisible();
     await page.screenshot({path:`artifacts/intro-${width}.png`,fullPage:true});
     if (width < 640) {

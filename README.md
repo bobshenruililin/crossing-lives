@@ -84,9 +84,9 @@ See [architecture](docs/ARCHITECTURE.md), [creative decisions](docs/DECISIONS.md
 
 ## Verification status
 
-Known-green playable baseline `0e14f2f9529653bdcd85107190230f6c0f8acbd2` passed TypeScript, build/export, 74 unit tests and all 26 browser cases on their first attempt. This includes both city night scenes, Jun, complete journals and replay, navigation with blocked storage, rejected-save recovery and the portable file opened offline. Desktop and 360/390px screenshots were visually reviewed.
+Known-green world-first baseline `bde888c04222024c627750e33f03558eeec0ea73` passed TypeScript, build/export, 81 unit tests and all 44 browser cases on their first attempt. This includes both city flows, offline play, actual opening footage, keyboard focus, protected saved data, a zero-walk return and genuine artwork coverage on phones and portrait tablets.
 
-The first world-first commit `4199ead` ran in the browser: 27/34 cases passed, including both city flows, offline play and the actual 82-second recording. Three modal-focus failures and four ambiguous test locators require correction. Additional source/audience review prompted tablet-artwork, narrative-state and direct-return improvements. The next exact-commit run is still required; see the verification record rather than treating source checks as experience clearance. The intervening scene-and-sidebar candidate was superseded before publication. See the [verification record](docs/VERIFICATION.md) for commit-specific evidence.
+The close table-arrival scene integration is a separate next pass. Earlier clearance does not silently apply to new assets or framing. See the [verification record](docs/VERIFICATION.md) and [coverage rationale](docs/TEST_COVERAGE.md) for exact-commit evidence and limits. Human visual and interaction review remains part of acceptance.
 
 ## Publication
 

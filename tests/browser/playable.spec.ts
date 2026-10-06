@@ -143,7 +143,7 @@ test('each committed phase quietly resumes and rewinds with exact clock and no r
     await expect(page.getByRole('heading', { name: 'Dinner, then a walk?', exact: true })).toHaveCount(0);
     await startStory(page);
     await expectClock(page, clock);
-    await openAction(page, 'Talk with Jun');
+    await openAction(page, phase === 'arrival' || phase === 'afterDinner' ? 'Talk with Jun in the illustration' : 'Talk with Jun');
     const titles = { fork: 'Shall we eat here?', arrival: 'The menu', afterDinner: 'A little walk?', walk: 'Time to head back?', home: 'Back home' };
     await expect(dialogue(page).getByRole('heading', { name: titles[phase], exact: true })).toBeFocused();
     await expectJun(page);
@@ -493,7 +493,8 @@ test('calm short Shenzhen evening never promises spare walking time after the de
   await chooseDinner(page, 'simple');
   await expect(page.getByLabel('Story clock', { exact: true })).toHaveText('19:45');
   await expect(dialogue(page)).not.toContainText('There’s still time for a walk.');
-  await expect(dialogue(page).locator('.spoken-line')).toHaveText('Shall we step outside?');
+  await expect(dialogue(page).locator('.spoken-line')).toContainText('Shall we step outside?');
+  await expect(dialogue(page).locator('.spoken-line')).toContainText('We kept the order simple.');
   await expect(page.locator('.play-event-note')).toContainText('No fictional delay is applied.');
   await openAction(page, 'Step outside');
   const short = page.getByRole('button', { name: /^A short loop sounds good\./ });

@@ -36,10 +36,12 @@ test('portable production file keeps both cities, Jun, choices and quiet resume 
   await expectSceneAssets(page, 'hong-kong-evening.webp', true);
   await allAssetsEmbedded();
   await depart(page, 'Hong Kong');
+  await expectSceneAssets(page, 'hong-kong-table.webp', true);
   await expectJun(page, true);
-  await expectSceneAssets(page, 'hong-kong-evening.webp', true);
   await allAssetsEmbedded();
   await chooseDinner(page, 'linger');
+  await expectSceneAssets(page, 'hong-kong-table.webp', true);
+  await allAssetsEmbedded();
   await chooseWalk(page, 'long');
   await expectSceneAssets(page, 'hk-evening-night.webp', true);
   await expectJun(page, true);
@@ -55,7 +57,12 @@ test('portable production file keeps both cities, Jun, choices and quiet resume 
   await expectClock(page, '16:30');
   await expectSceneAssets(page, 'shenzhen-evening.webp', true);
   await depart(page, 'Shenzhen');
+  await expectSceneAssets(page, 'shenzhen-table.webp', true);
+  await expectJun(page, true);
+  await allAssetsEmbedded();
   await chooseDinner(page, 'simple');
+  await expectSceneAssets(page, 'shenzhen-table.webp', true);
+  await allAssetsEmbedded();
   await chooseWalk(page, 'short');
   await expectSceneAssets(page, 'sz-evening-night.webp', true);
   await expectJun(page, true);

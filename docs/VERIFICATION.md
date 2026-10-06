@@ -35,15 +35,23 @@ The actual recording completed in 82 seconds and identifies that commit. Both ci
 
 Evidence naming matters: the initial `world-opening` screenshots showed exploration after a helper dismissed the first dialogue. The recording's four-second frame shows the true initial Jun invitation, with unrelated tools hidden. Subsequent tests capture `initial-invitation` before dismissal and `exploration` afterward. A full-height wrapper alone is not accepted as proof of artwork coverage.
 
-## World-first redesign, pending exact-commit verification
+## Verified world-first correction, 6 October 2026
 
-Direct audience feedback identified two problems with the page-and-sidebar direction: it felt like a dashboard rather than a place to explore, and explicit memento/recording tasks made the experience feel like something to complete. That intermediate candidate was not published.
+Commit `bde888c04222024c627750e33f03558eeec0ea73` passed TypeScript, the production build/export, all **81 unit tests** and all **44 browser cases on their first attempt**.
 
-The current source instead opens directly into the illustrated world. Objects and short contextual conversations lead to explicit meal, walk and travel commitments. Planner, evidence and detailed assumptions are optional tools; a normal home ending replaces the journal task. Quiet resume preserves existing data without presenting it as a collection goal. Pure domain/story contracts remain the known-green foundation.
+[Exact passing run](https://github.com/bobshenruililin/crossing-lives/actions/runs/37494497635)
 
-Two additional persistence edges travel with this revision: an empty-string rejected story save stays protected, and an explicit in-tab reset wins even if removing its older saved copy fails. The next exact-commit run must verify modal focus wrapping, true keyboard activation, motion behavior, direct preset controls, phase-correct observations, protected legacy-detail reconsideration and actual artwork coverage on portrait tablets. A guarded zero-walk return after dinner also removes a previously mandatory activity; it uses the same domain timing and costs. The verified v2 above remains the fallback until then.
+This run resolved the modal-focus defect and warning-locator ambiguity. It also exercised genuine keyboard activation, forward/reverse modal traversal, computed reduced-motion behavior, real setup controls, direct zero-walk return, protected legacy-detail reconsideration, phase-aware observations and actual image-plane coverage at 768×1024 and 820×1180. Initial invitation and exploration captures are separately named. Both city flows and the offline portable still passed; the real opening recording was regenerated.
 
-The opening will be reviewed as actual browser interaction and a short recording, alongside desktop/phone viewport captures. Passing calculations alone is not evidence that the new place is engaging.
+The verified portable is 4,789,137 bytes with SHA-256 `9aa1a4fc213b45c1c777ed491d4ad230e20310a99f814cef314d0e774a36dbf8`. This is now the known-good fallback. The new close table-art integration is a separate unverified change until its own browser run and visual review.
+
+## Table-arrival staging, pending exact-commit verification
+
+The next source pass adds two original close table compositions, so committing the journey visibly changes the setting rather than only advancing the clock over the same wide street. Jun is part of the new painting; a second portrait must not be overlaid. Menu, phone and wallet remain real HTML controls aligned to shared image coordinates, with named keyboard/touch alternatives.
+
+Asset inspection alone does not clear the integration. The next exact-commit run must decode both table files in the offline export, exercise their object controls, and capture the arrival/menu/phone/wallet at phone and desktop sizes. Dialogue must leave the attended face or object visible; reduced motion must preserve the same decisions without a timed input lock. Choice-specific acknowledgments must follow actual commitments without inventing spare time or emotions.
+
+The known-good world-first correction above remains the fallback. The real opening recording and independent visual review will judge the new payoff and pacing; passing calculations alone is not evidence that the place is engaging.
 
 ## Browser infrastructure and export history
 

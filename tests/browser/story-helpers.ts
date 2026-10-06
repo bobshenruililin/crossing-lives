@@ -127,7 +127,17 @@ export async function expectSceneAssets(page: Page, sceneName: string, portable 
 }
 
 export async function expectJun(page: Page, portable = false) {
-  await expectDecodedImage(dialogue(page).locator('.jun-avatar img[data-art="jun-portrait.webp"]'), portable);
+  const phaseClass = await story(page).getAttribute('class');
+  if (/\bplay-phase-(arrival|afterDinner)\b/.test(phaseClass ?? '')) {
+    // At the table Jun is painted into the original scene, rather than duplicated
+    // in a portrait overlay. Other phases retain the separately decoded portrait.
+    const table = page.locator('.play-world img[data-art$="-table.webp"]');
+    await expectDecodedImage(table, portable);
+    await expect(table).toHaveAttribute('alt', /Jun,.*fictional adult friend/);
+    await expect(dialogue(page).locator('img[data-art="jun-portrait.webp"]')).toHaveCount(0);
+  } else {
+    await expectDecodedImage(dialogue(page).locator('.jun-avatar img[data-art="jun-portrait.webp"]'), portable);
+  }
 }
 
 export async function expectNoOverflow(page: Page) {
@@ -161,6 +171,7 @@ export async function expectNoClippedText(locator: Locator) {
 
 export async function expectWorldViewport(page: Page, filename: string) {
   await closeDialogue(page);
+  await expect(story(page)).not.toHaveAttribute('data-table-framed', 'true');
   await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));
   await expectNoOverflow(page);
   const viewport = page.viewportSize()!;

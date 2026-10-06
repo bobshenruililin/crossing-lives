@@ -66,9 +66,11 @@ test('record a real 60–90 second world-first opening from invitation to an ord
     await hold('Talk with Jun and choose an ordinary dinner plan, with its consequences visible.', 9000);
     await page.getByRole('button', { name: 'Head to the table', exact: true }).click();
     await expectPhase(page, 'arrival');
+    await expectSceneAssets(page, 'hong-kong-table.webp');
+    await expectJun(page);
     await expect(storyClock(page)).toHaveText('16:45');
     await expect(dialogue(page).getByRole('heading', { name: 'At the table', exact: true })).toBeFocused();
-    await hold('The first real commitment advances time and brings us to the table.', 6000);
+    await hold('The first real commitment advances time and changes the setting to the close table scene with Jun.', 6000);
     expect(errors).toEqual([]);
     complete = true;
   } finally {

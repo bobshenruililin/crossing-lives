@@ -28,3 +28,7 @@ Hong Kong prompt direction: a new companion scene using the overview only as aes
 Shenzhen prompt direction: a new companion scene using the overview only as aesthetic reference; a modern tree-lined food street at blue-green dusk. Contemporary amber-lit restaurant pavilions left, a broad pedestrian avenue center, lush planters and seating terraces, water feature, subtle transit entrance right, original geometric teal towers above. Lived-in and personable, restrained lighting without cyberpunk or neon overload. The only requested sign text was 食.
 
 No exclusive copyright or trademark clearance is asserted by this note. No third-party asset license was imported into the project.
+
+## Close table compositions
+
+The next arrival-stage pair is documented in [TABLE-ASSETS.md](TABLE-ASSETS.md). It uses only this project’s original city scenes and fictional adult Jun as references, with no third-party art. The shared normalized object anchors are defined in `src/data/scene-art.ts`; rendered mobile framing must be verified separately.

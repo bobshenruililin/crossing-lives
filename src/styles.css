@@ -36,3 +36,6 @@
 .ribbon-evening,.ribbon-unused{border:0}.ribbon-unused{background:#e2e7dd}
 .top-nav button:hover,.top-nav button.active,.text-button:hover{color:#874b37}
 @media(max-width:380px){.site-header{height:auto;min-height:107px;padding:12px 20px 0;flex-wrap:wrap;gap:0}.site-header .brand{min-height:45px}.top-nav{width:100%;justify-content:space-between;gap:14px}.top-nav button{min-height:45px;padding:10px 0;font-size:12px}.top-nav button:last-child{font-size:0}.top-nav button:last-child::before{font-size:12px}.hero-copy{padding-top:35px}}
+.outing-settings{border-top:1px solid #d4deca;font-size:13px}.outing-settings>summary{display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer;padding:15px 0;line-height:1.6}.outing-settings>div{padding:6px 0 16px}.optional-order{display:flex;gap:8px;align-items:flex-start;font-size:13px;line-height:1.7;margin:4px 0 19px}.optional-order input{width:17px;height:17px;accent-color:#28523e;margin:3px 0 0;flex-shrink:0}.outing-settings .field-note{font-size:12px;line-height:1.8;border-top:1px solid #d6dfcb;padding-top:15px}.desk-main .surplus-lab{margin-top:28px}
+/* The offscreen target stays truly clipped in full-page captures until focused. */
+.skip-link:not(:focus){clip-path:inset(50%);width:1px;height:1px;padding:0;overflow:hidden;white-space:nowrap}

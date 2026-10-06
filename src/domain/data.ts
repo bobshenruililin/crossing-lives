@@ -15,6 +15,7 @@ export const defaultInputs: OutingInputs = {
   szMealPerPersonCNY: 128,
   walkMinutes: 45,
   entryEligibility: 'unsure',
+  familiarity: { hk: { dinner: 'unsure', walk: 'unsure' }, sz: { dinner: 'unsure', walk: 'unsure' } },
 };
 
 /** Authored example numbers. No fare, restaurant price, FX quote or journey time is live. */
@@ -29,13 +30,12 @@ export const illustrativeData: OutingFixture = {
     'Budget is HKD per person. Shared food is charged once to the group, then divided by party size.',
     'Budgets and native unit prices round to cents once, with decimal half-cents rounded up. Converted group line items round to HKD cents before addition; per-person figures are rounded averages.',
     'Unedited journey assumptions follow the selected origin and route. An explicit time override stays in effect until reset, including when the route or origin changes.',
-    'Discovery ratings are subjective scores for these example itineraries, not factual ratings of either city.',
+    'Discovery uses only your explicit new / familiar answers for selected activities. Not sure stays unknown; neither city has an intrinsic novelty rating.',
   ],
   local: {
     label: 'Stay in Hong Kong',
     description: 'A neighborhood dinner and a harbor-side walk',
     walkMinutes: 45,
-    discoveryRating: 55,
     origins: {
       kowloon: { travelMinutesEachWay: 15, fareEachWayHKD: 12 },
       island: { travelMinutesEachWay: 20, fareEachWayHKD: 15 },
@@ -43,18 +43,17 @@ export const illustrativeData: OutingFixture = {
     costs: [
       { id: 'hk-dinner', label: 'Dinner', currency: 'HKD', amount: 248, quantity: 1, scope: 'per-person', note: 'Illustrative meal allowance per person.' },
       { id: 'hk-drinks', label: 'Drinks', currency: 'HKD', amount: 32, quantity: 1, scope: 'per-person', note: 'Illustrative drinks allowance per person.' },
-      { id: 'hk-shared', label: 'Shared dessert', currency: 'HKD', amount: 64, quantity: 1, scope: 'group', note: 'One fixed dessert order for the group; adjust in the fixture if the order changes.' },
+      { id: 'hk-shared', optionalSharedOrder: true, label: 'Shared dessert', currency: 'HKD', amount: 64, quantity: 1, scope: 'group', note: 'One fixed dessert order for the group; adjust in the fixture if the order changes.' },
     ],
   },
   shenzhen: {
     label: 'Head to Shenzhen',
     description: 'Dinner in Luohu and a city-neighborhood walk',
     walkMinutes: 45,
-    discoveryRating: 85,
     costs: [
       { id: 'sz-dinner', label: 'Dinner', currency: 'CNY', amount: 128, quantity: 1, scope: 'per-person', note: 'Illustrative meal allowance per person.' },
       { id: 'sz-drinks', label: 'Drinks', currency: 'CNY', amount: 18, quantity: 1, scope: 'per-person', note: 'Illustrative drinks allowance per person.' },
-      { id: 'sz-shared', label: 'Shared dishes', currency: 'CNY', amount: 58, quantity: 1, scope: 'group', note: 'One fixed shared order for the group; adjust in the fixture if the order changes.' },
+      { id: 'sz-shared', optionalSharedOrder: true, label: 'Shared dishes', currency: 'CNY', amount: 58, quantity: 1, scope: 'group', note: 'One fixed shared order for the group; adjust in the fixture if the order changes.' },
     ],
     routes: {
       rail: {

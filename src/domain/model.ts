@@ -4,6 +4,15 @@ export type ShenzhenRoute = 'rail' | 'bus';
 export type OptionId = 'hk' | 'sz';
 export type Currency = 'HKD' | 'CNY';
 export type Feasibility = boolean | null;
+export type Familiarity = 'new' | 'familiar' | 'unsure';
+export interface ActivityFamiliarity { dinner: Familiarity; walk: Familiarity }
+export interface ItineraryOverride {
+  mealMinutes?: number;
+  walkMinutes?: number;
+  includeSharedOrder?: boolean;
+  /** Authored scenario time only; never a live queue forecast or an additional charge. */
+  storyDelayMinutes?: number;
+}
 
 export interface ValueWeights {
   /** Preference weights, each 0–5. These are not money or percentages. */
@@ -35,6 +44,10 @@ export interface OutingInputs {
   szLocalMinutes?: number;
   walkMinutes?: number;
   entryEligibility?: 'confirmed' | 'unsure';
+  /** Independent itinerary choices. Existing global durations remain planner fallbacks. */
+  itineraryOverrides?: Partial<Record<OptionId, ItineraryOverride>>;
+  /** Explicit player answers only. Missing answers mean unsure, never a city-derived score. */
+  familiarity?: Partial<Record<OptionId, Partial<ActivityFamiliarity>>>;
 }
 
 export interface CostFixture {
@@ -46,6 +59,8 @@ export interface CostFixture {
   quantity: number;
   scope: 'per-person' | 'group';
   note: string;
+  /** Only this explicit flag allows includeSharedOrder=false to omit a cost. */
+  optionalSharedOrder?: boolean;
 }
 
 export interface RouteOriginFixture {
@@ -74,7 +89,6 @@ export interface OutingFixture {
     label: string;
     description: string;
     walkMinutes: number;
-    discoveryRating: number;
     origins: Record<Origin, { travelMinutesEachWay: number; fareEachWayHKD: number | null }>;
     costs: CostFixture[];
   };
@@ -82,7 +96,6 @@ export interface OutingFixture {
     label: string;
     description: string;
     walkMinutes: number;
-    discoveryRating: number;
     costs: CostFixture[];
     routes: Record<ShenzhenRoute, RouteFixture>;
   };
@@ -106,7 +119,7 @@ export interface CostLineItem {
 export interface ScoreBreakdown {
   price: number | null;
   ease: number;
-  discovery: number;
+  discovery: number | null;
   totalWeight: number;
   explanation: string;
 }
@@ -138,6 +151,11 @@ export interface OutingOption {
   missingCostLabels: string[];
   outwardMinutes: number;
   inwardMinutes: number;
+  mealMinutes: number;
+  walkMinutes: number;
+  storyDelayMinutes: number;
+  includeSharedOrder: boolean;
+  familiarity: ActivityFamiliarity;
   experienceMinutes: number;
   totalMinutes: number;
   borderBufferMinutes: number;

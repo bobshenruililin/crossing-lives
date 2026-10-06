@@ -6,7 +6,8 @@ It combines an original illustrated story with a practical, editable whole-outin
 
 ## What is here
 
-- Four-chapter guided story with priority and border-buffer choices
+- A six-beat playable fictional Saturday with Jun, free scene inspections and explicit commitments
+- Dinner/shared-order choices, a disclosed optional delay, short/long walks, mementos, checkpoint rewind and one preserved alternative evening
 - Editable departure, return deadline, budget, party size and personal weights
 - Complete local and cross-border outings, including return travel and border closing margins
 - Native-currency line items, per-person and group costs, explicit shared orders
@@ -36,13 +37,13 @@ npm run test:browser    # Playwright; run export:portable first for the offline 
 npm run export:portable
 ```
 
-For standard Playwright setup, install its Chromium browser using `npx playwright install chromium`. To use an existing compatible Chromium, set `CROSSING_CHROMIUM_PATH` to its actual executable path. Browser sandboxing remains enabled.
+For standard Playwright setup, install its Chromium browser using `npx playwright install chromium`. CI uses installed stable Chrome with `CROSSING_BROWSER_CHANNEL=chrome` and the sandbox enabled. To use an existing compatible Chromium, set `CROSSING_CHROMIUM_PATH` to its actual executable path. Browser sandboxing remains enabled.
 
 The portable command embeds the exact production build, fonts and illustrations into `artifacts/crossing-lives-portable.html`. It can be privately shared as one file; it is not a deployment. Offline file-opening must be verified in a supported browser before calling it tested.
 
 ## Model boundaries
 
-The demo's prices, exchange rate and journey durations are **illustrative**, not current quotes. Meal budgets, local-travel time, border buffers, FX and dinner/walking time are editable. Transit fares, drinks, fixed shared orders and subjective itinerary discovery ratings are currently authored fixtures, visible in the bill/rubric and source.
+The demo's prices, exchange rate and journey durations are **illustrative**, not current quotes. Meal budgets, local-travel time, border buffers, FX and dinner/walking time are editable. Transit fares, drinks and optional shared-order prices are authored fixtures, visible in the bill/rubric and source. Familiarity comes only from explicit new/familiar/not-sure answers; no city is assigned an intrinsic novelty score. A requested but unknown familiarity component prevents a composite preference winner.
 
 Budget is HKD per person. CNY is converted using the explicit HKD-per-CNY input. Only group-scoped costs are split. Monetary inputs use one decimal half-up cents policy; displayed per-person averages can differ from the group total by rounding.
 
@@ -66,9 +67,14 @@ The art is an imagined setting, not a geographic or transport map. See [asset pr
 - `src/domain/data.ts`: authored scenario data, separate from logic
 - `src/domain/engine.ts`: pure deterministic comparison and allocation logic
 - `src/data/evidence.ts`: source-labelled claims and limitations
-- `src/App.tsx`: story, planner and local persistence
+- `src/App.tsx`: application shell and practical planner
+- `src/components/PlayableEvening.tsx`: scene interactions and the fictional evening
+- `src/story/`: pure, guarded, replayable narrative state and derived journal
+- `src/persistence/journal.ts`: versioned practical-plan storage, distinct from story storage
 - `src/components/EvidenceDesk.tsx`: separate research workspace
-- `tests/domain.test.ts`: money, timing, unknown data and persistence edge cases
+- `tests/domain.test.ts`: money, timing, unknown data and preference edge cases
+- `tests/story.test.ts`: idempotent commitments, explicit rewind, immutable alternate and safe decoding
+- `tests/persistence.test.ts`: corrupt/blocked storage and last-valid-save protection
 - `tests/browser/experience.spec.ts`: full interaction and responsive verification
 - `scripts/export-portable.mjs`: self-contained artifact from the normal build
 
@@ -78,7 +84,9 @@ See [architecture](docs/ARCHITECTURE.md), [creative decisions](docs/DECISIONS.md
 
 ## Verification status
 
-TypeScript, the production build and all 28 domain tests pass. An independent adversarial review passed 10 additional tests, including seeded allocation and timing checks. Browser suites are present, but this cloud runtime blocked Chromium process sockets before any page could render. This is an explicit verification limit, not a passing UI result. The record will be updated after a permitted browser review.
+Known-green baseline `c290341` passed TypeScript, build/export, 28 domain tests and all 13 browser cases, including a real offline portable-file choice. Desktop and 360/390px screenshots were visually reviewed and led to composition, readability and comparison-feedback corrections.
+
+The playable-evening pass adds new narrative, art and persistence behavior. Its current TypeScript/build and 74 unit checks pass; its expanded browser/night-art/offline checks must pass on the exact new commit before this pass is called verified. See the dated record rather than assuming the baseline clearance covers new features.
 
 ## Publication
 

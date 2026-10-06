@@ -1,7 +1,7 @@
 import { illustrativeData } from './data';
 import type {
   AllocationWeights, ComparisonResult, CostFixture, CostLineItem, CrossingPlan,
-  Feasibility, OutingFixture, OutingInputs, OutingOption, Recommendation, SurplusAllocation,
+  ActivityFamiliarity, Feasibility, OutingFixture, OutingInputs, OutingOption, Recommendation, SurplusAllocation,
 } from './model';
 
 export { defaultInputs } from './data';
@@ -66,6 +66,33 @@ export function validateInputs(inputs: OutingInputs): string[] {
     if (value !== undefined && key.endsWith('Minutes') && !Number.isInteger(value)) errors.push(`${key} must be a whole number of minutes.`);
   }
   if (inputs.entryEligibility !== undefined && !['confirmed', 'unsure'].includes(inputs.entryEligibility)) errors.push('Entry eligibility must be confirmed or unsure.');
+  for (const [field, record] of [['itineraryOverrides', inputs.itineraryOverrides], ['familiarity', inputs.familiarity]] as const) {
+    if (record !== undefined && (!record || typeof record !== 'object' || Array.isArray(record))) {
+      errors.push(`${field} must be a per-city object.`);
+      continue;
+    }
+    if (record && Object.keys(record).some(key => key !== 'hk' && key !== 'sz')) errors.push(`${field} contains an unknown city.`);
+    for (const city of ['hk', 'sz'] as const) {
+      const value = record?.[city];
+      if (value === undefined) continue;
+      if (!value || typeof value !== 'object' || Array.isArray(value)) {
+        errors.push(`${field}.${city} must be an object.`);
+        continue;
+      }
+      if (field === 'familiarity') {
+        for (const activity of ['dinner', 'walk'] as const) {
+          const answer = (value as Partial<ActivityFamiliarity>)[activity];
+          if (answer !== undefined && !['new', 'familiar', 'unsure'].includes(answer)) errors.push(`${city} ${activity} familiarity must be new, familiar or unsure.`);
+        }
+      } else {
+        const override = inputs.itineraryOverrides![city]!;
+        for (const [key, min, max] of [['mealMinutes', 60, 180], ['walkMinutes', 0, 180], ['storyDelayMinutes', 0, 240]] as const) {
+          if (override[key] !== undefined && (!finiteRange(override[key], min, max) || !Number.isInteger(override[key]))) errors.push(`${city} ${key} must be a whole number from ${min} to ${max}.`);
+        }
+        if (override.includeSharedOrder !== undefined && typeof override.includeSharedOrder !== 'boolean') errors.push(`${city} includeSharedOrder must be true or false.`);
+      }
+    }
+  }
   return errors;
 }
 
@@ -120,7 +147,16 @@ function makeOption(id: 'hk' | 'sz', inputs: OutingInputs, fixture: OutingFixtur
   const borderMinutes = travel.borderBufferMinutes;
   const outwardMinutes = isLocal ? localMinutes : routeOrigin.toCrossingMinutes + borderMinutes + destinationMinutes;
   const inwardMinutes = isLocal ? localMinutes : destinationMinutes + borderMinutes + routeOrigin.fromCrossingMinutes;
-  const experienceMinutes = inputs.mealMinutes + (inputs.walkMinutes ?? experience.walkMinutes);
+  const override = inputs.itineraryOverrides?.[id];
+  const mealMinutes = override?.mealMinutes ?? inputs.mealMinutes;
+  const walkMinutes = override?.walkMinutes ?? inputs.walkMinutes ?? experience.walkMinutes;
+  const storyDelayMinutes = override?.storyDelayMinutes ?? 0;
+  const includeSharedOrder = override?.includeSharedOrder ?? true;
+  const familiarity: ActivityFamiliarity = {
+    dinner: inputs.familiarity?.[id]?.dinner ?? 'unsure',
+    walk: inputs.familiarity?.[id]?.walk ?? 'unsure',
+  };
+  const experienceMinutes = mealMinutes + walkMinutes + storyDelayMinutes;
   const arrivalMinutes = inputs.departureMinutes + outwardMinutes;
   const experienceEndMinutes = arrivalMinutes + experienceMinutes;
   const returnMinutes = experienceEndMinutes + inwardMinutes;
@@ -135,7 +171,7 @@ function makeOption(id: 'hk' | 'sz', inputs: OutingInputs, fixture: OutingFixtur
     amount: route.destinationFareEachWayCNY, quantity: 2, scope: 'per-person', note: 'Illustrative destination transfers each way.',
   }];
   const mealOverride = isLocal ? inputs.hkMealPerPersonHKD : inputs.szMealPerPersonCNY;
-  const experienceCosts = experience.costs.map(item => item.id === `${id}-dinner` && mealOverride !== undefined
+  const experienceCosts = experience.costs.filter(item => includeSharedOrder || item.optionalSharedOrder !== true).map(item => item.id === `${id}-dinner` && mealOverride !== undefined
     ? { ...item, amount: mealOverride, note: 'Editable illustrative meal allowance per person.' }
     : item);
   const lineItems = [...experienceCosts, ...travelCosts].map(item => priceLine(item, inputs));
@@ -168,10 +204,12 @@ function makeOption(id: 'hk' | 'sz', inputs: OutingInputs, fixture: OutingFixtur
     ? (knownGroupCents === 0 ? 100 : 0)
     : clamp((1 - knownGroupCents / (budgetCents * inputs.partySize)) * 100);
   const easeScore = clamp((1 - (outwardMinutes + inwardMinutes) / 240) * 100);
-  const discoveryScore = clamp(experience.discoveryRating);
+  const selectedFamiliarity = [familiarity.dinner, ...(walkMinutes > 0 ? [familiarity.walk] : [])];
+  const discoveryScore = selectedFamiliarity.includes('unsure') ? null
+    : selectedFamiliarity.reduce((sum, answer) => sum + (answer === 'new' ? 100 : 0), 0) / selectedFamiliarity.length;
   const totalWeight = inputs.weights.price + inputs.weights.ease + inputs.weights.discovery;
-  const score = totalWeight === 0 || (priceScore === null && inputs.weights.price > 0) ? null : roundMoney(
-    ((priceScore ?? 0) * inputs.weights.price + easeScore * inputs.weights.ease + discoveryScore * inputs.weights.discovery) / totalWeight,
+  const score = totalWeight === 0 || (priceScore === null && inputs.weights.price > 0) || (discoveryScore === null && inputs.weights.discovery > 0) ? null : roundMoney(
+    ((priceScore ?? 0) * inputs.weights.price + easeScore * inputs.weights.ease + (discoveryScore ?? 0) * inputs.weights.discovery) / totalWeight,
   );
   const reasons: string[] = [];
   // Put blockers first: compact UI views must not hide them behind positive facts.
@@ -183,6 +221,8 @@ function makeOption(id: 'hk' | 'sz', inputs: OutingInputs, fixture: OutingFixtur
   if (budgetFeasible === true) reasons.push(`Within the HK$${normalizedBudgetPerPersonHKD.toFixed(2)} per-person budget.`);
   if (homeFeasible) reasons.push(`Home at ${formatClock(returnMinutes)}, ${homeBy - returnMinutes} minutes before the deadline.`);
   const warnings = ['All cost and journey-time figures are illustrative estimates.'];
+  if (discoveryScore === null && inputs.weights.discovery > 0) warnings.push('Missing preference: how new dinner or the selected walk feels is still yours to judge. Discovery and the weighted preference score remain unknown.');
+  if (storyDelayMinutes > 0) warnings.push(`Includes ${storyDelayMinutes} minutes of authored fictional delay, not a live queue prediction.`);
   if (!isLocal) {
     warnings.push('Crossing-hours fit does not confirm transport service or immigration eligibility. Verify both before travel.');
     warnings.push(`Includes ${borderMinutes} minutes of border buffer each way; actual queues may be longer.`);
@@ -193,14 +233,14 @@ function makeOption(id: 'hk' | 'sz', inputs: OutingInputs, fixture: OutingFixtur
     id, label: experience.label, description: experience.description,
     routeLabel: isLocal ? 'Local transit and walking' : route.label,
     lineItems, perPersonHKD, groupHKD, knownGroupSubtotalHKD, normalizedBudgetPerPersonHKD, missingCostLabels,
-    outwardMinutes, inwardMinutes, experienceMinutes, totalMinutes: outwardMinutes + experienceMinutes + inwardMinutes,
+    outwardMinutes, inwardMinutes, mealMinutes, walkMinutes, storyDelayMinutes, includeSharedOrder, familiarity, experienceMinutes, totalMinutes: outwardMinutes + experienceMinutes + inwardMinutes,
     borderBufferMinutes: isLocal ? 0 : 2 * borderMinutes,
     departureMinutes: inputs.departureMinutes, arrivalMinutes, experienceEndMinutes, returnMinutes,
     homeByMinutes: homeBy, spareMinutes: homeBy - returnMinutes,
     budgetFeasible, homeFeasible, crossingFeasible, entryFeasible, feasible, crossingPlan, score,
     scoreBreakdown: {
       price: priceScore === null ? null : roundMoney(priceScore), ease: roundMoney(easeScore), discovery: discoveryScore, totalWeight,
-      explanation: 'Price = budget left as a percentage (clamped 0–100). Ease = 100 minus round-trip travel minutes / 240 × 100 (clamped 0–100). Discovery = the authored itinerary rating. The final score is the weighted average; infeasible options are excluded from the recommendation.',
+      explanation: 'Price = budget left as a percentage (clamped 0–100). Ease = 100 minus round-trip travel minutes / 240 × 100 (clamped 0–100). Discovery = the equal-weight mean of your new (100) / familiar (0) labels for selected activities; any not-sure answer stays unknown. The final score is the weighted average; infeasible options are excluded from the recommendation.',
     },
     reasons, warnings, dataStatus: 'illustrative',
   };
@@ -213,6 +253,11 @@ function recommend(options: OutingOption[], inputs: OutingInputs): Recommendatio
     label: options.some(option => option.feasible === null) ? 'More information needed' : 'Neither outing fits these constraints',
     reasons: ['Check the cost, home-by and crossing-hours flags. Change the scenario before choosing an outing.'],
   };
+  if (eligible.length === 1 && options.some(option => option.feasible === null)) return {
+    optionId: null,
+    label: 'One fits; one needs checking',
+    reasons: [`${eligible[0].label} meets the known modelled limits. The other outing has unresolved information, shown in its checks.`, 'This is not a personal-preference winner while that information is missing.'],
+  };
   if (eligible.length === 1) return {
     optionId: eligible[0].id, label: `${eligible[0].label} fits this scenario`,
     reasons: ['It is the only option that fits all the modeled constraints with complete costs.', 'This is an illustrative comparison, not a verified travel recommendation.'],
@@ -220,7 +265,11 @@ function recommend(options: OutingOption[], inputs: OutingInputs): Recommendatio
   if (inputs.weights.price + inputs.weights.ease + inputs.weights.discovery === 0) return {
     optionId: null, label: 'Both fit; choose what matters', reasons: ['All preference weights are zero, so neither option receives a preference ranking.'],
   };
-  const ranked = [...eligible].sort((a, b) => (b.score ?? -1) - (a.score ?? -1));
+  if (eligible.some(option => option.score === null)) return {
+    optionId: null, label: 'Both fit these constraints. How new they feel is still yours to judge.',
+    reasons: ['A requested preference score is unknown. Supply the missing familiarity answers, or give discovery zero weight, to use the optional rubric.'],
+  };
+  const ranked = [...eligible].sort((a, b) => b.score! - a.score!);
   if (ranked[0].score === ranked[1].score) return {
     optionId: null, label: 'Both fit equally well', reasons: ['The transparent rubric produces the same score for both outings at these weights.'],
   };

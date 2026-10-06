@@ -33,7 +33,8 @@ test('baseline models two whole outings with complete costs and round trips', ()
   assert.equal(sz.returnMinutes, 1365);
   assert.equal(hk.feasible, true);
   assert.equal(sz.feasible, true);
-  assert.equal(result.recommendation.optionId, 'hk');
+  assert.equal(result.recommendation.optionId, null);
+  assert.match(result.recommendation.label, /still yours to judge/);
   for (const item of result.options) {
     assert.equal(item.dataStatus, 'illustrative');
     assert.equal(item.lineItems.reduce((sum, cost) => sum + Math.round(cost.hkdGroupAmount! * 100), 0), Math.round(item.groupHKD! * 100));
@@ -84,7 +85,8 @@ test('FX changes convert CNY costs only, with visible native currencies', () => 
 test('each value weight can change the ranking; Shenzhen is not intrinsically preferred', () => {
   assert.equal(compareOutings(confirmed({ weights: { price: 5, ease: 0, discovery: 0 } })).recommendation.optionId, 'sz');
   assert.equal(compareOutings(confirmed({ weights: { price: 0, ease: 5, discovery: 0 } })).recommendation.optionId, 'hk');
-  assert.equal(compareOutings(confirmed({ weights: { price: 0, ease: 0, discovery: 5 } })).recommendation.optionId, 'sz');
+  assert.equal(compareOutings(confirmed({ weights: { price: 0, ease: 0, discovery: 5 } })).recommendation.optionId, null);
+  assert.equal(compareOutings(confirmed({ weights: { price: 0, ease: 0, discovery: 5 }, familiarity: { hk: { dinner: 'familiar', walk: 'familiar' }, sz: { dinner: 'new', walk: 'new' } } })).recommendation.optionId, 'sz');
   const noWeights = compareOutings(confirmed({ weights: { price: 0, ease: 0, discovery: 0 } }));
   assert.equal(noWeights.recommendation.optionId, null);
   assert.equal(noWeights.options[0].score, null);
@@ -224,7 +226,8 @@ test('zero budget never produces infinity or a spurious recommendation', () => {
     assert.equal(item.budgetFeasible, false);
     assert.equal(item.feasible, false);
     assert.equal(item.scoreBreakdown.price, 0);
-    assert.ok(Number.isFinite(item.score!));
+    assert.equal(item.score, null);
+    assert.equal(item.scoreBreakdown.discovery, null);
   }
 });
 
@@ -287,7 +290,8 @@ test('extreme supported values remain finite', () => {
   assert.equal(result.valid, true);
   for (const item of result.options) {
     assert.ok(Number.isFinite(item.groupHKD!));
-    assert.ok(Number.isFinite(item.score!));
+    assert.equal(item.score, null);
+    assert.equal(item.scoreBreakdown.discovery, null);
     assert.ok(Number.isInteger(item.returnMinutes));
   }
 });
@@ -365,4 +369,110 @@ test('engine never mutates inputs or the source fixture', () => {
   compareOutings(inputs, fixture);
   assert.deepEqual(inputs, beforeInputs);
   assert.deepEqual(fixture, beforeFixture);
+});
+
+test('explicit optional-order flags omit only shared food, including across party sizes', () => {
+  const fixture = freshFixture();
+  fixture.local.costs.push({ id: 'hk-shared-taxi', label: 'Shared taxi', currency: 'HKD', amount: 30, quantity: 1, scope: 'group', note: 'Required group cost, not optional food.' });
+  for (const partySize of [1, 2, 3, 6]) {
+    const withOrder = option(confirmed({ partySize, itineraryOverrides: { hk: { includeSharedOrder: true } } }), 'hk', fixture);
+    const without = option(confirmed({ partySize, itineraryOverrides: { hk: { includeSharedOrder: false } } }), 'hk', fixture);
+    assert.equal(withOrder.groupHKD! - without.groupHKD!, 64);
+    assert.equal(without.lineItems.some(item => item.id === 'hk-shared'), false);
+    assert.equal(without.lineItems.find(item => item.id === 'hk-shared-taxi')!.hkdGroupAmount, 30);
+    assert.equal(without.lineItems.find(item => item.id === 'hk-transport')!.hkdGroupAmount, 24 * partySize);
+  }
+  const [hk, sz] = compareOutings(confirmed({ itineraryOverrides: { hk: { includeSharedOrder: false }, sz: { includeSharedOrder: false } } })).options;
+  assert.equal(hk.perPersonHKD, 304);
+  assert.equal(sz.perPersonHKD, 260.22);
+});
+
+test('per-city activity settings stay independent and their delay is time-only', () => {
+  const base = compareOutings(confirmed());
+  const edited = compareOutings(confirmed({ itineraryOverrides: { hk: { mealMinutes: 60, walkMinutes: 15, includeSharedOrder: false, storyDelayMinutes: 30 } } }));
+  assert.deepEqual(edited.options[1], base.options[1]);
+  assert.equal(edited.options[0].experienceMinutes, 105);
+  assert.equal(edited.options[0].mealMinutes, 60);
+  assert.equal(edited.options[0].walkMinutes, 15);
+  assert.equal(edited.options[0].storyDelayMinutes, 30);
+  assert.equal(edited.options[0].includeSharedOrder, false);
+  assert.equal(edited.options[0].perPersonHKD, 304);
+  const delayOnly = option(confirmed({ itineraryOverrides: { hk: { storyDelayMinutes: 30 } } }), 'hk');
+  assert.equal(delayOnly.groupHKD, base.options[0].groupHKD);
+  assert.equal(delayOnly.returnMinutes, base.options[0].returnMinutes + 30);
+});
+
+test('explicit novelty is city-symmetric and is not sourced from the fixture', () => {
+  const familiarity: OutingInputs['familiarity'] = { hk: { dinner: 'new', walk: 'familiar' }, sz: { dinner: 'new', walk: 'familiar' } };
+  const result = compareOutings(confirmed({ familiarity, weights: { price: 0, ease: 0, discovery: 5 } }));
+  assert.equal(result.options[0].scoreBreakdown.discovery, 50);
+  assert.equal(result.options[1].scoreBreakdown.discovery, 50);
+  assert.equal(result.options[0].score, result.options[1].score);
+  assert.equal(result.recommendation.optionId, null);
+  const hkNew = compareOutings(confirmed({ familiarity: { hk: { dinner: 'new', walk: 'new' }, sz: { dinner: 'familiar', walk: 'familiar' } }, weights: { price: 0, ease: 0, discovery: 5 } }));
+  const szNew = compareOutings(confirmed({ familiarity: { sz: { dinner: 'new', walk: 'new' }, hk: { dinner: 'familiar', walk: 'familiar' } }, weights: { price: 0, ease: 0, discovery: 5 } }));
+  assert.equal(hkNew.recommendation.optionId, 'hk');
+  assert.equal(szNew.recommendation.optionId, 'sz');
+  assert.equal(hkNew.options[0].score, szNew.options[1].score);
+  assert.equal('discoveryRating' in illustrativeData.local, false);
+  assert.equal('discoveryRating' in illustrativeData.shenzhen, false);
+});
+
+test('unsure means unknown, never low, and prevents ranking a known alternative above it', () => {
+  const result = compareOutings(confirmed({ familiarity: { hk: { dinner: 'familiar', walk: 'familiar' }, sz: { dinner: 'new', walk: 'unsure' } }, weights: { price: 0, ease: 0, discovery: 5 } }));
+  assert.equal(result.options[0].score, 0);
+  assert.equal(result.options[1].scoreBreakdown.discovery, null);
+  assert.equal(result.options[1].score, null);
+  assert.equal(result.recommendation.optionId, null);
+  assert.match(result.recommendation.label, /still yours to judge/);
+  assert.ok(result.options[1].warnings.some(warning => warning.includes('Missing preference')));
+  const zeroDiscovery = compareOutings(confirmed({ weights: { price: 0, ease: 5, discovery: 0 } }));
+  assert.equal(zeroDiscovery.options[0].scoreBreakdown.discovery, null);
+  assert.equal(zeroDiscovery.options[0].score, 87.5);
+  assert.equal(zeroDiscovery.recommendation.optionId, 'hk');
+});
+
+test('absent walks do not inject an unknown familiarity component', () => {
+  const result = option(confirmed({ itineraryOverrides: { hk: { walkMinutes: 0 } }, familiarity: { hk: { dinner: 'new', walk: 'unsure' } }, weights: { price: 0, ease: 0, discovery: 5 } }), 'hk');
+  assert.equal(result.scoreBreakdown.discovery, 100);
+  assert.equal(result.score, 100);
+});
+
+test('constraint-only explanations remain possible with unknown familiarity', () => {
+  const result = compareOutings(confirmed({ homeByMinutes: 20 * 60 }));
+  assert.equal(result.options[0].feasible, true);
+  assert.equal(result.options[1].homeFeasible, false);
+  assert.equal(result.recommendation.optionId, 'hk');
+  assert.equal(result.options[0].score, null);
+  assert.match(result.recommendation.reasons[0], /only option/);
+});
+
+test('omitted unpriced optional food becomes absent while other missing costs remain unknown', () => {
+  const fixture = freshFixture();
+  fixture.shenzhen.costs[2].amount = null;
+  const inputs = confirmed({ itineraryOverrides: { sz: { includeSharedOrder: false } } });
+  assert.equal(option(inputs, 'sz', fixture).perPersonHKD, 260.22);
+  fixture.shenzhen.routes.rail.origins.kowloon.fareEachWayHKD = null;
+  assert.equal(option(inputs, 'sz', fixture).perPersonHKD, null);
+  assert.deepEqual(option(inputs, 'sz', fixture).missingCostLabels, ['Rail · round trip']);
+});
+
+test('malformed per-city durations and explicit familiarity are rejected without a result', () => {
+  const patches = [
+    { itineraryOverrides: null }, { itineraryOverrides: [] }, { itineraryOverrides: { xx: {} } },
+    { itineraryOverrides: { hk: null } }, { itineraryOverrides: { sz: [] } },
+    { itineraryOverrides: { hk: { mealMinutes: 59 } } }, { itineraryOverrides: { hk: { walkMinutes: 0.5 } } },
+    { itineraryOverrides: { hk: { storyDelayMinutes: -1 } } }, { itineraryOverrides: { sz: { includeSharedOrder: 'false' } } },
+    { familiarity: null }, { familiarity: [] }, { familiarity: { hk: null } },
+    { familiarity: { hk: { dinner: 55 } } }, { familiarity: { sz: { walk: 'maybe' } } },
+  ];
+  for (const patch of patches) assert.equal(compareOutings(confirmed(patch as unknown as Partial<OutingInputs>)).valid, false, JSON.stringify(patch));
+});
+
+
+test('an unknown competing plan does not make the known plan a preference winner', () => {
+  const result=compareOutings(defaultInputs);
+  assert.equal(result.recommendation.optionId,null);
+  assert.equal(result.recommendation.label,'One fits; one needs checking');
+  assert.ok(result.recommendation.reasons.some(reason=>reason.includes('not a personal-preference winner')));
 });

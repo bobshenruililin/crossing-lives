@@ -1,27 +1,34 @@
 # Verification record
 
-## Confirmed, 6 October 2026
+## Known-green baseline, 6 October 2026
 
-- `npm run typecheck`: passed.
-- `npm test`: 28 passed, 0 failed.
-- `npm run build`: passed, production JS ~288 KB before gzip / ~90 KB gzip; CSS ~56 KB / ~15 KB gzip. Three WebP scenes total ~1.8 MB.
-- Independent read-only adversarial suite: 10 passed, 0 failed, including 10,000 seeded allocation and 2,000 outing consistency cases.
-- Separate domain-worker stress test: 100,000 allocation cases conserved cents.
-- Source audit corrected known-cost lower-bound budget failure, half-cent rounding, restored timing display mismatch, party-wide eligibility semantics, conditional narrative time-benefit language and accurate editability disclosures.
-- Original WebP images decoded and were visually inspected as individual assets.
-- Portable production artifact generated successfully at ~2.81 MiB, no external module imports or external CSS assets allowed by export script.
+Commit `c29034126c39a4971eb0eaf62bcf729954840f8c` passed the full private GitHub Actions workflow:
+- TypeScript, 28 domain tests and production build/export
+- All 13 browser cases, first attempt
+- Real Chromium/Chrome rendering at 360px, 390px and 1440px
+- Complete original story/planner/choice/reload/reset loop, constraints, group costs, FX, return route, allocation keyboard interaction, source navigation
+- Keyboard dialog behavior, reduced motion, media failure, blocked/corrupt storage and restored defaults
+- Axe checks for the main views
+- The portable HTML opened from file with network offline and completed a choice
 
-## Not yet cleared
+[Exact passing run](https://github.com/bobshenruililin/crossing-lives/actions/runs/37475455524)
 
-- Rendered application, responsive layout and interaction QA.
-- Axe accessibility checks.
-- Opening the portable artifact directly from `file://`, including offline behavior and saved state.
-- Hosted/static asset-path verification and remote CI.
+Actual screenshots were independently reviewed. That review led to a mobile two-row header, an intentionally composed invitation strip, readable supporting text, a compact live two-city comparison, clear per-person/deadline labels and a common absolute timeline scale. Passing tests alone did not establish those visual improvements.
 
-## Browser runtime blocker
+## Playable-evening pass, work in progress
 
-The normal Vite server originally failed network-interface inspection when bound to all interfaces. Binding to loopback only resolved server startup and is the safer default.
+The current source adds a six-beat fictional evening, Jun, two matched night scenes, meaningful meal/walk commitments, one disclosed delay, checkpoint rewind, a preserved alternate and explicit familiarity without city defaults.
 
-Chromium then failed before page creation with `process_singleton_posix.cc: socket() failed: Operation not permitted`. A supported scoped execution escalation was attempted; the same process-socket error remained. Browser sandboxing was explicitly enabled. No security bypass, alternate browser launch flags or publication workaround was used.
+Current local verification: TypeScript, production build and 74 unit tests pass (37 domain, 20 persistence, 17 story). A dedicated expanded browser suite is being prepared for both city endings, night/portrait decoding, replay, late return, eligibility, keyboard and offline execution. These additions are **not covered by the baseline browser clearance** until the exact new commit passes.
 
-The original eight attempted Playwright cases therefore did not run their page assertions. The current suite adds an offline export test and four storage/eligibility/restoration cases, for 13 total; these additional cases have only been listed and type-transformed, not browser-executed. These are environment-blocked, not eight discovered application failures and not passing tests. Keep this distinction in release notes.
+Original images, new portrait alpha and night-scene geometry were individually inspected. Those asset checks do not replace rendered application review.
+
+## Browser infrastructure and export history
+
+The cloud workspace blocks local Chromium process sockets. Its browser tool also disallows local file URLs. No workaround or weakening of local security was used.
+
+Private GitHub CI initially failed before page load because downloaded Chromium headless-shell lacked a usable sandbox on Ubuntu 24.04. A documented, supported stable Chrome channel on the same hosted image solved this with `chromiumSandbox:true`; AppArmor/sysctl/security settings stayed unchanged. See [the diagnosis and sources](CI_BROWSER.md).
+
+The first real run exposed an invalid portable export: string replacement interpreted literal dollar sequences inside the bundled React source. Callback replacement, exact embedded-source comparison and syntax validation fixed it. Subsequent offline browser execution verified the exported file, rather than relying only on static parsing.
+
+Repository visibility remains private. No public deployment or hosting configuration is included.

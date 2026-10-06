@@ -1,3 +1,4 @@
+import { createStoryState } from '../../src/story/engine';
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import {
@@ -244,9 +245,9 @@ test('story route and explicit familiarity copy to planner while real entry stay
   await expect(page.locator('.play-departure-preview')).toContainText('Arrival 18:45');
   await expect(storyClock(page)).toHaveText('16:30');
   await page.locator('.play-familiarity > summary').click();
-  await expect(page.getByLabel('This dinner in Shenzhen', { exact: true })).toHaveValue('unsure');
-  await expect(page.getByLabel('This wander in Shenzhen', { exact: true })).toHaveValue('unsure');
-  await page.getByLabel('This dinner in Shenzhen', { exact: true }).selectOption('new');
+  await expect(page.getByRole('combobox',{name:'This dinner in Shenzhen',exact:true})).toHaveValue('unsure');
+  await expect(page.getByRole('combobox',{name:'This wander in Shenzhen',exact:true})).toHaveValue('unsure');
+  await page.getByRole('combobox',{name:'This dinner in Shenzhen',exact:true}).selectOption('new');
   await page.getByRole('button', { name: 'Make Shenzhen our evening', exact: true }).click();
   await chooseDinner(page, 'simple');
   await chooseWalk(page, 'short');
@@ -264,8 +265,8 @@ test('story route and explicit familiarity copy to planner while real entry stay
   await expect(page.getByLabel('Wander in Shenzhen · minutes', { exact: true })).toHaveValue('15');
   await expect(page.getByLabel('Authored scenario delay · minutes', { exact: true })).toHaveValue('30');
   await expect(page.getByRole('checkbox', { name: 'Include one optional shared order of dishes', exact: true })).not.toBeChecked();
-  await expect(page.locator('.option-sz').getByLabel('This dinner feels', { exact: true })).toHaveValue('new');
-  await expect(page.locator('.option-sz').getByLabel('This wander feels', { exact: true })).toHaveValue('unsure');
+  await expect(page.locator('.option-sz').getByRole('combobox',{name:'This dinner feels',exact:true})).toHaveValue('new');
+  await expect(page.locator('.option-sz').getByRole('combobox',{name:'This wander feels',exact:true})).toHaveValue('unsure');
   await page.reload();
   await page.getByRole('button', { name: 'Continue your saved evening', exact: true }).click();
   await expect(entry).not.toBeChecked();
@@ -311,6 +312,7 @@ test('corrupt playable save recovers separately from the valid planner', async (
   await page.evaluate(() => localStorage.setItem('between-playable-v2', 'not valid JSON'));
   await startStory(page);
   await expect(page.locator('.play-storage-notice')).toContainText('This saved story could not be restored.');
+  expect(await page.evaluate(()=>localStorage.getItem('between-playable-v2'))).toBe('not valid JSON');
   await expectPhase(page, 'fork');
   await depart(page, 'Hong Kong');
   await chooseDinner(page, 'simple');
@@ -318,6 +320,7 @@ test('corrupt playable save recovers separately from the valid planner', async (
   await returnHome(page);
   await page.getByRole('button', { name: 'Your evening', exact: true }).click();
   await expect(page.getByLabel('Budget per person')).toHaveValue('500');
+  expect(await page.evaluate(()=>localStorage.getItem('between-playable-v2'))).toBe('not valid JSON');
 });
 
 test('unavailable story storage keeps both endings usable and warns without claiming a save', async ({ page }) => {
@@ -332,13 +335,28 @@ test('unavailable story storage keeps both endings usable and warns without clai
   await chooseWalk(page, 'short');
   await returnHome(page);
   await page.getByLabel('One sentence to keep').fill('An in-tab page still works.');
+  // In-tab navigation must retain the whole attempt even when persistence is unavailable.
+  for (const destination of ['Research desk', 'Your evening', 'Back to the cover']) {
+    await page.getByRole('button', {name: destination==='Research desk' ? /^Research desk/ : destination, exact: destination!=='Research desk'}).click();
+    await page.getByRole('button', {name:'The story',exact:true}).click();
+    await expectPhase(page,'home');
+    await expect(storyClock(page)).toHaveText('18:45');
+    await expect(page.getByLabel('One sentence to keep')).toHaveValue('An in-tab page still works.');
+    await expect(page.locator('.play-journal-facts')).toContainText('HK$608.00');
+  }
+
   await page.getByRole('button', { name: 'Try the other evening from the fork', exact: true }).click();
   await depart(page, 'Shenzhen');
   await chooseDinner(page, 'linger');
   await chooseWalk(page, 'long');
   await returnHome(page);
   await expect(page.getByRole('heading', { name: 'Different choices. Kept side by side.' })).toBeVisible();
-  await expect(page.locator('.play-storage-notice')).toContainText('It still works while this tab stays open.');
+  await expect(page.locator('.play-storage-notice')).toContainText('reloading or closing it will lose these pages.');
+  await page.reload();
+  await startStory(page);
+  await expectPhase(page,'fork');
+  await expect(storyClock(page)).toHaveText('16:30');
+  await expect(page.locator('.play-returning-note')).toHaveCount(0);
 });
 
 test('new playable phases have no critical or serious accessibility violations', async ({ page }) => {
@@ -358,4 +376,38 @@ test('new playable phases have no critical or serious accessibility violations',
   await audit('walk');
   await returnHome(page);
   await audit('home');
+});
+
+
+test('future-version story bytes are preserved until an explicit fresh-story reset', async ({page}) => {
+  const futureRaw=JSON.stringify({...createStoryState(),version:3,importantFutureNote:'Keep these original bytes'});
+  await page.addInitScript(raw=>localStorage.setItem('between-playable-v2',raw),futureRaw);
+  await page.goto('/');
+  await startStory(page);
+  await expect(page.locator('.play-storage-notice')).toContainText('The original saved data is untouched.');
+  expect(await page.evaluate(()=>localStorage.getItem('between-playable-v2'))).toBe(futureRaw);
+  await depart(page,'Hong Kong');
+  await chooseDinner(page,'simple');
+  await chooseWalk(page,'short');
+  await returnHome(page);
+  await page.getByLabel('One sentence to keep').fill('This is a temporary in-tab page.');
+  await page.getByRole('button',{name:/^Research desk/}).click();
+  await page.getByRole('button',{name:'The story',exact:true}).click();
+  await expectPhase(page,'home');
+  await expect(page.getByLabel('One sentence to keep')).toHaveValue('This is a temporary in-tab page.');
+  expect(await page.evaluate(()=>localStorage.getItem('between-playable-v2'))).toBe(futureRaw);
+  await page.getByRole('button',{name:'Start a fresh evening',exact:true}).click();
+  await page.getByRole('dialog',{name:'Begin a fresh story?'}).getByRole('button',{name:'Start a fresh story',exact:true}).click();
+  await expectPhase(page,'fork');
+  await expect.poll(async()=>JSON.parse((await page.evaluate(()=>localStorage.getItem('between-playable-v2')))!).version).toBe(2);
+  await expect(page.locator('.play-storage-notice')).toHaveCount(0);
+});
+
+test('a restored next-day deadline is labelled consistently in the story HUD',async({page})=>{
+  const nextDay=createStoryState('wander',{baseInputs:{departureMinutes:23*60,homeByMinutes:60}});
+  await page.addInitScript(saved=>localStorage.setItem('between-playable-v2',JSON.stringify(saved)),nextDay);
+  await page.goto('/');
+  await startStory(page);
+  await expect(page.locator('.play-deadline')).toContainText('Home by 01:00 (+1d)');
+  await expect(page.locator('.play-setup > summary')).toContainText('23:00–01:00 (+1d)');
 });

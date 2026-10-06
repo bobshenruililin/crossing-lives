@@ -2,7 +2,7 @@ import { useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import { ArrowLeft, ArrowRight, ArrowUpRight, BookOpen, Check, ChevronDown, Clock3, Coffee, Compass, Home, MapPin, RotateCcw, TrainFront, Utensils, Wallet, X } from 'lucide-react';
 import { formatClock } from '../domain/engine';
 import type { Familiarity, OptionId, OutingInputs, OutingOption } from '../domain/model';
-import { createStoryState, decodeStoryState, previewStoryAction, selectStoryInputs, selectStoryJournal, selectStoryOption, selectStoryPreviousOption, selectStoryProgress, STORY_PRESETS, storyReducer } from '../story/engine';
+import { createStoryState, decodeStoryState, previewStoryAction, selectStoryComparison, selectStoryInputs, selectStoryJournal, selectStoryOption, selectStoryPreviousOption, selectStoryProgress, STORY_PRESETS, storyReducer } from '../story/engine';
 import type { StoryAction, StoryHotspot, StoryState } from '../story/model';
 import './playable-evening.css';
 
@@ -11,15 +11,27 @@ const art = (name: string) => (globalThis as typeof globalThis & {__BETWEEN_ART_
 const money = (value: number | null) => value === null ? 'Unknown' : `HK$${value.toLocaleString('en-HK',{minimumFractionDigits:2,maximumFractionDigits:2})}`;
 const minutes = (value: number) => `${Math.floor(value/60) ? `${Math.floor(value/60)}h ` : ''}${value%60 ? `${value%60}m` : ''}`.trim() || '0m';
 const cityName = (city: OptionId) => city === 'hk' ? 'Hong Kong' : 'Shenzhen';
+// The module lives for the tab's lifetime, so route changes do not depend on
+// browser storage being available. Reducer states are immutable snapshots.
+let inTabStory: StoryState | null = null;
+let inTabWarning = '';
+let protectSavedBytes = false;
+const storageWarning = 'This browser cannot save the story. You can move between views in this tab; reloading or closing it will lose these pages.';
 function readPlayable(): {state: StoryState; warning: string} {
+  if(inTabStory) return {state:inTabStory,warning:inTabWarning};
   try {
     const raw = localStorage.getItem(PLAYABLE_STORAGE_KEY);
-    if (!raw) return {state:createStoryState(),warning:''};
-    const restored = decodeStoryState(raw);
-    return restored ? {state:restored,warning:''} : {state:createStoryState(),warning:'This saved story could not be restored. Your practical planner is separate and unchanged.'};
-  } catch {return {state:createStoryState(),warning:'This browser cannot save the story. It still works while this tab stays open.'};}
+    const restored = raw ? decodeStoryState(raw) : null;
+    inTabStory = restored ?? createStoryState();
+    protectSavedBytes = !!raw && !restored;
+    inTabWarning = protectSavedBytes ? 'This saved story could not be restored. The original saved data is untouched. You can play temporarily in this tab, or choose Start a fresh story to replace it.' : '';
+  } catch {inTabStory=createStoryState();inTabWarning=storageWarning;protectSavedBytes=true;}
+  return {state:inTabStory,warning:inTabWarning};
 }
-export function resetPlayableSave() {try {localStorage.removeItem(PLAYABLE_STORAGE_KEY);} catch {/* In-memory reset still works. */}}
+export function resetPlayableSave() {
+  inTabStory=null;inTabWarning='';protectSavedBytes=false;
+  try {localStorage.removeItem(PLAYABLE_STORAGE_KEY);} catch {/* Explicit in-tab reset still works. */}
+}
 
 function SceneVisual({city, phase, children}: {city: OptionId|null; phase:string; children:React.ReactNode}) {
   const original = city === 'hk' ? 'hong-kong-evening.webp' : city === 'sz' ? 'shenzhen-evening.webp' : 'two-shores.webp';
@@ -55,6 +67,7 @@ export default function PlayableEvening({onExit,onPlanner,onResearch}: {onExit:(
   const phase = attempt.phase;
   const city = attempt.city ?? state.previewCity;
   const option = selectStoryOption(state);
+  const homeDeadline = option?.homeByMinutes ?? selectStoryComparison(state).normalizedHomeByMinutes ?? state.baseInputs.homeByMinutes;
   const previous = selectStoryPreviousOption(state);
   const progress = selectStoryProgress(state);
   const journal = selectStoryJournal(state);
@@ -62,13 +75,18 @@ export default function PlayableEvening({onExit,onPlanner,onResearch}: {onExit:(
   const finished = phase === 'home';
   const preset = STORY_PRESETS.find(item=>item.id===state.presetId)!;
   useEffect(()=>{
-    try {localStorage.setItem(PLAYABLE_STORAGE_KEY,JSON.stringify(state)); if(warning.startsWith('This browser'))setWarning('');}
-    catch {setWarning('This browser cannot save the story. It still works while this tab stays open.');}
+    inTabStory=state;
+    if(protectSavedBytes){setWarning(inTabWarning);return;}
+    try {localStorage.setItem(PLAYABLE_STORAGE_KEY,JSON.stringify(state));inTabWarning='';setWarning('');}
+    catch {inTabWarning=storageWarning;setWarning(storageWarning);}
   },[state]);
   useEffect(()=>{
     if(previousPhase.current !== phase){phaseTitle.current?.focus({preventScroll:true});previousPhase.current=phase;}
   },[phase]);
-  const action = (next:StoryAction) => dispatch(next);
+  const action = (next:StoryAction) => {
+    if(next.type==='RESET'){protectSavedBytes=false;inTabWarning='';setWarning('');}
+    dispatch(next);
+  };
   const reopenFork = () => action({type:'REWIND',checkpoint:'fork'});
   const title = atFork ? city ? city==='hk' ? 'A table around the corner.' : 'A table across the border.' : 'One table. One street.\nWhere shall we begin?' : phase === 'arrival' ? 'How much evening\nbelongs to the table?' : phase === 'afterDinner' ? progress.delayApplied ? 'The table took\na little longer.' : 'There’s a street\nstill waiting for us.' : phase === 'walk' ? attempt.walkChoice === 'long' ? 'A little room\nfor the city.' : 'One small loop.\nOne detail to keep.' : 'Something\nto bring home.';
   const junLine = atFork ? 'I brought the small sketchbook. One table, one street. Where shall we begin?' : phase === 'arrival' ? 'We can keep dinner simple, or give the table a little more of the evening.' : phase === 'afterDinner' ? progress.delayApplied ? 'Half an hour longer at the table. Let’s look at what we still want to keep.' : 'We have a walk ahead of us. A small loop or a longer wander?' : phase === 'walk' ? attempt.walkChoice === 'long' ? 'Then I’ll leave a corner of the page for the walk.' : 'A small loop, then. We can still bring back one detail.' : 'Which detail belongs on this page?';
@@ -86,13 +104,13 @@ export default function PlayableEvening({onExit,onPlanner,onResearch}: {onExit:(
       <span className="play-hud-label"><span className="status-dot"/> FICTIONAL SATURDAY</span>
       <span><Clock3 size={15}/><strong>{formatClock(progress.clockMinutes)}</strong><small>story clock · UTC+8</small></span>
       <span><Wallet size={15}/><strong>{option ? money(option.perPersonHKD) : money(state.baseInputs.budgetPerPersonHKD)}</strong><small>{option ? 'whole outing estimate / person' : 'budget / person'}</small></span>
-      <span className="play-deadline">Home by <strong>{formatClock(state.baseInputs.homeByMinutes)}</strong><span className="play-budget-limit">Budget HK${state.baseInputs.budgetPerPersonHKD}/person</span></span>
+      <span className="play-deadline">Home by <strong>{formatClock(homeDeadline)}</strong><span className="play-budget-limit">Budget HK${state.baseInputs.budgetPerPersonHKD}/person</span></span>
     </div>
     {warning && <p className="play-storage-notice" role="status">{warning}</p>}
     <div className="play-topline"><button onClick={onExit}><ArrowLeft size={14}/> Back to the cover</button><span>{preset.label} · two fictional adults</span><button onClick={()=>onPlanner(selectStoryInputs(state))}>Open this model in the planner <ArrowUpRight size={14}/></button></div>
     <div className="play-heading"><div><p className="eyebrow">{String(phaseIndex+1).padStart(2,'0')} / {phaseLabels[phaseIndex]}</p><h1 ref={phaseTitle} tabIndex={-1}>{title}</h1></div><div className="play-trail" role="group" aria-label={`Story progress: ${phaseLabels[phaseIndex]}`}>{phaseLabels.map((label,index)=><span key={label} className={index===phaseIndex?'current':index<phaseIndex?'complete':''}><i>{index<phaseIndex?<Check size={11}/>:index+1}</i><small>{label}</small></span>)}</div></div>
 
-    {atFork && !state.previousAttempt && <details className="play-setup" open={showSetup} onToggle={event=>setShowSetup(event.currentTarget.open)}><summary><div><strong>{preset.label}</strong><span>{formatClock(state.baseInputs.departureMinutes)}–{formatClock(state.baseInputs.homeByMinutes)} · HK${state.baseInputs.budgetPerPersonHKD}/person · two adults</span><small>{state.delayScenario==='dinner30'?'Includes one fictional 30-minute dinner delay':'Calm version · no fictional delay'}</small></div><span>Change setup <ChevronDown size={15}/></span></summary><div className="play-setup-interior"><div className="play-presets" role="group" aria-label="Choose the shape of the evening">{STORY_PRESETS.map(item=><button key={item.id} aria-pressed={item.id===state.presetId} onClick={()=>{action({type:'RECONFIGURE',presetId:item.id,delayScenario:state.delayScenario});setShowSetup(false);}}><strong>{item.label}</strong><span>{formatClock(item.departureMinutes)}–{formatClock(item.homeByMinutes)} · HK${item.budgetPerPersonHKD}/person</span></button>)}</div><label className="play-delay-check"><input type="checkbox" checked={state.delayScenario==='dinner30'} onChange={event=>action({type:'RECONFIGURE',delayScenario:event.target.checked?'dinner30':'none'})}/><span>Include one fictional 30-minute dinner delay<small>A disclosed story event, not a queue forecast. Uncheck for a calm evening.</small></span></label></div></details>}
+    {atFork && !state.previousAttempt && <details className="play-setup" open={showSetup} onToggle={event=>setShowSetup(event.currentTarget.open)}><summary><div><strong>{preset.label}</strong><span>{formatClock(state.baseInputs.departureMinutes)}–{formatClock(homeDeadline)} · HK${state.baseInputs.budgetPerPersonHKD}/person · two adults</span><small>{state.delayScenario==='dinner30'?'Includes one fictional 30-minute dinner delay':'Calm version · no fictional delay'}</small></div><span>Change setup <ChevronDown size={15}/></span></summary><div className="play-setup-interior"><div className="play-presets" role="group" aria-label="Choose the shape of the evening">{STORY_PRESETS.map(item=><button key={item.id} aria-pressed={item.id===state.presetId} onClick={()=>{action({type:'RECONFIGURE',presetId:item.id,delayScenario:state.delayScenario});setShowSetup(false);}}><strong>{item.label}</strong><span>{formatClock(item.departureMinutes)}–{formatClock(item.homeByMinutes)} · HK${item.budgetPerPersonHKD}/person</span></button>)}</div><label className="play-delay-check"><input type="checkbox" checked={state.delayScenario==='dinner30'} onChange={event=>action({type:'RECONFIGURE',delayScenario:event.target.checked?'dinner30':'none'})}/><span>Include one fictional 30-minute dinner delay<small>A disclosed story event, not a queue forecast. Uncheck for a calm evening.</small></span></label></div></details>}
     {atFork && state.previousAttempt && <div className="play-returning-note"><BookOpen size={17}/><p>The first evening stays in your notebook. Begin the other possibility with the same starting time, budget and fictional delay.</p></div>}
 
     {!finished && <>

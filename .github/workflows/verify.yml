@@ -27,6 +27,7 @@ jobs:
         if: always()
         with:
           name: crossing-lives-verification
+          retention-days: 7
           path: |
             artifacts/
             playwright-report/

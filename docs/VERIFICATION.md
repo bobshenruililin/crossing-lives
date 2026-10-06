@@ -83,11 +83,21 @@ Review also found the bottom fiction caption partly behind dialogue. The next pa
 
 The exact verified portable is 5,952,426 bytes with SHA-256 `10c9e6c779fe0ba6857ee241c540afd3b34780307937f050f122516e273fb6aa`.
 
-## Spatial route refinement, pending exact-commit verification
+## Verified spatial route and caption refinement, 6 October 2026
+
+Commit `301f8d8e535f8f6003960a2da37d7710508912aa` passed TypeScript, build/export, all **94 unit tests** and all **67 browser cases without retries**.
+
+[Exact passing run](https://github.com/bobshenruililin/crossing-lives/actions/runs/37511665856)
 
 The route note now presents one thin out-and-back line with the origin, named crossing and dinner area visible together. Local Hong Kong journeys do not invent a crossing. A compact conditional summary keeps the exact modeled home time and spare/past-deadline status; a real Evening assumptions disclosure contains the unchanged dinner, walk, delay and deadline explanation. Required warnings stay visible.
 
-Tests open and inspect the visible assumptions rather than accidentally passing against the screen-reader announcement. Full legs, exact amounts, unchanged clock/state, native radio keyboard behavior, return/direct-return, sources and offline use remain checked. The complete recording explicitly opens the assumptions. New actual screenshots and human density review are still required; this is a schematic, not geographic navigation.
+Tests open and inspect the visible assumptions rather than accidentally passing against the screen-reader announcement. Full legs, exact amounts, unchanged clock/state, native radio keyboard behavior, return/direct-return, sources and offline use remain checked. The complete recording explicitly opens the assumptions. Actual 390px review found the spatial line legible, the forecast less dense, and the fiction caption and default ending controls visible. It remains a schematic, not geographic navigation. The complete real-browser recording is 164.72 seconds. The verified portable is 5,955,456 bytes with SHA-256 `d78e7bb15d51a08e7881a3776685874a2a37d3d8568a15ba3abddb15001ff7db`.
+
+## Jun's human throughline, pending exact-commit verification
+
+A subsequent narrative pass replaces generic interface-like recaps with a few authored lines about Jun's connection to both places. The player's own history and familiarity are not inferred. The optional home-phone note is plainly fictional, reflects the existing city/walk or direct-return choice, and keeps the completed route reachable. It has no notification badge, reply requirement, read state or message history.
+
+Eight new pure selector tests bring the source suite to 102. They check approved branches, zero-walk copy, replay, uncommitted states, and preservation of time, bill, eligibility, familiarity and legacy notes. Actual opening/table text fit, optional-note focus/navigation, offline behavior and the new complete recording still require their own exact-commit browser and creative review.
 
 ## Browser infrastructure and export history
 

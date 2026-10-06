@@ -1,10 +1,10 @@
 import { test, expect, type Locator, type Page } from '@playwright/test';
 import { tableObjects, tableScenes } from '../../src/data/scene-art';
 import { createStoryState } from '../../src/story/engine';
-import { seedStory } from './story-fixtures';
+import { junWords, seedStory } from './story-fixtures';
 import {
   chooseDinner, closeDialogue, depart, dialogue, expectJun, expectNoClippedText,
-  expectNoOverflow, expectPhase, expectSceneAssets, expectTouchTarget, expectSingleLineMoney, openAction,
+  expectNoOverflow, expectPhase, expectSceneAssets, expectTouchTarget, expectSingleLineMoney, expectUnscrolledDialogueActions, openAction,
   readStorySave, showcase, startStory, story, storyClock,
 } from './story-helpers';
 
@@ -88,6 +88,8 @@ for (const width of [1440, 390, 360]) {
       await expectSceneAssets(page, tableScenes[city].image);
       await expectJun(page);
       const before = await readStorySave(page);
+      await expect(dialogue(page).locator('.spoken-line')).toHaveText(junWords.table[city]);
+      await expectUnscrolledDialogueActions(page, ['Read the menu', 'Return to the scene']);
       await captureAttention(page, 'jun', `table-arrival-${city}-${width}`);
       await page.getByRole('button', { name: 'Read the menu', exact: true }).click();
       await captureAttention(page, 'menu', `table-menu-${city}-${width}`);

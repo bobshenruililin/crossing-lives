@@ -303,6 +303,7 @@ test('committed routes are read-only and the return-first note follows actual jo
   await page.getByRole('button', { name: 'Follow the return journey', exact: true }).click();
   await expectClock(page, '21:45');
   await openAction(page, 'Open phone');
+  await page.getByRole('button', { name: 'Check the journey', exact: true }).click();
   await expect(going(page)).toContainText('completed');
   await expect(coming(page)).toContainText('completed');
   await expectCompactForecast(page, 'Completed in this model', 'Home 21:45 · 1h 45m spare');
@@ -346,6 +347,7 @@ test('direct-return route preview shows no invented walk and remains free before
   await page.getByRole('button', { name: /^Let’s head home now\./ }).click();
   await expectClock(page, '21:30');
   await openAction(page, 'Open phone');
+  await page.getByRole('button', { name: 'Check the journey', exact: true }).click();
   await expectCompactForecast(page, 'Completed in this model', 'Home 21:30 · past deadline');
   await assumptions(page).click();
   await expectOneDetail(page, 'Evening assumptions');
@@ -357,6 +359,7 @@ test('phone reconsideration uses the existing legacy-detail confirmation rather 
   const saved = legacyCompletedStory({ city: 'sz', note: 'Keep this older route detail until a confirmed rewind.' });
   await seedStory(page, saved);
   await page.goto('/'); await startStory(page); await openAction(page, 'Open phone');
+  await page.getByRole('button', { name: 'Check the journey', exact: true }).click();
   await page.getByRole('button', { name: 'Reconsider departure', exact: true }).click();
   await expect(dialogue(page).getByRole('heading', { name: 'Clear an older saved detail?', exact: true })).toBeFocused();
   await page.getByRole('button', { name: 'Keep this evening', exact: true }).click();

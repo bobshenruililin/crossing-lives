@@ -1,9 +1,10 @@
+import { junWords } from './story-fixtures';
 import { test, expect } from '@playwright/test';
 import { pathToFileURL } from 'node:url';
 import path from 'node:path';
 import { existsSync } from 'node:fs';
 import {
-  chooseDinner, chooseWalk, closeDialogue, depart, expectClock,
+  chooseDinner, chooseWalk, closeDialogue, depart, dialogue, expectClock,
   expectJun, expectHomeScene, expectPhase, expectSceneAssets, openAction, openOptions, openPlanner,
   returnHome, showcase, startStory,
 } from './story-helpers';
@@ -68,6 +69,14 @@ test('portable production file keeps both cities, Jun, choices and quiet resume 
   await allAssetsEmbedded();
   await showcase(page, 'portable-home-from-hk-offline');
   await expectClock(page, '19:45');
+  await openAction(page, 'Open phone');
+  await expect(page.locator('.phone-note-label')).toHaveText('Authored fictional story message');
+  await expect(page.locator('.authored-phone-note .spoken-line')).toHaveText(junWords.home.hk.long);
+  await page.getByRole('button', { name: 'Check the journey', exact: true }).click();
+  await expect(page.locator('.route-note-condition')).toHaveText('Completed in this model');
+  await expect(page.getByRole('button', { name: /^Coming home/ })).toContainText('completed');
+  await allAssetsEmbedded();
+  await closeDialogue(page);
   await expect(page.getByRole('textbox')).toHaveCount(0);
 
   await page.getByRole('button', { name: 'Try the other evening', exact: true }).click();
@@ -125,10 +134,21 @@ test('portable production file keeps both cities, Jun, choices and quiet resume 
   await expectHomeScene(page, true);
   await expectClock(page, '21:45');
   await openAction(page, 'Open phone');
+  await expect(dialogue(page).getByRole('heading', { name: 'From Jun', exact: true })).toBeFocused();
+  await expect(page.locator('.phone-note-label')).toHaveText('Authored fictional story message');
+  await expect(page.locator('.authored-phone-note .spoken-line')).toHaveText(junWords.home.sz.short);
+  await allAssetsEmbedded();
+  await showcase(page, 'portable-home-note-sz-offline');
+  const journey = page.getByRole('button', { name: 'Check the journey', exact: true });
+  await journey.click();
   await expect(page.locator('.route-note-uncertainty')).toBeVisible();
   await expect(page.locator('.route-note-uncertainty')).toContainText(/entry.*unverified/i);
+  await expect(page.getByRole('button', { name: /^Coming home/ })).toContainText('completed');
   await allAssetsEmbedded();
-  await closeDialogue(page);
+  await page.getByRole('button', { name: 'Back to the message', exact: true }).click();
+  await expect(journey).toBeFocused();
+  await page.getByRole('button', { name: 'Put the phone away', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Open phone', exact: true })).toBeFocused();
 
   await openOptions(page);
   await page.getByRole('button', { name: 'Reconsider the walk', exact: true }).click();
@@ -138,6 +158,13 @@ test('portable production file keeps both cities, Jun, choices and quiet resume 
   await expectClock(page, '21:30');
   await allAssetsEmbedded();
   await showcase(page, 'portable-direct-home-offline');
+  await openAction(page, 'Open phone');
+  await expect(page.locator('.authored-phone-note .spoken-line')).toHaveText(junWords.direct);
+  await page.getByRole('button', { name: 'Check the journey', exact: true }).click();
+  await page.getByRole('button', { name: 'Evening assumptions', exact: true }).click();
+  await expect(page.locator('.route-note-detail')).toContainText('No walk · chosen direct return');
+  await allAssetsEmbedded();
+  await closeDialogue(page);
 
   await openOptions(page);
   await page.getByRole('button', { name: 'Start a fresh evening', exact: true }).click();

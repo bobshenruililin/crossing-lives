@@ -188,6 +188,31 @@ export async function expectTouchTarget(locator: Locator) {
   expect(bounds.height, 'Action targets are at least 44 CSS pixels high.').toBeGreaterThanOrEqual(43.5);
 }
 
+/** Default invitation, table and ending actions must be reachable immediately;
+ * long warnings and zoom retain their separate natural-scroll coverage. */
+export async function expectUnscrolledDialogueActions(page: Page, names: string[]) {
+  await page.evaluate(async () => { await document.fonts.ready; });
+  expect(await dialogue(page).evaluate(element => element.scrollTop)).toBe(0);
+  await expect(dialogue(page).getByRole('button', { name: 'Continue dialogue', exact: true })).toHaveCount(0);
+  for (const name of names) {
+    const control = dialogue(page).getByRole('button', { name, exact: true });
+    await expectTouchTarget(control);
+    await expect(control).toBeInViewport({ ratio: 1 });
+    const result = await control.evaluate(element => {
+      const rect = element.getBoundingClientRect();
+      const panel = element.closest('dialog')!.getBoundingClientRect();
+      const hit = document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2);
+      return {
+        unclipped: rect.left >= Math.max(0, panel.left) && rect.right <= Math.min(innerWidth, panel.right)
+          && rect.top >= Math.max(0, panel.top) && rect.bottom <= Math.min(innerHeight, panel.bottom),
+        reachable: hit !== null && element.contains(hit),
+      };
+    });
+    expect(result.unclipped, `${name} fits the default viewport without scrolling.`).toBe(true);
+    expect(result.reachable, `${name} is not covered by another element.`).toBe(true);
+  }
+}
+
 export async function expectNoClippedText(locator: Locator) {
   await expect(locator).toBeVisible();
   expect(await locator.evaluate(element => {

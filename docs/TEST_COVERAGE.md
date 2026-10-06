@@ -51,3 +51,10 @@ A home arrival must use the shared fictional Hong Kong setting after either bran
 The spatial route refinement moves the full dinner/walk/delay explanation into a real Evening assumptions disclosure. Tests must open it and inspect the visible detail; a broad dialog text assertion could otherwise match the hidden screen-reader announcement and miss the visual requirement. The compact forecast, actual clock, named crossing, both directions and warnings stay directly checked. The complete recording explicitly shows this disclosure.
 
 Default night/home caption checks measure the rendered text fragments and dialogue overlap, not only CSS visibility. Default ending controls are checked inside the viewport and hit-tested. Long warning content and enlarged text may still scroll naturally; those cases must not be squeezed to make a default-sized screenshot pass.
+
+
+## A human throughline without hidden mechanics
+
+Pure copy-selector tests keep the exact approved branches, uncommitted/direct-return distinctions, replay behavior and unchanged numeric/state outputs. Browser tests must independently check the longer initial/table text at phone widths, visible primary actions, and the optional home-note route/Back/close focus path. Merely matching a string from the same selector is not proof of a usable dialogue.
+
+The home note is authored fiction. Opening, closing or rereading it must not create a read flag, message history or reward; legacy details remain untouched. Existing home-route checks should explicitly choose Check the journey rather than silently bypass the note, while maintaining every route, eligibility and offline assertion.

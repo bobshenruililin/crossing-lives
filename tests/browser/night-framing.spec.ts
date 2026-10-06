@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
+import { junWords } from './story-fixtures';
 import { selectStoryOption } from '../../src/story/engine';
 import {
   chooseDinner, chooseWalk, closeDialogue, depart, dialogue, expectJun, expectHomeScene, expectFictionCaption,
@@ -101,7 +102,7 @@ async function inspectPhysicalNightSubject(page: Page, city: City) {
 
 for (const width of [1440, 390]) {
   for (const city of ['hk', 'sz'] as const) {
-    test(`night framing ${city} ${width}px: nearby and longer walks change the real view and remember the dinner choice`, async ({ page }) => {
+    test(`night framing ${city} ${width}px: nearby and longer walks change the real view while preserving dinner costs`, async ({ page }) => {
       test.setTimeout(90_000);
       await page.setViewportSize({ width, height: width === 1440 ? 900 : 844 });
       await page.emulateMedia({ reducedMotion: 'reduce' });
@@ -109,8 +110,8 @@ for (const width of [1440, 390]) {
       await depart(page, city === 'hk' ? 'Hong Kong' : 'Shenzhen');
       await chooseDinner(page, 'simple'); await chooseWalk(page, 'short');
       await expect(dialogue(page).getByRole('heading', { name: 'Just outside', exact: true })).toBeFocused();
-      await expect(dialogue(page).locator('.spoken-line').first()).toHaveText('A simple dinner, then a small loop nearby.');
-      await expect(dialogue(page).locator('.secondary-line')).toHaveText('We can head back from here.');
+      await expect(dialogue(page).locator('.spoken-line').first()).toHaveText(junWords.walk[city].short);
+      await expect(dialogue(page).locator('.secondary-line')).toHaveText('Shall we head back?');
       await expect(storyClock(page)).toHaveText(city === 'hk' ? '18:30' : '20:00');
       const short = await captureNight(page, city, 'nearby', `night-short-${city}-${width}`);
       await checkBill(page, city === 'hk' ? 'HK$304.00' : 'HK$260.22', city === 'hk' ? 608 : 520.44);
@@ -125,9 +126,8 @@ for (const width of [1440, 390]) {
       await reconsider(page, 'Reconsider the walk');
       await chooseWalk(page, 'long');
       const longHeading = city === 'hk' ? 'By the water' : 'On the avenue';
-      const longWords = city === 'hk' ? 'the longer way by the water.' : 'the longer walk along the avenue.';
       await expect(dialogue(page).getByRole('heading', { name: longHeading, exact: true })).toBeFocused();
-      await expect(dialogue(page).locator('.spoken-line').first()).toHaveText(`A simple dinner, then ${longWords}`);
+      await expect(dialogue(page).locator('.spoken-line').first()).toHaveText(junWords.walk[city].long);
       await expect(storyClock(page)).toHaveText(city === 'hk' ? '19:00' : '20:30');
       const long = await captureNight(page, city, 'wider', `night-long-${city}-${width}`);
       expect(short.imageWidth / long.imageWidth, 'The short loop must use a genuinely closer rendered scale.').toBeGreaterThan(1.04);
@@ -136,8 +136,14 @@ for (const width of [1440, 390]) {
       await inspectPhysicalNightSubject(page, city);
       await expect(storyClock(page)).toHaveText(city === 'hk' ? '19:00' : '20:30');
       await reconsider(page, 'Reconsider dinner');
-      await chooseDinner(page, 'linger'); await chooseWalk(page, 'long');
-      await expect(dialogue(page).locator('.spoken-line').first()).toHaveText(`${city === 'hk' ? 'A shared dessert' : 'One more dish'}, then ${longWords}`);
+      await chooseDinner(page, 'linger');
+      await expect(dialogue(page).locator('.spoken-line')).toHaveText(`${city === 'hk' ? 'I’m glad we shared that dessert.' : 'I’m glad we tried one more dish.'} Dinner ran half an hour longer than expected.`);
+      await expect(storyClock(page)).toHaveText(city === 'hk' ? '18:45' : '20:15');
+      await expect(page.locator('.play-event-note')).toContainText('added 30 minutes once');
+      await chooseWalk(page, 'long');
+      // The approved walk line attends to the place rather than recapping
+      // dinner. Exact dinner recognition, group bill and clocks stay checked.
+      await expect(dialogue(page).locator('.spoken-line').first()).toHaveText(junWords.walk[city].long);
       await expect(storyClock(page)).toHaveText(city === 'hk' ? '19:30' : '21:00');
       await captureNight(page, city, 'wider', `night-shared-dinner-long-${city}-${width}`);
       await checkBill(page, city === 'hk' ? 'HK$336.00' : 'HK$291.83', city === 'hk' ? 672 : 583.66);

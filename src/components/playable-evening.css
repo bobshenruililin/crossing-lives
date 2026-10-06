@@ -194,3 +194,9 @@
 /* Keep the fiction label above transient speech instead of under its lower edge. */
 .playable-evening.dialogue-active:not(.at-table) .scene-fiction{top:52px;bottom:auto;left:38px;font-size:12px;line-height:18px;background:#181510bf;padding:0 5px;text-shadow:none}
 @media(max-width:700px){.playable-evening.dialogue-active:not(.at-table) .scene-fiction{top:56px;bottom:auto;left:18px}}
+
+/* A single optional authored note, never a live inbox or collection surface. */
+.authored-phone-note .phone-note-label{font-size:12px;line-height:1.6;color:var(--scene-muted);margin:0 0 13px}
+.authored-phone-note .spoken-line{font-size:23px;line-height:1.4;margin-bottom:18px}
+.authored-phone-note .object-model-link{width:100%;justify-content:space-between;font-size:13px;line-height:1.5}
+@media(max-width:700px){.authored-phone-note .spoken-line{font-size:21px;line-height:1.4}}

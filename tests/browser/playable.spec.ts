@@ -1,10 +1,10 @@
 import { createStoryState, selectStoryOption, storyReducer } from '../../src/story/engine';
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
-import { legacyCompletedStory, seedStory, seedStoryRaw, STORY_KEY } from './story-fixtures';
+import { junWords, legacyCompletedStory, seedStory, seedStoryRaw, STORY_KEY } from './story-fixtures';
 import {
   chooseDinner, chooseWalk, cityPreview, closeDialogue, depart, dialogue,
-  expectClock, expectJun, expectHomeScene, expectFictionCaption, expectNoOverflow, expectPhase, expectSceneAssets, expectTouchTarget, expectWorldViewport,
+  expectClock, expectJun, expectHomeScene, expectFictionCaption, expectNoClippedText, expectNoOverflow, expectPhase, expectSceneAssets, expectUnscrolledDialogueActions, expectWorldViewport,
   openAction, openOptions, openPlanner, openResearch, readStorySave, returnHome, showcase, startStory,
 } from './story-helpers';
 
@@ -22,28 +22,6 @@ async function rewind(page: Parameters<typeof openOptions>[0], label: string, ph
   await closeDialogue(page);
 }
 
-async function expectDefaultHomeActions(page: Parameters<typeof openAction>[0]) {
-  // Only ordinary preset endings are subject to this first-viewport gate.
-  // Longer warnings and zoom/reflow retain their separate natural-scroll tests.
-  expect(await dialogue(page).evaluate(element => element.scrollTop)).toBe(0);
-  for (const name of ['Finish the evening', 'Return to the scene']) {
-    const control = dialogue(page).getByRole('button', { name, exact: true });
-    await expectTouchTarget(control);
-    await expect(control).toBeInViewport({ ratio: 1 });
-    const result = await control.evaluate(element => {
-      const rect = element.getBoundingClientRect();
-      const panel = element.closest('dialog')!.getBoundingClientRect();
-      const hit = document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2);
-      return {
-        unclipped: rect.left >= Math.max(0, panel.left) && rect.right <= Math.min(innerWidth, panel.right)
-          && rect.top >= Math.max(0, panel.top) && rect.bottom <= Math.min(innerHeight, panel.bottom),
-        reachable: hit !== null && element.contains(hit),
-      };
-    });
-    expect(result.unclipped, `${name} fits the default home viewport without scrolling.`).toBe(true);
-    expect(result.reachable, `${name} is not covered by another element.`).toBe(true);
-  }
-}
 
 for (const width of [1440, 390, 360]) {
   test(`world ${width}px: contextual choices, exact costs and both real night assets`, async ({ page }) => {
@@ -54,6 +32,9 @@ for (const width of [1440, 390, 360]) {
     await page.goto('/');
     await expect(dialogue(page).getByRole('heading', { name: 'Dinner, then a walk?', exact: true })).toBeFocused();
     await expectJun(page);
+    await expect(dialogue(page).locator('.spoken-line')).toHaveText(junWords.invitation);
+    await expectUnscrolledDialogueActions(page, ['Let’s stay nearby.', 'Let’s cross for dinner.', 'Look around first', 'Return to the scene']);
+    await expectNoClippedText(dialogue(page));
     await showcase(page, `initial-invitation-${width}`);
     await startStory(page);
     await expectPhase(page, 'fork');
@@ -97,7 +78,7 @@ for (const width of [1440, 390, 360]) {
     await returnHome(page);
     await expectHomeScene(page);
     await expectFictionCaption(page);
-    await expectDefaultHomeActions(page);
+    await expectUnscrolledDialogueActions(page, ['Finish the evening', 'Return to the scene']);
     await showcase(page, `home-arrival-from-hk-${width}`);
     await expectClock(page, '19:45');
     await expect(page.getByRole('textbox')).toHaveCount(0);
@@ -135,11 +116,12 @@ for (const width of [1440, 390, 360]) {
     await returnHome(page);
     await expectHomeScene(page);
     await expectFictionCaption(page);
-    await expectDefaultHomeActions(page);
+    await expectUnscrolledDialogueActions(page, ['Finish the evening', 'Return to the scene']);
     await showcase(page, `home-arrival-from-sz-${width}`);
     await expectClock(page, '21:45');
     await openAction(page, 'Open phone');
-    await expect(dialogue(page)).toContainText(/entry.*unconfirmed|entry.*unverified|verify.*entry/i);
+    await page.getByRole('button', { name: 'Check the journey', exact: true }).click();
+    await expect(page.locator('.route-note-uncertainty')).toContainText(/entry.*unconfirmed|entry.*unverified|verify.*entry/i);
     await closeDialogue(page);
     await expect.poll(async () => (await readStorySave(page)).previousAttempt).toMatchObject({ ...firstAttempt });
     await page.reload();
@@ -177,6 +159,8 @@ test('each committed phase quietly resumes and rewinds with exact clock and no r
     if (phase === 'home') {
       // At the shared origin the phone remains useful; Jun is no longer present.
       await openAction(page, 'Open phone');
+      await expect(dialogue(page).getByRole('heading', { name: 'From Jun', exact: true })).toBeFocused();
+      await page.getByRole('button', { name: 'Check the journey', exact: true }).click();
       await expect(dialogue(page).getByRole('heading', { name: 'Out and home', exact: true })).toBeFocused();
       await expectHomeScene(page);
     } else {
@@ -232,7 +216,8 @@ test('short-evening warning stays tentative and an ordinary rewind recovers thir
   await returnHome(page);
   await expectClock(page, '20:15');
   await openAction(page, 'Open phone');
-  await expect(dialogue(page)).toContainText(/15.*after|15.*beyond/);
+  await page.getByRole('button', { name: 'Check the journey', exact: true }).click();
+  await expect(page.locator('.route-note-warnings')).toContainText(/15.*after|15.*beyond/);
   await closeDialogue(page);
   await rewind(page, 'Reconsider the walk', 'afterDinner');
   await expectClock(page, '19:15');
@@ -538,8 +523,9 @@ test('calm short Shenzhen evening never promises spare walking time after the de
   await chooseDinner(page, 'simple');
   await expect(page.getByLabel('Story clock', { exact: true })).toHaveText('19:45');
   await expect(dialogue(page)).not.toContainText('There’s still time for a walk.');
-  await expect(dialogue(page).locator('.spoken-line')).toContainText('Shall we step outside?');
-  await expect(dialogue(page).locator('.spoken-line')).toContainText('We kept the order simple.');
+  // Jun's approved dinner response replaces the former step-outside line, but
+  // must still avoid claiming spare time when even direct return is late.
+  await expect(dialogue(page).locator('.spoken-line')).toHaveText('That hit the spot.');
   await expect(page.locator('.play-event-note')).toContainText('No fictional delay is applied.');
   await openAction(page, 'Step outside');
   const short = page.getByRole('button', { name: /^A short loop sounds good\./ });
@@ -602,6 +588,9 @@ for (const city of ['Hong Kong', 'Shenzhen'] as const) {
     await expectHomeScene(page);
     const homePhone = page.getByRole('button', { name: 'Open phone in the illustration', exact: true });
     await homePhone.click();
+    await expect(dialogue(page).getByRole('heading', { name: 'From Jun', exact: true })).toBeFocused();
+    await expect(dialogue(page).locator('.authored-phone-note .spoken-line')).toHaveText(junWords.direct);
+    await page.getByRole('button', { name: 'Check the journey', exact: true }).click();
     await expect(dialogue(page).getByRole('heading', { name: 'Out and home', exact: true })).toBeFocused();
     await page.getByRole('button', { name: 'Whole-outing cost detail', exact: true }).click();
     await expect(page.locator('.route-note-detail')).toContainText('No walk · chosen direct return');

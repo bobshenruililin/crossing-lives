@@ -12,7 +12,7 @@ Say once: “The dialogue, prices and travel buffers are examples. Published bor
 
 ## 0:00–1:15 · Let the place invite a choice
 
-The first screen is the Hong Kong scene, with Jun asking whether to eat nearby or cross for dinner. Choose **Look around first**.
+The first screen is the Hong Kong scene, with fictional Jun inviting a proper catch-up nearby or in streets he knows around Luohu. His memories belong to him; the player need not share them. Choose **Look around first**.
 
 Look at the table or harbor. Advance the short observation, then return to the scene. The clock stays at 16:30. No other observation must be completed.
 
@@ -28,7 +28,7 @@ The 90-minute dinner and disclosed delay bring the clock to 18:45. The whole-out
 
 **Step outside**, then choose **Let’s take the longer walk.** The scene becomes night and the clock reaches 19:30. Look around if you want, then **Head home → Follow the return journey**. Modeled arrival is 19:45.
 
-There is no item to collect, record to complete or reflection form to fill in. The evening can simply end.
+The shared fictional entryway lets the evening simply end. An optional Phone note from Jun recalls the chosen experience; it is plainly authored fiction, with no reply, unread badge or recording task. “Check the journey” still opens the completed route if useful. Skip the note when presenting only the arithmetic.
 
 ## 2:05–3:00 · Try another possibility
 

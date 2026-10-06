@@ -1,9 +1,10 @@
+import { junWords } from './story-fixtures';
 import { test, expect } from '@playwright/test';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import {
   cityPreview, closeDialogue, dialogue, expectJun, expectHomeScene, expectPhase, expectSceneAssets,
-  openAction, storyClock,
+  openAction, readStorySave, storyClock, expectUnscrolledDialogueActions,
 } from './story-helpers';
 
 test('record one real complete evening from invitation through dinner, walk, return route and shared home', async ({ browser, baseURL }, testInfo) => {
@@ -36,6 +37,8 @@ test('record one real complete evening from invitation through dinner, walk, ret
     await expectSceneAssets(page, 'hong-kong-evening.webp');
     await expect(dialogue(page).getByRole('heading', { name: 'Dinner, then a walk?', exact: true })).toBeVisible();
     await expectJun(page);
+    await expect(dialogue(page).locator('.spoken-line')).toHaveText(junWords.invitation);
+    await expectUnscrolledDialogueActions(page, ['Let’s stay nearby.', 'Let’s cross for dinner.', 'Look around first']);
     await expect(page.getByRole('button', { name: 'Let’s stay nearby.', exact: true })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Let’s cross for dinner.', exact: true })).toBeVisible();
     await hold('Jun invites us out. We can stay nearby, cross for dinner or freely look around first.', 13000);
@@ -80,6 +83,8 @@ test('record one real complete evening from invitation through dinner, walk, ret
     await expectJun(page);
     await expect(storyClock(page)).toHaveText('16:45');
     await expect(dialogue(page).getByRole('heading', { name: 'At the table', exact: true })).toBeFocused();
+    await expect(dialogue(page).locator('.spoken-line')).toHaveText(junWords.table.hk);
+    await expectUnscrolledDialogueActions(page, ['Read the menu']);
     await hold('The first real commitment advances time and changes the setting to the close table scene with Jun.', 6000);
     await page.getByRole('button', { name: 'Read the menu', exact: true }).click();
     await expectJun(page);
@@ -95,8 +100,8 @@ test('record one real complete evening from invitation through dinner, walk, ret
     await expectPhase(page, 'walk');
     await expect(storyClock(page)).toHaveText('19:30');
     await expectSceneAssets(page, 'hk-evening-night.webp');
-    await expect(dialogue(page).locator('.spoken-line').first()).toHaveText('A shared dessert, then the longer way by the water.');
-    await hold('The wider harbor view and Jun’s response follow both actual choices.', 7000);
+    await expect(dialogue(page).locator('.spoken-line').first()).toHaveText(junWords.walk.hk.long);
+    await hold('The wider harbor view brings back Jun’s memory of the restaurant lights.', 7000);
     await page.getByRole('button', { name: 'Look around', exact: true }).click();
     await hold('Take in the night view with the dialogue out of the way.', 5000);
     await openAction(page, 'Head home');
@@ -116,6 +121,16 @@ test('record one real complete evening from invitation through dinner, walk, ret
     await page.getByRole('button', { name: 'Finish the evening', exact: true }).click();
     await expectHomeScene(page);
     await hold('A quiet home ending, with optional practical tools and no recording or collection prompt.', 6000);
+    const finished = await readStorySave(page);
+    await openAction(page, 'Open phone');
+    await expect(dialogue(page).getByRole('heading', { name: 'From Jun', exact: true })).toBeFocused();
+    await expect(page.locator('.phone-note-label')).toHaveText('Authored fictional story message');
+    await expect(page.locator('.authored-phone-note .spoken-line')).toHaveText(junWords.home.hk.long);
+    await hold('Optionally read one authored fictional callback from Jun. It is not a live message or a task to complete.', 11000);
+    await page.getByRole('button', { name: 'Put the phone away', exact: true }).click();
+    await expect(page.getByRole('button', { name: 'Open phone', exact: true })).toBeFocused();
+    expect(await readStorySave(page)).toEqual(finished);
+    await hold('Put the phone away. The completed evening and quiet room remain unchanged.', 4000);
     expect(errors).toEqual([]);
     complete = true;
   } finally {
@@ -128,7 +143,7 @@ test('record one real complete evening from invitation through dinner, walk, ret
       commit, complete, test: testInfo.title,
       viewport: { width: 1440, height: 900 },
       recording: 'Playwright BrowserContext recordVideo; actual browser interactions and original animations',
-      scope: 'Complete evening: invitation, inspection, money and route, dinner, walk, return map and shared home',
+      scope: 'Complete evening: invitation, inspection, money and route, dinner, walk, return map, shared home and an optional authored fictional callback',
       readingPausesMs: beats.reduce((total, beat) => total + beat.pauseMs, 0),
       elapsedMs: Date.now() - started,
       browserVersion: browser.version(),

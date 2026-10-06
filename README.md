@@ -69,7 +69,7 @@ The art is an imagined setting, not a geographic or transport map. See [asset pr
 - `src/data/evidence.ts`: source-labelled claims and limitations
 - `src/App.tsx`: application shell and practical planner
 - `src/components/PlayableEvening.tsx`: scene interactions and the fictional evening
-- `src/story/`: pure, guarded, replayable narrative state and engine-derived route forecasts
+- `src/story/`: pure, guarded, replayable narrative state, authored branch-copy selection and engine-derived route forecasts
 - `src/components/RouteNote.tsx`: optional phone schematic and progressive route details
 - `src/persistence/journal.ts`: versioned practical-plan storage, distinct from story storage
 - `src/components/EvidenceDesk.tsx`: separate research workspace
@@ -85,9 +85,9 @@ See [architecture](docs/ARCHITECTURE.md), [creative decisions](docs/DECISIONS.md
 
 ## Verification status
 
-Known-tested evening baseline `7bc1460787ee023d018d6e969c0038bc7be3d245` passed TypeScript, build/export, 94 unit tests and all 67 browser cases on their first attempt. Actual short/long framing, keyboard-only route use, shared home arrival and offline paths were exercised. A 159.68-second real-browser recording follows the complete evening; phone-sized night/home captures were also reviewed.
+Known-tested spatial-route baseline `301f8d8e535f8f6003960a2da37d7710508912aa` passed TypeScript, build/export, 94 unit tests and all 67 browser cases without retries. Actual route/caption/ending captures were reviewed; the real complete-evening recording is 164.72 seconds. Both city and direct-return paths still work offline.
 
-A thinner spatial route schematic and an unobscured fiction caption are a subsequent presentation refinement. Earlier results do not clear those changes. See the [verification record](docs/VERIFICATION.md) and [coverage rationale](docs/TEST_COVERAGE.md) for exact evidence and limits.
+A short authored human throughline for Jun is a subsequent narrative pass. It adds no numeric mechanics or save fields, but its text fit, optional home-phone message and interaction need their own browser and creative review. See the [verification record](docs/VERIFICATION.md) and [coverage rationale](docs/TEST_COVERAGE.md) for exact evidence and limits.
 
 ## Publication
 

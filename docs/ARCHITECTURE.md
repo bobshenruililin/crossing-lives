@@ -33,3 +33,8 @@ The research desk owns the fixed-pool allocation experiment. It is not part of a
 `src/story/route-view.ts` is a pure presentation selector over the same story/domain engine. Before meal commitment it composes departure and simple-dinner previews, including the disclosed future delay, then labels the walk and meal as conditional. It retains the actual progress clock separately. It never dispatches actions or owns a second timing formula.
 
 `RouteNote` renders one schematic out-and-back journey in the existing native phone dialogue. Its mutually exclusive folds are transient React state, not saved story progress. Route changes are accepted only at the fork; later changes use the same explicit rewind and legacy-data protection as other reconsiderations. The host owns modal focus, Back navigation and attended-object framing.
+
+
+## Authored character copy
+
+`src/story/dialogue.ts` selects a few fixed fictional lines from the existing city, meal, walk and phase. It is pure and adds no persisted fields, inferred player familiarity, emotional score or chat backend. Legacy notes are not inputs to the returned text. The home phone note is transient presentation; the real completed route and its evidence still use the existing route-view selector.

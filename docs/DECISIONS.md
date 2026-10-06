@@ -56,3 +56,10 @@ Returning from Shenzhen previously left its night painting beneath a home label.
 The first route note passed its interaction checks but still looked like a small timetable. The refinement makes the starting area, selected crossing and dinner area visible on one original thin out-and-back schematic. It uses no geographic basemap, scale, live position or invented venue pin. Inspecting a direction emphasizes that line and opens the same engine-derived legs.
 
 A compact conditional home-time summary leaves room for this spatial relationship; the explicit meal, walk, delay and deadline assumptions remain one real disclosure away. Unknown costs and relevant warnings are never converted into a reassuring overall score.
+
+
+## A companion with a reason to be there
+
+Visual review found a clear journey but a weak human throughline. A few short lines now give fictional Jun ordinary personal connections to each place: harbor dinners from early working life and earlier Saturday walks around Luohu. Both are Jun's memories, not assumed player biography, researched testimony or proof that one city is intrinsically familiar.
+
+The existing meal and walk choices shape what the two friends spend time doing. Jun notices that experience rather than reciting a tally. At home an optional, explicitly authored phone note provides a small callback; no unread indicator, reply, collection, relationship score or saved message history is added. The quiet home ending and the complete route remain available without reading it.

@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { illustrativeData } from '../src/domain/data';
+import { compareOutings } from '../src/domain/engine';
 import {
   createStoryState, decodeStoryState, previewStoryAction, selectStoryComparison, selectStoryInputs,
   selectStoryJournal, selectStoryOption, selectStoryPreviousOption, selectStoryProgress, STORY_PRESETS,
@@ -92,6 +93,179 @@ test('a delayed short loop matches a calm long wander for either city without ch
     assert.equal(selectStoryProgress(delayed).delayApplied, true);
     assert.equal(selectStoryProgress(calm).delayApplied, false);
   }
+});
+
+test('direct return in either city matches the zero-walk domain model with the same two-adult bill', () => {
+  for (const city of ['hk', 'sz'] as const) for (const route of ['rail', 'bus'] as const) {
+    for (const dinnerChoice of ['simple', 'linger'] as const) for (const delayScenario of ['none', 'dinner30'] as const) {
+      const dinner = freeze(storyReducer(arrive(city, createStoryState('wander', {
+        delayScenario, baseInputs: { szRoute: route },
+      })), { type: 'COMMIT_DINNER', choice: dinnerChoice }));
+      const dinnerBytes = JSON.stringify(dinner);
+      const before = selectStoryOption(dinner)!;
+      const preview = previewStoryAction(dinner, { type: 'RETURN_AFTER_DINNER' });
+      const home = storyReducer(dinner, { type: 'RETURN_AFTER_DINNER' });
+      const option = selectStoryOption(home)!;
+      const expected = compareOutings({ ...dinner.baseInputs, szRoute: route,
+        familiarity: dinner.currentAttempt.familiarity,
+        itineraryOverrides: { [city]: { mealMinutes: dinnerChoice === 'linger' ? 90 : 60,
+          includeSharedOrder: dinnerChoice === 'linger', walkMinutes: 0,
+          storyDelayMinutes: delayScenario === 'dinner30' ? 30 : 0 } },
+      }).options.find(item => item.id === city)!;
+
+      assert.deepEqual(option, expected);
+      assert.equal(home.currentAttempt.phase, 'home');
+      assert.equal(home.currentAttempt.walkChoice, 'none');
+      assert.equal(home.currentAttempt.dinnerChoice, dinnerChoice);
+      assert.equal(home.baseInputs.partySize, 2);
+      assert.equal(selectStoryInputs(home).entryEligibility, 'unsure');
+      if (city === 'sz') assert.equal(option.entryFeasible, null);
+      assert.equal(option.groupHKD, before.groupHKD);
+      assert.equal(option.perPersonHKD, before.perPersonHKD);
+      assert.deepEqual(option.lineItems, before.lineItems);
+      assert.equal(preview.allowed, true);
+      assert.deepEqual(preview.state, home);
+      assert.equal(preview.billDeltaHKD, 0);
+      assert.equal(preview.perPersonDeltaHKD, 0);
+      assert.equal(preview.returnDeltaMinutes, -45);
+      assert.equal(preview.progress.elapsedMinutes, option.totalMinutes);
+      assert.equal(preview.progress.clockMinutes, option.returnMinutes);
+      assert.equal(preview.progress.walkComplete, false);
+      assert.equal(preview.progress.dinnerComplete, true);
+      assert.equal(preview.progress.homeComplete, true);
+      assert.equal(preview.progress.delayMinutes, delayScenario === 'dinner30' ? 30 : 0);
+      assert.equal(JSON.stringify(dinner), dinnerBytes);
+      assert.deepEqual(validateStoryState(home), []);
+      assert.ok(selectStoryJournal(home).some(line => line.includes('straight home after dinner, without a walk')));
+      assert.equal(selectStoryJournal(home).some(line => /15-minute loop|45-minute wander/.test(line)), false);
+    }
+  }
+});
+
+test('direct return is an explicit after-dinner-only action and eager or repeated returns are strict no-ops', () => {
+  const fork = createStoryState();
+  const arrival = arrive();
+  const dinner = storyReducer(arrival, { type: 'COMMIT_DINNER', choice: 'simple' });
+  const walk = storyReducer(dinner, { type: 'COMMIT_WALK', choice: 'short' });
+  const walkedHome = storyReducer(walk, { type: 'RETURN_HOME' });
+  const directHome = storyReducer(dinner, { type: 'RETURN_AFTER_DINNER' });
+  const action: StoryAction = { type: 'RETURN_AFTER_DINNER' };
+  for (const state of [fork, arrival, walk, walkedHome, directHome]) {
+    assert.equal(storyReducer(state, action), state);
+    assert.equal(previewStoryAction(state, action).allowed, false);
+  }
+  assert.equal(storyReducer(directHome, { type: 'RETURN_HOME' }), directHome);
+  assert.equal(storyReducer(dinner, { type: 'RETURN_HOME' }), dinner);
+  assert.equal(storyReducer(dinner, { type: 'COMMIT_WALK', choice: 'none' } as unknown as StoryAction), dinner);
+  assert.equal(dispatch(dinner, action, action, action).currentAttempt.walkChoice, 'none');
+  assert.deepEqual(dispatch(dinner, action, action, action), directHome);
+});
+
+test('direct-return rewind and replay preserve dinner and apply the disclosed delay exactly once', () => {
+  for (const city of ['hk', 'sz'] as const) {
+    const dinner = storyReducer(arrive(city), { type: 'COMMIT_DINNER', choice: 'linger' });
+    const home = freeze(storyReducer(dinner, { type: 'RETURN_AFTER_DINNER' }));
+    const homeBytes = JSON.stringify(home);
+    const rewound = storyReducer(home, { type: 'REWIND', checkpoint: 'afterDinner' });
+    assert.deepEqual(rewound, dinner);
+    const replay = storyReducer(rewound, { type: 'RETURN_AFTER_DINNER' });
+    assert.deepEqual(replay, home);
+    assert.deepEqual(selectStoryProgress(replay), selectStoryProgress(home));
+    assert.equal(selectStoryOption(replay)!.storyDelayMinutes, 30);
+    assert.equal(selectStoryJournal(replay).filter(line => line.includes('30 minutes longer')).length, 1);
+    const shortHome = dispatch(rewound, { type: 'COMMIT_WALK', choice: 'short' }, { type: 'RETURN_HOME' });
+    assert.equal(selectStoryOption(shortHome)!.returnMinutes - selectStoryOption(home)!.returnMinutes, 15);
+    assert.equal(selectStoryOption(shortHome)!.groupHKD, selectStoryOption(home)!.groupHKD);
+    const arrival = storyReducer(home, { type: 'REWIND', checkpoint: 'arrival' });
+    assert.equal(arrival.currentAttempt.walkChoice, null);
+    assert.equal(selectStoryOption(arrival)!.storyDelayMinutes, 0);
+    assert.deepEqual(dispatch(arrival, { type: 'COMMIT_DINNER', choice: 'linger' }, { type: 'RETURN_AFTER_DINNER' }), home);
+    assert.equal(JSON.stringify(home), homeBytes);
+  }
+});
+
+test('heading straight home still reports a missed deadline and unresolved real entry eligibility', () => {
+  for (const city of ['hk', 'sz'] as const) {
+    const dinner = storyReducer(arrive(city, createStoryState('short', {
+      baseInputs: { homeByMinutes: 1080 },
+    })), { type: 'COMMIT_DINNER', choice: 'linger' });
+    const preview = previewStoryAction(dinner, { type: 'RETURN_AFTER_DINNER' });
+    assert.equal(preview.allowed, true);
+    assert.equal(preview.state.currentAttempt.phase, 'home');
+    assert.equal(preview.option!.walkMinutes, 0);
+    assert.equal(preview.option!.homeFeasible, false);
+    assert.equal(preview.state.baseInputs.homeByMinutes, 1080);
+    assert.ok(preview.warnings.some(line => line.includes('after the deadline')));
+    assert.ok(selectStoryJournal(preview.state).some(line => line.includes('after the chosen home deadline')));
+    assert.equal(selectStoryInputs(preview.state).entryEligibility, 'unsure');
+    if (city === 'sz') assert.equal(preview.option!.entryFeasible, null);
+  }
+});
+
+test('direct-return snapshots and same-version saves survive alternate play and changed assumptions', () => {
+  for (const city of ['hk', 'sz'] as const) {
+    const dinner = storyReducer(arrive(city), { type: 'COMMIT_DINNER', choice: 'linger' });
+    const home = storyReducer(dinner, { type: 'RETURN_AFTER_DINNER' });
+    const restoredHome = decodeStoryState(JSON.stringify(home))!;
+    assert.equal(restoredHome.version, 2);
+    assert.deepEqual(restoredHome, home);
+    assert.notEqual(restoredHome.currentAttempt, home.currentAttempt);
+    assert.deepEqual(selectStoryOption(restoredHome), selectStoryOption(home));
+    assert.deepEqual(selectStoryProgress(restoredHome), selectStoryProgress(home));
+
+    let alternate = storyReducer(home, { type: 'TRY_OTHER_CITY' });
+    const previousBytes = JSON.stringify(alternate.previousAttempt);
+    const previousOption = selectStoryPreviousOption(alternate);
+    freeze(alternate.previousAttempt);
+    alternate = dispatch(alternate,
+      { type: 'RECONFIGURE', inputs: { departureMinutes: 900 }, delayScenario: 'none' },
+      { type: 'SET_FAMILIARITY', city, activity: 'dinner', value: 'new' },
+      { type: 'COMMIT_DEPARTURE', city: city === 'hk' ? 'sz' : 'hk' },
+      { type: 'COMMIT_DINNER', choice: 'simple' }, { type: 'RETURN_AFTER_DINNER' });
+    assert.equal(JSON.stringify(alternate.previousAttempt), previousBytes);
+    assert.deepEqual(selectStoryPreviousOption(alternate), previousOption);
+    const restoredAlternate = decodeStoryState(JSON.stringify(alternate))!;
+    assert.deepEqual(restoredAlternate, alternate);
+    assert.equal(restoredAlternate.previousAttempt!.walkChoice, 'none');
+    assert.deepEqual(selectStoryPreviousOption(restoredAlternate), selectStoryOption(home));
+    assert.deepEqual(selectStoryProgress(restoredAlternate), selectStoryProgress(alternate));
+  }
+});
+
+test('same-version decoding accepts old walks but rejects zero-walk commitments outside a completed return', () => {
+  for (const city of ['hk', 'sz'] as const) for (const walk of ['short', 'long'] as const) {
+    const legacyHome = finish(city, createStoryState(), 'linger', walk);
+    assert.deepEqual(decodeStoryState(JSON.stringify(legacyHome)), legacyHome);
+    const legacyPrior = storyReducer(legacyHome, { type: 'TRY_OTHER_CITY' });
+    assert.deepEqual(decodeStoryState(JSON.stringify(legacyPrior)), legacyPrior);
+  }
+  const dinner = storyReducer(arrive(), { type: 'COMMIT_DINNER', choice: 'simple' });
+  const home = storyReducer(dinner, { type: 'RETURN_AFTER_DINNER' });
+  for (const phase of ['fork', 'arrival', 'afterDinner', 'walk'] as const) {
+    assert.equal(decodeStoryState({ ...home, currentAttempt: { ...home.currentAttempt, phase } }), null);
+  }
+  assert.equal(decodeStoryState({ ...home, currentAttempt: { ...home.currentAttempt, dinnerChoice: null } }), null);
+  assert.equal(decodeStoryState({ ...home, currentAttempt: { ...home.currentAttempt, walkChoice: null } }), null);
+  const prior = storyReducer(home, { type: 'TRY_OTHER_CITY' });
+  assert.equal(decodeStoryState({ ...prior, previousAttempt: { ...prior.previousAttempt, phase: 'walk' } }), null);
+  const injected = { ...home, totalCost: 0,
+    currentAttempt: { ...home.currentAttempt, elapsedMinutes: 0, delayApplied: 20, toJSON: () => ({}) } };
+  assert.deepEqual(decodeStoryState(injected), home);
+});
+
+test('direct return keeps an unknown whole-outing bill unknown rather than treating no walk as a saving', () => {
+  const fixture = structuredClone(illustrativeData);
+  fixture.shenzhen.routes.rail.origins.kowloon.fareEachWayHKD = null;
+  const dinner = storyReducer(arrive('sz'), { type: 'COMMIT_DINNER', choice: 'linger' });
+  const preview = previewStoryAction(dinner, { type: 'RETURN_AFTER_DINNER' }, fixture);
+  assert.equal(preview.allowed, true);
+  assert.equal(preview.option!.walkMinutes, 0);
+  assert.equal(preview.option!.groupHKD, null);
+  assert.equal(preview.option!.perPersonHKD, null);
+  assert.equal(preview.billDeltaHKD, null);
+  assert.equal(preview.perPersonDeltaHKD, null);
+  assert.equal(preview.option!.knownGroupSubtotalHKD, selectStoryOption(dinner, 'sz', fixture)!.knownGroupSubtotalHKD);
+  assert.ok(selectStoryJournal(preview.state, fixture).some(line => line.includes('bill unknown')));
 });
 
 test('preview reports concrete deltas without changing the current choices, journal, clock or bill', () => {

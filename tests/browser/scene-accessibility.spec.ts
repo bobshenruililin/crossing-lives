@@ -3,7 +3,7 @@ import { createStoryState } from '../../src/story/engine';
 import { seedStory } from './story-fixtures';
 import {
   advanceDialogue, chooseWalk, cityPreview, closeDialogue, depart, dialogue,
-  expectClock, expectJun, expectNoClippedText, expectNoOverflow, expectPhase, expectTouchTarget,
+  expectClock, expectJun, expectNoClippedText, expectNoOverflow, expectPhase, expectTouchTarget, expectSceneAssets, expectWorldViewport,
   openAction, openOptions, readStorySave, returnHome, showcase, startStory, story,
 } from './story-helpers';
 
@@ -55,12 +55,14 @@ for (const width of [1440, 390, 360]) {
     await expectNoClippedText(dialogue(page));
     await advanceDialogue(page);
     await expect(dialogue(page)).toContainText('HK$248');
-    for (let count = 0; count < 8; count += 1) {
-      await page.keyboard.press('Tab');
-      const focused = page.locator(':focus');
-      await expect(focused).toBeVisible();
-      expect(await focused.evaluate(element => element.closest('dialog') !== null)).toBe(true);
-      await expect(focused).toBeInViewport();
+    for (const key of ['Tab', 'Shift+Tab']) {
+      for (let count = 0; count < 8; count += 1) {
+        await page.keyboard.press(key);
+        const focused = page.locator(':focus');
+        await expect(focused).toBeVisible();
+        expect(await focused.evaluate(element => element.closest('dialog') !== null)).toBe(true);
+        await expect(focused).toBeInViewport();
+      }
     }
     await page.keyboard.press('Escape');
     await expect(dialogue(page)).not.toBeVisible();
@@ -147,3 +149,103 @@ test('200% equivalent reflow preserves naturally scrollable dialogue and essenti
   await expect(dialogue(page).getByRole('heading', { name: 'A little walk?', exact: true })).toBeFocused();
   await expectNoOverflow(page);
 });
+
+async function expectReducedMotionEffects(page: Page) {
+  const unexpected = await story(page).evaluate(root => [root, ...root.querySelectorAll('*')].flatMap(element => {
+    const css = getComputedStyle(element);
+    const nonzero = (value: string) => value.split(',').some(part => Number.parseFloat(part) !== 0);
+    return css.animationName !== 'none' || nonzero(css.animationDuration) || nonzero(css.transitionDuration) || nonzero(css.transitionDelay)
+      ? [{ element: element.tagName, className: element.getAttribute('class'), animation: css.animationName, animationDuration: css.animationDuration, transitionDuration: css.transitionDuration, transitionDelay: css.transitionDelay }]
+      : [];
+  }));
+  expect(unexpected, 'Reduced motion must suppress actual computed animations and transitions, including newly opened dialogue.').toEqual([]);
+  await expect(page.locator('.world-scroller')).toHaveCSS('scroll-behavior', 'auto');
+  expect(await story(page).evaluate(root => root.getAnimations({ subtree: true }).filter(animation => animation.playState === 'running').length)).toBe(0);
+}
+
+test('keyboard alone can inspect the world and commit dinner with effective reduced motion', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/');
+  // No click(), focus() or startStory() shortcut is used for this interaction path.
+  await expect(dialogue(page).getByRole('heading', { name: 'Dinner, then a walk?', exact: true })).toBeFocused();
+  await expectReducedMotionEffects(page);
+  const tabTo = async (target: Locator) => {
+    for (let count = 0; count < 40 && !(await target.evaluate(element => element === document.activeElement)); count += 1) await page.keyboard.press('Tab');
+    await expect(target).toBeFocused();
+    await expect(target).toBeInViewport();
+  };
+  await tabTo(page.getByRole('button', { name: 'Look around first', exact: true }));
+  await page.keyboard.press('Enter');
+  await expect(page.locator('.world-scroller')).toBeFocused();
+  await page.keyboard.press('Shift+Tab');
+  const skip = page.getByRole('link', { name: 'Skip to content', exact: true });
+  await expect(skip).toBeFocused();
+  await expect(skip).toBeInViewport();
+  await page.keyboard.press('Tab');
+  await expect(page.locator('.world-scroller')).toBeFocused();
+  const skipBox = (await skip.boundingBox())!;
+  expect(skipBox.y + skipBox.height).toBeLessThanOrEqual(0);
+  await tabTo(cityPreview(page, 'Hong Kong'));
+  await page.keyboard.press('Enter');
+  const table = page.getByRole('button', { name: 'Look at the table', exact: true });
+  await tabTo(table);
+  await page.keyboard.press('Enter');
+  await expect(dialogue(page).getByRole('heading', { name: 'By the table', exact: true })).toBeFocused();
+  await expectReducedMotionEffects(page);
+  await tabTo(page.getByRole('button', { name: 'Continue dialogue', exact: true }));
+  await page.keyboard.press('Space');
+  await expect(dialogue(page)).toContainText('HK$248');
+  await expect(page.getByLabel('Story clock', { exact: true })).toHaveText('16:30');
+  await page.keyboard.press('Escape');
+  await expect(table).toBeFocused();
+  const harbor = page.getByRole('button', { name: 'Look at the harbor in the illustration', exact: true });
+  await tabTo(harbor);
+  await page.keyboard.press('Enter');
+  await expect(dialogue(page).getByRole('heading', { name: 'By the harbor', exact: true })).toBeFocused();
+  await page.keyboard.press('Escape');
+  await expect(harbor).toBeFocused();
+  await expectPhase(page, 'fork');
+  await expect.poll(async () => (await readStorySave(page)).currentAttempt.inspectedHotspots).toEqual(['hk:table', 'hk:wander']);
+  await tabTo(page.getByRole('button', { name: 'Talk about dinner', exact: true }));
+  await page.keyboard.press('Enter');
+  await expectReducedMotionEffects(page);
+  await tabTo(page.getByRole('button', { name: 'Head to the table', exact: true }));
+  await page.keyboard.press('Space');
+  await expectPhase(page, 'arrival');
+  await expect(page.getByLabel('Story clock', { exact: true })).toHaveText('16:45');
+  await expect(dialogue(page).getByRole('heading', { name: 'At the table', exact: true })).toBeFocused();
+  await expectReducedMotionEffects(page);
+});
+
+for (const viewport of [{ width: 768, height: 1024 }, { width: 820, height: 1180 }]) {
+  test(`portrait tablet ${viewport.width}×${viewport.height}: real artwork fills view and pans with accessible hotspots`, async ({ page }) => {
+    await page.setViewportSize(viewport);
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.goto('/');
+    await expect(dialogue(page).getByRole('heading', { name: 'Dinner, then a walk?', exact: true })).toBeVisible();
+    await expectJun(page);
+    await showcase(page, `initial-invitation-${viewport.width}`);
+    await startStory(page);
+    await expectWorldViewport(page, `exploration-${viewport.width}`);
+    await cityPreview(page, 'Hong Kong').click();
+    const scroller = page.locator('.world-scroller');
+    await page.getByRole('button', { name: 'Look at the table', exact: true }).click();
+    await closeDialogue(page);
+    const tableScroll = await scroller.evaluate(element => element.scrollLeft);
+    await expectAnchoredHotspot(page, 'the table');
+    await page.getByRole('button', { name: 'Look at the harbor', exact: true }).click();
+    await closeDialogue(page);
+    await expectAnchoredHotspot(page, 'the harbor');
+    expect(await scroller.evaluate(element => element.scrollLeft)).toBeGreaterThan(tableScroll + 50);
+    await expectWorldViewport(page, `world-tablet-harbor-${viewport.width}`);
+    await cityPreview(page, 'Shenzhen').click();
+    await expectSceneAssets(page, 'shenzhen-evening.webp');
+    await page.getByRole('button', { name: 'Look at the way home', exact: true }).click();
+    await closeDialogue(page);
+    await expectAnchoredHotspot(page, 'the way home');
+    await expectWorldViewport(page, `world-tablet-shenzhen-${viewport.width}`);
+    await expectClock(page, '16:30');
+    await expectNoOverflow(page);
+  });
+}

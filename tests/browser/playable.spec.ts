@@ -29,10 +29,13 @@ for (const width of [1440, 390, 360]) {
     page.on('pageerror', error => errors.push(error.message));
     await page.setViewportSize({ width, height: width === 1440 ? 900 : 844 });
     await page.goto('/');
+    await expect(dialogue(page).getByRole('heading', { name: 'Dinner, then a walk?', exact: true })).toBeFocused();
+    await expectJun(page);
+    await showcase(page, `initial-invitation-${width}`);
     await startStory(page);
     await expectPhase(page, 'fork');
     await expectSceneAssets(page, 'hong-kong-evening.webp');
-    await expectWorldViewport(page, `world-opening-${width}`);
+    await expectWorldViewport(page, `exploration-${width}`);
     await expectClock(page, '16:30');
     await cityPreview(page, 'Hong Kong').click();
     await closeDialogue(page);
@@ -43,8 +46,12 @@ for (const width of [1440, 390, 360]) {
     await expectWorldViewport(page, `world-hk-arrival-${width}`);
     await openAction(page, 'Read the menu');
     await expectJun(page);
-    await expect(page.getByRole('button', { name: /^Let’s keep dinner simple\./ })).toContainText('HK$304.00');
-    await expect(page.getByRole('button', { name: /^Let’s have one more dish\./ })).toContainText('+HK$32.00');
+    const simpleMeal = page.getByRole('button', { name: /^Let’s keep dinner simple\./ });
+    const sharedMeal = page.getByRole('button', { name: /^Let’s have one more dish\./ });
+    await expect(simpleMeal).toContainText('60 minutes');
+    await expect(simpleMeal).toContainText('about HK$304/person');
+    await expect(sharedMeal).toContainText('90 minutes');
+    await expect(sharedMeal).toContainText('about HK$336/person');
     await showcase(page, `world-hk-menu-${width}`);
     await page.getByRole('button', { name: /^Let’s have one more dish\./ }).click();
     await expectPhase(page, 'afterDinner');
@@ -53,7 +60,11 @@ for (const width of [1440, 390, 360]) {
     await openAction(page, 'Step outside');
     await expectJun(page);
     await expect(page.getByRole('button', { name: /^A short loop sounds good\./ })).toContainText('Home 19:15');
+    await expect(page.getByRole('button', { name: /^A short loop sounds good\./ })).toContainText('15 minutes');
+    await expect(page.getByRole('button', { name: /^A short loop sounds good\./ })).toContainText('about HK$336/person');
     await expect(page.getByRole('button', { name: /^Let’s take the longer walk\./ })).toContainText('Home 19:45');
+    await expect(page.getByRole('button', { name: /^Let’s take the longer walk\./ })).toContainText('45 minutes');
+    await expect(page.getByRole('button', { name: /^Let’s take the longer walk\./ })).toContainText('about HK$336/person');
     await showcase(page, `world-hk-after-dinner-${width}`);
     await page.getByRole('button', { name: /^Let’s take the longer walk\./ }).click();
     await expectPhase(page, 'walk');
@@ -77,7 +88,14 @@ for (const width of [1440, 390, 360]) {
     await depart(page, 'Shenzhen');
     await expectClock(page, '18:15');
     await expectWorldViewport(page, `world-sz-arrival-${width}`);
-    await chooseDinner(page, 'simple');
+    await openAction(page, 'Read the menu');
+    await expect(page.getByRole('button', { name: /^Let’s keep dinner simple\./ })).toContainText('60 minutes');
+    await expect(page.getByRole('button', { name: /^Let’s keep dinner simple\./ })).toContainText('about HK$260/person');
+    await expect(page.getByRole('button', { name: /^Let’s have one more dish\./ })).toContainText('90 minutes');
+    await expect(page.getByRole('button', { name: /^Let’s have one more dish\./ })).toContainText('about HK$292/person');
+    await page.getByRole('button', { name: /^Let’s keep dinner simple\./ }).click();
+    await expectPhase(page, 'afterDinner');
+    await expect(dialogue(page).getByRole('heading', { level: 2 })).toBeFocused();
     await expectClock(page, '19:45');
     await expectBill(page, 'HK$260.22', 'HK$520.44');
     await openAction(page, 'Step outside');
@@ -108,14 +126,28 @@ for (const width of [1440, 390, 360]) {
 test('each committed phase quietly resumes and rewinds with exact clock and no repeated delay', async ({ page }) => {
   test.setTimeout(90_000);
   await page.goto('/');
+  // Inspect the first arrival before the convenience helper can dismiss anything.
+  await expect(dialogue(page).getByRole('heading', { name: 'Dinner, then a walk?', exact: true })).toBeFocused();
+  await expectJun(page);
+  await expect(page.getByRole('button', { name: 'Let’s stay nearby.', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Let’s cross for dinner.', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Look around first', exact: true })).toBeVisible();
   await startStory(page);
   await cityPreview(page, 'Hong Kong').click();
   await closeDialogue(page);
   const restore = async (phase: Parameters<typeof expectPhase>[1], clock: string) => {
     await page.reload();
-    await startStory(page);
     await expectPhase(page, phase);
+    // A stored phase resumes quietly; do not let startStory hide a regressed invitation.
+    await expect(page.locator('.world-dialogue')).not.toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Dinner, then a walk?', exact: true })).toHaveCount(0);
+    await startStory(page);
     await expectClock(page, clock);
+    await openAction(page, 'Talk with Jun');
+    const titles = { fork: 'Shall we eat here?', arrival: 'The menu', afterDinner: 'A little walk?', walk: 'Time to head back?', home: 'Back home' };
+    await expect(dialogue(page).getByRole('heading', { name: titles[phase], exact: true })).toBeFocused();
+    await expectJun(page);
+    await closeDialogue(page);
   };
   await restore('fork', '16:30');
   await depart(page, 'Hong Kong');
@@ -143,9 +175,15 @@ test('each committed phase quietly resumes and rewinds with exact clock and no r
 });
 
 test('short-evening warning stays tentative and an ordinary rewind recovers thirty minutes', async ({ page }) => {
-  await seedStory(page, createStoryState('short'));
   await page.goto('/');
   await startStory(page);
+  await openOptions(page);
+  await page.locator('.story-setup > summary').click();
+  await page.getByRole('button', { name: /^A short evening/ }).click();
+  await expect(page.locator('.story-setup')).toContainText('17:00–20:00');
+  await expect.poll(async () => (await readStorySave(page)).presetId).toBe('short');
+  await closeDialogue(page);
+  await expectClock(page, '17:00');
   await depart(page, 'Hong Kong');
   await openAction(page, 'Read the menu');
   const linger = page.getByRole('button', { name: /^Let’s have one more dish\./ });
@@ -163,7 +201,9 @@ test('short-evening warning stays tentative and an ordinary rewind recovers thir
   await openAction(page, 'Step outside');
   const short = page.getByRole('button', { name: /^A short loop sounds good\./ });
   await expect(short).toContainText('Home 19:45');
-  await expect(short).toContainText('Same bill');
+  await expect(short).toContainText('15 minutes');
+  await expect(short).toContainText('about HK$336/person');
+  await expect(page.getByRole('button', { name: /^Let’s take the longer walk\./ })).toContainText('about HK$336/person');
   await short.click();
   await returnHome(page);
   await expectClock(page, '19:45');
@@ -399,4 +439,183 @@ test('explicit app reset wins in this tab when removal fails without destroying 
   await expectPhase(page, 'fork');
   await openOptions(page);
   await expect(dialogue(page)).toContainText('older copy may return after a reload');
+});
+
+for (const city of ['Hong Kong', 'Shenzhen'] as const) {
+  test(`${city}: free observations follow committed dinner, walk and home without changing them`, async ({ page }) => {
+    await page.goto('/');
+    await startStory(page);
+    await depart(page, city);
+    const inspect = async (place: string, first: RegExp, second: RegExp, capture?: string) => {
+      await closeDialogue(page);
+      const before = await readStorySave(page);
+      const bill = selectStoryOption(before)?.perPersonHKD;
+      const clock = await page.getByLabel('Story clock', { exact: true }).innerText();
+      await page.getByRole('button', { name: `Look at ${place}`, exact: true }).click();
+      await expect(dialogue(page).locator('.spoken-line')).toHaveText(first);
+      await expectJun(page);
+      await page.getByRole('button', { name: 'Continue dialogue', exact: true }).click();
+      await expect(dialogue(page).locator('.spoken-line')).toHaveText(second);
+      await expect(dialogue(page)).not.toContainText('There’s no need to decide yet.');
+      await expect(dialogue(page)).not.toContainText('when you sit down');
+      await expect(page.getByLabel('Story clock', { exact: true })).toHaveText(clock);
+      if (capture) await showcase(page, capture);
+      await closeDialogue(page);
+      const after = await readStorySave(page);
+      expect({ ...after.currentAttempt, inspectedHotspots: [] }).toEqual({ ...before.currentAttempt, inspectedHotspots: [] });
+      expect(after.baseInputs).toEqual(before.baseInputs);
+      expect(selectStoryOption(after)?.perPersonHKD).toBe(bill);
+      expect(after.openHotspot).toBeNull();
+    };
+    await chooseDinner(page, 'linger');
+    await inspect('the table', city === 'Hong Kong' ? /We stayed for one shared dessert\./ : /We stayed for a shared order\./, /The dinner choice was 90 minutes, plus the fictional 30-minute delay\./);
+    await chooseWalk(page, 'long');
+    const shore = city === 'Hong Kong' ? 'harbor' : 'avenue';
+    await inspect(`the ${shore}`, new RegExp(`We took the 45-minute walk along the ${shore}\\.`), /We can head back when you’re ready\./);
+    await returnHome(page);
+    await inspect('the table', /Earlier tonight, we stayed for/, /That part of the evening is over\./);
+    await inspect(`the ${shore}`, new RegExp(`Earlier tonight, we took the 45-minute walk along the ${shore}\\.`), /The walk is over and we’re back home now\./);
+    await inspect('the way home', /We’re home now\. The return took/, city === 'Hong Kong' ? /The modelled local journey is complete\./ : /This was a fictional crossing\./, `world-home-observation-${city === 'Hong Kong' ? 'hk' : 'sz'}`);
+    await expectBill(page, city === 'Hong Kong' ? 'HK$336.00' : 'HK$291.83');
+  });
+}
+
+test('calm short Shenzhen evening never promises spare walking time after the deadline is already lost', async ({ page }) => {
+  await page.goto('/');
+  await startStory(page);
+  await openOptions(page);
+  await page.locator('.story-setup > summary').click();
+  await page.getByRole('button', { name: /^A short evening/ }).click();
+  await page.getByRole('checkbox', { name: 'Include one fictional 30-minute dinner delay', exact: true }).uncheck();
+  await expect.poll(async () => (await readStorySave(page)).delayScenario).toBe('none');
+  await closeDialogue(page);
+  await depart(page, 'Shenzhen');
+  await chooseDinner(page, 'simple');
+  await expect(page.getByLabel('Story clock', { exact: true })).toHaveText('19:45');
+  await expect(dialogue(page)).not.toContainText('There’s still time for a walk.');
+  await expect(dialogue(page).locator('.spoken-line')).toHaveText('Shall we step outside?');
+  await expect(page.locator('.play-event-note')).toContainText('No fictional delay is applied.');
+  await openAction(page, 'Step outside');
+  const short = page.getByRole('button', { name: /^A short loop sounds good\./ });
+  const long = page.getByRole('button', { name: /^Let’s take the longer walk\./ });
+  await expect(short).toContainText('Home 21:45');
+  await expect(short).toContainText('105 min beyond the home deadline');
+  await expect(long).toContainText('Home 22:15');
+  await expect(long).toContainText('135 min beyond the home deadline');
+  await expect(short).toContainText('15 minutes');
+  await expect(long).toContainText('45 minutes');
+  await expect(short).toContainText('about HK$260/person');
+  await expect(long).toContainText('about HK$260/person');
+  const direct = page.getByRole('button', { name: /^Let’s head home now\./ });
+  await expect(direct).toContainText('Home 21:30');
+  await expect(direct).toContainText('90 min beyond the home deadline');
+  await expect(direct).toContainText('about HK$260/person');
+  await expect(direct.locator('.choice-warning')).toBeVisible();
+  await expect(short).toBeEnabled();
+  await expect(long).toBeEnabled();
+  await expect(short.locator('.choice-warning')).toBeVisible();
+  await expect(long.locator('.choice-warning')).toBeVisible();
+  await showcase(page, 'world-calm-short-shenzhen-late-choices');
+  await short.click();
+  await returnHome(page);
+  await expectClock(page, '21:45');
+  await rewind(page, 'Reconsider the walk', 'afterDinner');
+  await openAction(page, 'Step outside');
+  await page.getByRole('button', { name: /^Let’s head home now\./ }).click();
+  await expectPhase(page, 'home');
+  await expectClock(page, '21:30');
+});
+
+for (const city of ['Hong Kong', 'Shenzhen'] as const) {
+  test(`${city}: returning directly after dinner skips the walk, keeps the bill and can be reconsidered`, async ({ page }) => {
+    await page.goto('/');
+    await startStory(page);
+    await depart(page, city);
+    await chooseDinner(page, 'simple');
+    const before = await readStorySave(page);
+    const beforeOption = selectStoryOption(before)!;
+    const directHome = city === 'Hong Kong' ? '18:30' : '21:30';
+    const shortHome = city === 'Hong Kong' ? '18:45' : '21:45';
+    const direct = page.getByRole('button', { name: /^Let’s head home now\./ });
+    await expect(direct).toContainText(`Home ${directHome}`);
+    await expect(direct).toContainText('No walk');
+    await expect(direct).toContainText(city === 'Hong Kong' ? 'about HK$304/person' : 'about HK$260/person');
+    if (city === 'Shenzhen') await expect(direct).toContainText('Real entry eligibility');
+    await direct.click();
+    await expectPhase(page, 'home');
+    await expect(dialogue(page).getByRole('heading', { name: 'Back home', exact: true })).toBeFocused();
+    await expectClock(page, directHome);
+    const after = await readStorySave(page);
+    const option = selectStoryOption(after)!;
+    expect(after.currentAttempt.walkChoice).toBe('none');
+    expect(option.walkMinutes).toBe(0);
+    expect(option.storyDelayMinutes).toBe(30);
+    expect(option.perPersonHKD).toBe(beforeOption.perPersonHKD);
+    expect(option.groupHKD).toBe(beforeOption.groupHKD);
+    await expectBill(page, city === 'Hong Kong' ? 'HK$304.00' : 'HK$260.22');
+    await page.getByRole('button', { name: city === 'Hong Kong' ? 'Look at the harbor' : 'Look at the avenue', exact: true }).click();
+    await expect(dialogue(page).locator('.spoken-line')).toHaveText('Earlier tonight, we headed straight home after dinner, without a walk.');
+    await page.getByRole('button', { name: 'Continue dialogue', exact: true }).click();
+    await expect(dialogue(page).locator('.spoken-line')).toHaveText('There was no walking time in this outing.');
+    await closeDialogue(page);
+    await page.reload();
+    await expectPhase(page, 'home');
+    await expect(page.locator('.world-dialogue')).not.toBeVisible();
+    await expectClock(page, directHome);
+    expect((await readStorySave(page)).currentAttempt.walkChoice).toBe('none');
+    await rewind(page, 'Reconsider the walk', 'afterDinner');
+    expect((await readStorySave(page)).currentAttempt.walkChoice).toBeNull();
+    await chooseWalk(page, 'short');
+    await returnHome(page);
+    await expectClock(page, shortHome);
+    await expectBill(page, city === 'Hong Kong' ? 'HK$304.00' : 'HK$260.22');
+  });
+}
+
+test('rewinding an older saved detail requires confirmation and cancel preserves exact state', async ({ page }) => {
+  const old = legacyCompletedStory({ note: 'An older detail that must survive a canceled rewind.' });
+  await seedStory(page, old);
+  await page.goto('/');
+  await startStory(page);
+  for (const cancel of ['keep', 'close', 'escape']) {
+    await openOptions(page);
+    await page.getByRole('button', { name: 'Reconsider the walk', exact: true }).click();
+    await expect(dialogue(page).getByRole('heading', { name: 'Clear an older saved detail?', exact: true })).toBeFocused();
+    await expect(dialogue(page)).toContainText('Rewinding will clear an older saved note or detail');
+    if (cancel === 'keep') await page.getByRole('button', { name: 'Keep this evening', exact: true }).click();
+    else if (cancel === 'close') await page.getByRole('button', { name: 'Return to the scene', exact: true }).click();
+    else await page.keyboard.press('Escape');
+    await expect(dialogue(page).getByRole('heading', { name: 'Story options', exact: true })).toBeVisible();
+    expect(await readStorySave(page)).toEqual(old);
+  }
+  await page.getByRole('button', { name: 'Reconsider the walk', exact: true }).click();
+  await page.getByRole('button', { name: 'Clear older detail and continue', exact: true }).click();
+  await expectPhase(page, 'afterDinner');
+  await expect.poll(async () => (await readStorySave(page)).currentAttempt).toMatchObject({ dinnerChoice: 'linger', walkChoice: null, journalNote: '', memento: null });
+  await expectClock(page, '18:45');
+});
+
+test('replacing a previous legacy detail is explicit while cancel leaves both evenings intact', async ({ page }) => {
+  let state = storyReducer(legacyCompletedStory({ note: 'The previous page must not disappear silently.' }), { type: 'TRY_OTHER_CITY' });
+  state = storyReducer(state, { type: 'COMMIT_DEPARTURE', city: 'sz' });
+  state = storyReducer(state, { type: 'COMMIT_DINNER', choice: 'simple' });
+  state = storyReducer(state, { type: 'RETURN_AFTER_DINNER' });
+  await seedStory(page, state);
+  await page.goto('/');
+  await startStory(page);
+  const again = page.getByRole('button', { name: 'Try the other evening', exact: true });
+  await again.click();
+  await expect(dialogue(page)).toContainText('Continuing will replace an older saved note or detail from the previous evening.');
+  await page.keyboard.press('Escape');
+  await expect(again).toBeFocused();
+  expect(await readStorySave(page)).toEqual(state);
+  await again.click();
+  await page.getByRole('button', { name: 'Keep this evening', exact: true }).click();
+  await expect(again).toBeFocused();
+  expect(await readStorySave(page)).toEqual(state);
+  await again.click();
+  await page.getByRole('button', { name: 'Clear older detail and continue', exact: true }).click();
+  await expectPhase(page, 'fork');
+  await expect.poll(async () => (await readStorySave(page)).previousAttempt).toMatchObject({ ...state.currentAttempt });
+  expect((await readStorySave(page)).currentAttempt.id).toBe(state.currentAttempt.id + 1);
 });

@@ -25,13 +25,23 @@ Coverage includes both city endings, real night-scene and Jun image decoding, me
 
 The verified portable HTML is 4,801,871 bytes with SHA-256 `005d27585b660b550dc5b16c71eda8c6e43835270ef8ab292b6ed5b9747969ad`. This identifies that exact build, not later exports.
 
+## First world-first rendering, 6 October 2026
+
+Commit `4199ead7f518cd5124a1f1861d39afa2438fd5cb` passed TypeScript, all 74 then-current unit tests, build and export. Its actual browser run passed 27 of 34 cases. Four failures came from ambiguous warning locators; three exposed loss of document focus while tabbing through a modal. This commit is **not a fully cleared release**.
+
+[Exact world-first run](https://github.com/bobshenruililin/crossing-lives/actions/runs/37490862878)
+
+The actual recording completed in 82 seconds and identifies that commit. Both city flows, night assets, offline portable execution, accessibility scanning and the existing reflow case ran successfully. Human review found the scene much more prominent, while menu duplication and the lack of a distinct table-arrival composition still need work.
+
+Evidence naming matters: the initial `world-opening` screenshots showed exploration after a helper dismissed the first dialogue. The recording's four-second frame shows the true initial Jun invitation, with unrelated tools hidden. Subsequent tests capture `initial-invitation` before dismissal and `exploration` afterward. A full-height wrapper alone is not accepted as proof of artwork coverage.
+
 ## World-first redesign, pending exact-commit verification
 
 Direct audience feedback identified two problems with the page-and-sidebar direction: it felt like a dashboard rather than a place to explore, and explicit memento/recording tasks made the experience feel like something to complete. That intermediate candidate was not published.
 
 The current source instead opens directly into the illustrated world. Objects and short contextual conversations lead to explicit meal, walk and travel commitments. Planner, evidence and detailed assumptions are optional tools; a normal home ending replaces the journal task. Quiet resume preserves existing data without presenting it as a collection goal. Pure domain/story contracts remain the known-green foundation.
 
-Two additional persistence edges also travel with this revision: an empty-string rejected story save stays protected, and an explicit in-tab reset wins even if removing its older saved copy fails. A new exact-commit browser run must verify the replacement interaction, both city endings, offline assets and these recovery paths. The verified v2 above remains the fallback until then.
+Two additional persistence edges travel with this revision: an empty-string rejected story save stays protected, and an explicit in-tab reset wins even if removing its older saved copy fails. The next exact-commit run must verify modal focus wrapping, true keyboard activation, motion behavior, direct preset controls, phase-correct observations, protected legacy-detail reconsideration and actual artwork coverage on portrait tablets. A guarded zero-walk return after dinner also removes a previously mandatory activity; it uses the same domain timing and costs. The verified v2 above remains the fallback until then.
 
 The opening will be reviewed as actual browser interaction and a short recording, alongside desktop/phone viewport captures. Passing calculations alone is not evidence that the new place is engaging.
 

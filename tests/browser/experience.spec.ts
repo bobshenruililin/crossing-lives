@@ -120,7 +120,7 @@ test('corrupt browser storage recovers without losing app access', async ({page}
   await page.goto('/');
   await startStory(page);
   await openPlanner(page);
-  await expect(page.getByRole('status')).toBeVisible();
+  await expect(page.locator('.storage-notice')).toHaveText('This saved planner could not be restored. Its original data is untouched. You can plan in this tab, or explicitly reset to replace it.');
   await expect(page.locator('.option-card')).toHaveCount(2);
 });
 
@@ -142,7 +142,7 @@ test('unavailable localStorage keeps the full decision flow usable', async ({pag
   await page.goto('/');
   await startStory(page);
   await openPlanner(page);
-  await expect(page.getByRole('status')).toContainText('Saving is unavailable');
+  await expect(page.locator('.storage-notice')).toContainText('Saving is unavailable');
   await page.locator('.option-hk .choose-button').click();
   await expect(page.getByRole('heading', { name: 'Your evening, pencilled in.' })).toBeVisible();
   await expect(page.getByRole('textbox')).toHaveCount(0);
@@ -207,7 +207,7 @@ for (const [label, bytes] of [
     await startStory(page);
     expect(await stored()).toBe(bytes);
     await openPlanner(page);
-    await expect(page.getByRole('status')).toContainText('Its original data is untouched');
+    await expect(page.locator('.storage-notice')).toHaveText('This saved planner could not be restored. Its original data is untouched. You can plan in this tab, or explicitly reset to replace it.');
     await page.getByLabel('Budget per person').fill('500');
     expect(await stored()).toBe(bytes);
     await startStory(page);

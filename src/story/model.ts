@@ -5,7 +5,7 @@ import type {
 export type StoryPresetId = 'short' | 'wander' | 'budget';
 export type StoryPhase = 'fork' | 'arrival' | 'afterDinner' | 'walk' | 'home';
 export type DinnerChoice = 'simple' | 'linger';
-export type WalkChoice = 'short' | 'long';
+export type WalkChoice = 'none' | 'short' | 'long';
 export type StoryMemento = 'view' | 'conversation' | 'practical';
 export type StoryHotspot = 'table' | 'wander' | 'home';
 export type DelayScenario = 'none' | 'dinner30';
@@ -68,11 +68,12 @@ export type StoryAction =
   | { type: 'SET_ROUTE'; route: ShenzhenRoute }
   | { type: 'COMMIT_DEPARTURE'; city: OptionId; route?: ShenzhenRoute }
   | { type: 'COMMIT_DINNER'; choice: DinnerChoice }
-  | { type: 'COMMIT_WALK'; choice: WalkChoice }
+  | { type: 'COMMIT_WALK'; choice: Exclude<WalkChoice, 'none'> }
   | { type: 'KEEP_MEMENTO'; memento: StoryMemento }
   | { type: 'SET_FAMILIARITY'; city: OptionId; activity: keyof ActivityFamiliarity; value: Familiarity }
   | { type: 'SET_JOURNAL_NOTE'; text: string }
   | { type: 'RETURN_HOME' }
+  | { type: 'RETURN_AFTER_DINNER' }
   | { type: 'REWIND'; checkpoint: 'fork' | 'arrival' | 'afterDinner' }
   | { type: 'TRY_OTHER_CITY' }
   | { type: 'RESET'; presetId?: StoryPresetId }

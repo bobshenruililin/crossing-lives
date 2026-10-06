@@ -7,7 +7,7 @@ It begins inside an original illustrated place. Short conversations and ordinary
 ## What is here
 
 - A scene-led fictional Saturday with Jun, free observations, natural spoken choices and explicit travel/meal/walk commitments
-- Dinner/shared-order choices, a disclosed optional delay, short/long walks and an ordinary home ending
+- Dinner/shared-order choices, a disclosed optional delay, short/long walks or going straight home after dinner, and an ordinary home ending
 - Editable departure, return deadline, budget, party size and personal weights
 - Complete local and cross-border outings, including return travel and border closing margins
 - Native-currency line items, per-person and group costs, explicit shared orders
@@ -86,7 +86,7 @@ See [architecture](docs/ARCHITECTURE.md), [creative decisions](docs/DECISIONS.md
 
 Known-green playable baseline `0e14f2f9529653bdcd85107190230f6c0f8acbd2` passed TypeScript, build/export, 74 unit tests and all 26 browser cases on their first attempt. This includes both city night scenes, Jun, complete journals and replay, navigation with blocked storage, rejected-save recovery and the portable file opened offline. Desktop and 360/390px screenshots were visually reviewed.
 
-The current world-first interface and two additional persistence edge cases await a new exact-commit browser run. The intervening scene-and-sidebar candidate was superseded before publication. Earlier clearance does not silently apply to later edits. See the [verification record](docs/VERIFICATION.md) for commit-specific evidence.
+The first world-first commit `4199ead` ran in the browser: 27/34 cases passed, including both city flows, offline play and the actual 82-second recording. Three modal-focus failures and four ambiguous test locators require correction. Additional source/audience review prompted tablet-artwork, narrative-state and direct-return improvements. The next exact-commit run is still required; see the verification record rather than treating source checks as experience clearance. The intervening scene-and-sidebar candidate was superseded before publication. See the [verification record](docs/VERIFICATION.md) for commit-specific evidence.
 
 ## Publication
 

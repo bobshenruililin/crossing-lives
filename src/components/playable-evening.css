@@ -116,4 +116,10 @@
 }
 @media(max-width:700px){.world-dialogue.dialogue-top{top:76px;bottom:auto;max-height:calc(100svh - 92px)}}
 @media(max-width:374px){.scene-time>span:first-child{max-width:164px}.world-controls{left:12px;right:12px}.scene-next{font-size:13px;padding:8px;gap:5px}.pocket-tools{gap:3px}.pocket-tools>button{width:44px}.scene-places>button{font-size:12px;padding:9px 6px}.world-dialogue,.world-dialogue.dialogue-left{left:10px;right:10px}.dialogue-surface{padding:18px 16px 15px}.spoken-line{font-size:22px}.dialogue-portrait{margin-right:11px}}
+/* Tall tablets use the same navigable image plane as phones. The breakpoint
+   follows the scene's available shape, not a phone-only width assumption. */
+@media(max-aspect-ratio:4/3){.world-scroller{align-items:flex-start}.play-world{width:calc(100svh * 1672 / 941);min-width:100%;height:100svh;aspect-ratio:1672/941;margin:0}}
+@media(min-width:701px) and (max-aspect-ratio:4/3){.scene-pan-hint{position:absolute;bottom:112px;left:28px;right:28px;display:block;text-align:center;font-size:12px;line-height:1.5;color:#f6e9d4;text-shadow:0 1px 4px #000;pointer-events:none}}
 @media(prefers-reduced-motion:reduce){.playable-evening *{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+.direct-return{clear:both;margin-top:13px}.direct-return .play-choice{background:transparent;border:0;border-top:1px solid var(--scene-line);border-radius:0;padding:13px 0 0}.direct-return .choice-heading{font-family:"Manrope Variable",sans-serif;font-size:15px;line-height:1.5}.direct-return .choice-description{margin-top:4px}.direct-return .choice-consequence{margin-top:4px}

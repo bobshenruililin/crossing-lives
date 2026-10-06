@@ -169,6 +169,22 @@ export async function expectWorldViewport(page: Page, filename: string) {
   expect(box.width).toBeGreaterThanOrEqual(viewport.width * 0.95);
   expect(box.height, 'The world fills the ordinary viewport.').toBeGreaterThanOrEqual(viewport.height * 0.8);
   expect(box.y + box.height).toBeLessThanOrEqual(viewport.height + 2);
+  const image = page.locator('.play-world-image');
+  await expectDecodedImage(image);
+  await expect(image).toHaveCSS('object-fit', 'contain');
+  const visibleArt = await image.evaluate((element: HTMLImageElement) => {
+    const imageBox = element.getBoundingClientRect();
+    const sceneBox = element.closest('.world-scroller')!.getBoundingClientRect();
+    const scale = Math.min(imageBox.width / element.naturalWidth, imageBox.height / element.naturalHeight);
+    const artWidth = element.naturalWidth * scale;
+    const artHeight = element.naturalHeight * scale;
+    const artLeft = imageBox.left + (imageBox.width - artWidth) / 2;
+    const artTop = imageBox.top + (imageBox.height - artHeight) / 2;
+    const width = Math.max(0, Math.min(innerWidth, sceneBox.right, artLeft + artWidth) - Math.max(0, sceneBox.left, artLeft));
+    const height = Math.max(0, Math.min(innerHeight, sceneBox.bottom, artTop + artHeight) - Math.max(0, sceneBox.top, artTop));
+    return { fraction: width * height / (innerWidth * innerHeight), width, height };
+  });
+  expect(visibleArt.fraction, `Actual contained artwork, not the wrapper background, must occupy at least 80% of the viewport (${visibleArt.width}×${visibleArt.height} visible).`).toBeGreaterThanOrEqual(0.8);
   await expect(page.locator('.site-header')).not.toBeVisible();
   await expect(page.locator('.site-footer')).not.toBeVisible();
   await expect(page.getByRole('textbox')).toHaveCount(0);

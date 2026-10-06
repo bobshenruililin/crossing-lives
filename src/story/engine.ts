@@ -67,7 +67,7 @@ export function selectStoryInputs(state: StoryState): OutingInputs {
     const walk = active ? attempt.walkChoice : null;
     overrides[city] = {
       mealMinutes: dinner === 'linger' ? 90 : 60,
-      walkMinutes: walk === 'short' ? 15 : 45,
+      walkMinutes: walk === 'none' ? 0 : walk === 'short' ? 15 : 45,
       includeSharedOrder: dinner === 'linger',
       storyDelayMinutes: dinner && state.delayScenario === 'dinner30' ? 30 : 0,
     };
@@ -91,7 +91,7 @@ export function selectStoryProgress(state: StoryState, fixture: OutingFixture = 
   const option = selectStoryOption(state, undefined, fixture);
   const phaseIndex = phases.indexOf(attempt.phase);
   const dinnerComplete = phaseIndex >= 2;
-  const walkComplete = phaseIndex >= 3;
+  const walkComplete = phaseIndex >= 3 && attempt.walkChoice !== 'none';
   const homeComplete = phaseIndex >= 4;
   const elapsedMinutes = !option || phaseIndex === 0 ? 0
     : option.outwardMinutes + (dinnerComplete ? option.mealMinutes + option.storyDelayMinutes : 0)
@@ -160,6 +160,8 @@ export function storyReducer(state: StoryState, action: StoryAction): StoryState
         ? withAttempt({ journalNote: action.text }) : state;
     case 'RETURN_HOME':
       return attempt.phase === 'walk' ? withAttempt({ phase: 'home' }) : state;
+    case 'RETURN_AFTER_DINNER':
+      return attempt.phase === 'afterDinner' ? withAttempt({ phase: 'home', walkChoice: 'none' }) : state;
     case 'REWIND': {
       if (!oneOf(action.checkpoint, ['fork', 'arrival', 'afterDinner']) || phases.indexOf(attempt.phase) <= phases.indexOf(action.checkpoint)) return state;
       if (action.checkpoint === 'fork') return { ...state, currentAttempt: { ...freshAttempt(attempt.id, state.baseInputs), route: attempt.route, familiarity: clone(attempt.familiarity), inspectedHotspots: [...attempt.inspectedHotspots] }, previewCity: attempt.city, openHotspot: null };
@@ -223,9 +225,11 @@ export function selectStoryJournal(state: StoryState, fixture: OutingFixture = i
     ? 'You left 90 minutes for dinner and added one shared order for the group.'
     : 'You kept dinner to 60 minutes, without the optional shared order.');
   if (attempt.dinnerChoice && state.delayScenario === 'dinner30') entries.push('The fictional dinner ran 30 minutes longer, once in this attempt.');
-  if (attempt.walkChoice) entries.push(attempt.walkChoice === 'long'
-    ? `You kept the 45-minute wander; modeled home time ${formatClock(option.returnMinutes)}.`
-    : `You chose a 15-minute loop; modeled home time ${formatClock(option.returnMinutes)}.`);
+  if (attempt.walkChoice) entries.push(attempt.walkChoice === 'none'
+    ? `You headed straight home after dinner, without a walk; modeled home time ${formatClock(option.returnMinutes)}.`
+    : attempt.walkChoice === 'long'
+      ? `You kept the 45-minute wander; modeled home time ${formatClock(option.returnMinutes)}.`
+      : `You chose a 15-minute loop; modeled home time ${formatClock(option.returnMinutes)}.`);
   if (attempt.memento) entries.push({ view: 'You chose to keep the view.', conversation: 'You chose to remember the conversation.', practical: 'You chose to keep the practical note.' }[attempt.memento]);
   if (attempt.phase === 'home') {
     entries.push(`Modeled home arrival: ${formatClock(option.returnMinutes)}${option.homeFeasible ? ', within the chosen home deadline.' : `, ${-option.spareMinutes} minutes after the chosen home deadline.`}`);
@@ -249,14 +253,15 @@ function validAttempt(value: unknown): value is StoryAttempt {
   if (!isRecord(value) || !Number.isSafeInteger(value.id) || (value.id as number) < 1 ||
     !(value.city === null || oneOf(value.city, cities)) || !oneOf(value.route, ['rail', 'bus']) || !oneOf(value.phase, phases) ||
     !(value.dinnerChoice === null || oneOf(value.dinnerChoice, ['simple', 'linger'])) ||
-    !(value.walkChoice === null || oneOf(value.walkChoice, ['short', 'long'])) ||
+    !(value.walkChoice === null || oneOf(value.walkChoice, ['none', 'short', 'long'])) ||
     !(value.memento === null || oneOf(value.memento, ['view', 'conversation', 'practical'])) ||
     !Array.isArray(value.inspectedHotspots) || value.inspectedHotspots.length > 6 ||
     !value.inspectedHotspots.every(id => typeof id === 'string' && /^(hk|sz):(table|wander|home)$/.test(id)) ||
     new Set(value.inspectedHotspots).size !== value.inspectedHotspots.length ||
     !validFamiliarity(value.familiarity) || typeof value.journalNote !== 'string' || value.journalNote.length > 1000) return false;
   const phase = phases.indexOf(value.phase);
-  return (phase === 0 ? value.city === null : value.city !== null) &&
+  return (value.walkChoice !== 'none' || value.phase === 'home') &&
+    (phase === 0 ? value.city === null : value.city !== null) &&
     (phase < 2 ? value.dinnerChoice === null : value.dinnerChoice !== null) &&
     (phase < 3 ? value.walkChoice === null && value.memento === null && value.journalNote === '' : value.walkChoice !== null);
 }

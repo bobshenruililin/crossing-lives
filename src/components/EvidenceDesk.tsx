@@ -30,7 +30,7 @@ export default function EvidenceDesk({onBack}: {onBack: () => void}) {
         <div className="desk-title"><p className="eyebrow">BUILD ON AN HONEST FOUNDATION</p><h1>A model should earn your trust.</h1><p>Useful rules today. Richer evidence when it is ready.</p></div>
         <ol className="roadmap">{[{status:'Working now',title:'Deterministic outing engine',text:'Editable costs, currency, party size, complete travel time and return constraints. Rule-based explanations stay inspectable.'},{status:'Scaffold',title:'Evidence-backed business comparisons',text:'A separate data model will distinguish costs, prices, margins and governance. Missing evidence must remain visible.'},{status:'Future, not connected',title:'An optional AI research layer',text:'Retrieval with source provenance, uncertainty and user approval for any action. There is no chat model or live AI service behind this prototype.'}].map((item,index)=><li key={item.title}><span>{index + 1}</span><div><small>{item.status}</small><h2>{item.title}</h2><p>{item.text}</p></div></li>)}</ol>
       </>}
-      <footer className="desk-disclaimer">A public prototype with illustrative personas. No accounts, location tracking or personal information are required.</footer>
+      <footer className="desk-disclaimer">An interactive prototype with illustrative personas. No accounts, location tracking or personal information are required.</footer>
     </div>
   </main>;
 }

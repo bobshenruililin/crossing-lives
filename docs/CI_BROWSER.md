@@ -13,3 +13,11 @@ Why this is a supported configuration:
 These sources were checked 6 October 2026. The change is a configuration repair, not evidence of a passing browser test; only the subsequent run can establish that.
 
 Local execution can select an installed Chrome with `CROSSING_BROWSER_CHANNEL=chrome npm run test:browser`. A browser blocked by host policy remains blocked; no local bypass is part of this project.
+
+## First real browser result
+
+Run [37471515288](https://github.com/bobshenruililin/crossing-lives/actions/runs/37471515288), commit `bd06480`, successfully launched sandboxed Chrome. Ten of thirteen browser cases passed, including the primary story/planner/reload loop, 360/390/1440 layouts, storage recovery and dialog keyboard behavior. The three failures exposed an ambiguous test locator, a low-contrast secondary strip label, and an invalid portable-module export.
+
+The export issue was traced to passing bundled JavaScript as a String.replace replacement string: literal dollar substitution sequences inside React were interpolated into the HTML. Callback replacements now preserve the built source exactly; the exporter compares the embedded module to the source and syntax-checks it before writing. Browser confirmation remains required.
+
+Rendered review also found a cramped phone invitation strip and distant comparison feedback. The follow-up repair uses a deliberate mobile invitation layout, readable annotations, a compact live two-city summary, explicit mobile time/currency labels and a common absolute timeline scale. These changes require the next run's screenshots and assertions.

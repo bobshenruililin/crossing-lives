@@ -59,7 +59,7 @@ test('live constraints, costs, return route, allocation and evidence controls', 
   await page.locator('.option-sz .cost-toggle').click();
   await expect(page.locator('.option-sz .cost-breakdown')).toContainText('Shared across 2');
   await page.locator('.surplus-lab > summary').click();
-  await page.getByLabel('Hypothetical pool').fill('100');
+  await page.getByLabel('Hypothetical pool · HKD',{exact:true}).fill('100');
   for (const label of ['Workers','Community','Business reserve']) {const slider = page.getByLabel(label,{exact:false}); await slider.focus(); await slider.press('Home'); await slider.press('ArrowRight');}
   await expect(page.locator('.allocation-proof')).toContainText('HK$33.34 + HK$33.33 + HK$33.33 = HK$100.00');
   await page.getByRole('button',{name:/Research desk/}).click();
@@ -82,11 +82,29 @@ for (const width of [360,390,1440]) {
     await noOverflow(page);
     await expect(page.locator('.hero-world img')).toBeVisible();
     await page.screenshot({path:`artifacts/intro-${width}.png`,fullPage:true});
+    if (width < 640) {
+      const question = await page.locator('.invitation-band h2').boundingBox();
+      expect(question?.width).toBeGreaterThan(220);
+      expect(question?.height).toBeLessThan(130);
+      await page.locator('.invitation-band').screenshot({path:`artifacts/intro-question-${width}.png`});
+    }
     await page.getByRole('button',{name:'Step into the story'}).click();
     await noOverflow(page);
     await page.screenshot({path:`artifacts/story-${width}.png`,fullPage:true});
     await page.getByRole('button',{name:'Your evening',exact:true}).click();
     await noOverflow(page);
+    if (width < 640) {
+      await page.getByLabel('Budget per person').fill('100');
+      await expect(page.locator('.mobile-live-summary')).toContainText('Over the budget');
+      await page.getByLabel('Budget per person').fill('400');
+      await expect(page.locator('.mobile-live-summary')).toContainText('Entry not confirmed');
+      await expect(page.locator('.trip-strip')).toContainText('/person');
+      await expect(page.locator('.trip-strip')).toContainText('home');
+      await page.locator('.mobile-live-summary').screenshot({path:`artifacts/mobile-summary-${width}.png`});
+    }
+    await expect(page.locator('.option-hk .time-axis')).toContainText('Shared scale');
+    await expect(page.locator('.option-hk .time-legend')).toContainText('Total outing: 2h 45m');
+    await expect(page.locator('.option-sz .time-legend')).toContainText('Total outing: 5h 45m');
     await page.screenshot({path:`artifacts/explore-${width}.png`,fullPage:true});
     await page.getByRole('button',{name:/Research desk/}).click();
     await noOverflow(page);

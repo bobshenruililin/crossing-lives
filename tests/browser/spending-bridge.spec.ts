@@ -4,7 +4,7 @@ import {
   chooseDinner, chooseWalk, closeDialogue, depart, dialogue, expectHomeScene,
   expectNoClippedText, expectNoOverflow, expectPhase, expectSceneAssets, expectSingleLineMoney,
   expectTouchTarget, openAction, openOptions, openPlanner, openResearch, readStorySave,
-  returnHome, showcase, startStory, storyClock,
+  returnHome, selectDeskSection, showcase, startStory, storyClock,
 } from './story-helpers';
 
 const bridgeName = 'Who benefits from this spending?';
@@ -13,7 +13,10 @@ const savedBytes = (page: Page) => page.evaluate(() => Object.keys(localStorage)
 
 async function expectBusinessLanding(page: Page, context?: { city: 'Hong Kong' | 'Shenzhen'; each: string; group: string; party: number }) {
   await expect(page.getByRole('heading', { name: question, exact: true })).toBeFocused();
-  await expect(page.getByRole('button', { name: 'Business questions', exact: true })).toHaveClass(/active/);
+  const sections = page.locator('#desk-sections');
+  await expect(sections).toBeHidden();
+  await expect(sections.getByRole('button', { name: 'Business questions', exact: true, includeHidden: true })).toHaveAttribute('aria-current', 'page');
+  await expect(page.getByRole('button', { name: 'Sections', exact: true })).toHaveAttribute('aria-expanded', 'false');
   await expect(page.getByLabel('Search evidence')).toHaveCount(0);
   const banner = page.locator('.research-banner');
   if (context) {
@@ -49,6 +52,25 @@ async function expectBusinessLanding(page: Page, context?: { city: 'Hong Kong' |
   await expectNoClippedText(banner);
   await expectNoOverflow(page);
   await expectTouchTarget(page.getByRole('button', { name: 'Return to your evening', exact: true }));
+  await expectTouchTarget(page.getByRole('button', { name: 'Sections', exact: true }));
+  await expect(page.locator('.site-header, .site-footer')).toHaveCount(0);
+  // This is the untouched landing, before any test scroll or disclosure. The
+  // complete spending scope and unknown-evidence caveat must now fit together.
+  await page.evaluate(async () => { await document.fonts.ready; });
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
+  await expect(page.getByRole('heading', { name: question, exact: true })).toBeInViewport({ ratio: 1 });
+  await expect(banner).toBeInViewport({ ratio: 1 });
+  const copy = await banner.locator('strong,p').evaluateAll(elements => elements.map(element => {
+    const range = document.createRange(); range.selectNodeContents(element);
+    const rects = [...range.getClientRects()].filter(rect => rect.width > 0 && rect.height > 0);
+    return { fontSize: Number.parseFloat(getComputedStyle(element).fontSize), fragments: rects.length,
+      visible: rects.every(rect => rect.left >= 0 && rect.right <= innerWidth && rect.top >= 0 && rect.bottom <= innerHeight) };
+  }));
+  for (const piece of copy) {
+    expect(piece.fragments).toBeGreaterThan(0);
+    expect(piece.fontSize, 'The compact context must stay readable rather than shrink to fit.').toBeGreaterThanOrEqual(14);
+    expect(piece.visible, 'All context text, including the transport and unknown-profit caveat, fits the first viewport.').toBe(true);
+  }
 }
 
 async function returnToWallet(page: Page, keyboard = false) {
@@ -145,7 +167,7 @@ for (const width of [390, 360]) {
     await openResearch(page);
     await expect(page.getByRole('heading', { name: 'What do we actually know?', exact: true })).toBeFocused();
     await expect(page.getByLabel('Search evidence')).toBeVisible();
-    await page.getByRole('button', { name: 'Business questions', exact: true }).click();
+    await selectDeskSection(page, 'Business questions');
     await expect(page.locator('.spending-context')).toHaveCount(0);
     await expect(page.locator('.research-banner')).not.toContainText(/HK\$/);
   });

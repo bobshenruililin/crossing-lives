@@ -119,11 +119,23 @@ The source suite adds 13 focused context/SSR tests for 115 total. They include a
 
 The verified portable is 5,962,118 bytes with SHA-256 `3c48f1bdc9b34b3e55132dc856002c0d3faba9c291003b434fa48caf94f5c811`.
 
-## Recovery and delivery corrections, pending exact-commit verification
+## Verified recovery and delivery corrections, 6 October 2026
 
-A read-only delivery audit found that the emergency reset label promised more than its planner-only deletion performed. The emergency view now offers a non-destructive reload with a clear unsaved-change warning; normal explicit reset flows remain separate. A fault-injected browser case must verify the actual boundary, all stored bytes and successful reload without reseeding the fixture.
+Commit `5a27d92d95ca7c3a3d3c59c81bfc2c73d52a259a` passed TypeScript, build/export, all **115 unit/SSR tests** and all **76 browser cases on their first attempt**.
 
-The same correction allows a returned receipt action to scroll into view, with a new strict viewport assertion rather than a test-side scroll. It records the bundled CJK font's exact Adobe copyright metadata alongside the retained OFL/distribution notices, and removes remaining wording that implied human user testing. None of these changes is cleared merely by the earlier bridge run.
+[Exact passing run](https://github.com/bobshenruililin/crossing-lives/actions/runs/37523010020)
+
+A read-only delivery audit found that the emergency reset label promised more than its planner-only deletion performed. The emergency view now offers a non-destructive reload with a clear unsaved-change warning; normal explicit reset flows remain separate. A fault-injected browser case verified the actual boundary, all stored bytes and successful reload without reseeding the fixture. Actual 390px visual review found the recovery action and preservation explanation clear.
+
+The same correction allows a returned receipt action to scroll into view, with a strict viewport assertion rather than a test-side scroll. It records the bundled CJK font's exact Adobe copyright metadata alongside the retained OFL/distribution notices, and removes remaining wording that implied human user testing.
+
+The verified portable is 5,962,996 bytes with SHA-256 `6d5832108e7342e54ad9c535b7ea4579a776672032759871618d7214f10869cf`.
+
+## Compact research landing and capture packaging, pending exact-commit verification
+
+The optional desk replaces its large branded header and green sidebar with a small Return control and a collapsed Sections disclosure. The business question and unchanged spending context come first. Section selection moves focus to the visible heading; Escape closes navigation and restores its trigger. A new scoped stylesheet keeps this reading area separate from the story and practical planner.
+
+The future artifact upload retains one canonical walkthrough video and full metadata per recorded attempt, with a small path/hash pointer in the HTML report. It excludes only the duplicate raw recording path. Failure traces, screenshots and reports remain available, and no past artifacts are removed. The captured actions, assertions and reading pauses are unchanged. Actual navigation, 360/390px composition and uploaded archive contents still require their own run.
 
 ## Delivery and coverage limits
 

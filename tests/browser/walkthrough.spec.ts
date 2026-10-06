@@ -1,6 +1,7 @@
 import { junWords } from './story-fixtures';
 import { test, expect } from '@playwright/test';
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import path from 'node:path';
 import {
   cityPreview, closeDialogue, dialogue, expectJun, expectHomeScene, expectPhase, expectSceneAssets,
@@ -135,12 +136,20 @@ test('record one real complete evening from invitation through dinner, walk, ret
     complete = true;
   } finally {
     await context.close();
-    const basename = `complete-evening-${commit ?? 'local-unidentified'}`;
+    const projectName = testInfo.project.name.replace(/[^a-zA-Z0-9_-]+/g, '-') || 'project';
+    const basename = `complete-evening-${commit ?? 'local-unidentified'}-${projectName}-try${testInfo.retry + 1}`;
     const videoPath = path.join(dir, `${basename}.webm`);
     await video.saveAs(videoPath);
     const metadataPath = path.join(dir, `${basename}.json`);
+    const relativePath = (filename: string) => path.relative(process.cwd(), filename).split(path.sep).join('/');
+    const recordingFile = {
+      path: relativePath(videoPath),
+      byteSize: statSync(videoPath).size,
+      sha256: createHash('sha256').update(readFileSync(videoPath)).digest('hex'),
+    };
     writeFileSync(metadataPath, JSON.stringify({
-      commit, complete, test: testInfo.title,
+      commit, complete, retry: testInfo.retry, test: testInfo.title,
+      recordingFile,
       viewport: { width: 1440, height: 900 },
       recording: 'Playwright BrowserContext recordVideo; actual browser interactions and original animations',
       scope: 'Complete evening: invitation, inspection, money and route, dinner, walk, return map, shared home and an optional authored fictional callback',
@@ -151,7 +160,12 @@ test('record one real complete evening from invitation through dinner, walk, ret
       runAttempt: process.env.GITHUB_RUN_ATTEMPT ?? null,
       project: testInfo.project.name, beats, errors,
     }, null, 2));
-    await testInfo.attach('Complete evening, recorded in the browser', { path: videoPath, contentType: 'video/webm' });
-    await testInfo.attach('Exact commit and complete-evening beats', { path: metadataPath, contentType: 'application/json' });
+    // Keep one canonical video and full beat metadata under artifacts/walkthrough.
+    // A small report pointer avoids duplicating the same recording into both
+    // test attachments and the HTML report; no source recordings are deleted.
+    await testInfo.attach('Canonical complete-evening recording and metadata', {
+      body: Buffer.from(JSON.stringify({ ...recordingFile, metadataPath: relativePath(metadataPath), project: testInfo.project.name, retry: testInfo.retry, complete }, null, 2)),
+      contentType: 'application/json',
+    });
   }
 });

@@ -4,6 +4,7 @@ import { compareOutings, formatClock, effectiveTravelAssumptions } from './domai
 import { defaultInputs } from './domain/data';
 import type { OutingInputs, OutingOption, OptionId, Familiarity, ItineraryOverride } from './domain/model';
 import EvidenceDesk from './components/EvidenceDesk';
+import './components/evidence-desk.css';
 import { createSpendingContext } from './business/context';
 import type { SpendingContext } from './business/context';
 import PlayableEvening, { resetPlayableSave } from './components/PlayableEvening';
@@ -96,8 +97,9 @@ function App() {
     setStoryResumePanel(target==='wallet'?'wallet':undefined);setWorkspace('evening');
     if(target!=='wallet') requestAnimationFrame(()=>{
       const previous=deskReturnFocus.current;
-      if(previous?.isConnected) previous.focus({preventScroll:true});
+      if(previous?.isConnected&&previous!==document.body&&previous.getClientRects().length>0) previous.focus({preventScroll:true});
       else if(target==='receipt') document.getElementById('receipt-business-lens')?.focus();
+      else if(mode!=='story') (document.getElementById('research-desk-entry')??document.getElementById('main-content'))?.focus();
       else (document.querySelector<HTMLElement>('.world-scroller')??document.getElementById('main-content'))?.focus({preventScroll:true});
     });
   }
@@ -114,9 +116,9 @@ function App() {
   function changeMode(next: Mode) {setStoryResumePanel(undefined);deskReturn.current='default';setMode(next); setWorkspace('evening');}
   return <>
     <a className="skip-link" href="#main-content">Skip to content</a>
-    {!(workspace === 'evening' && mode === 'story') && <header className="site-header">
+    {workspace === 'evening' && mode !== 'story' && <header className="site-header">
       <button className="brand" onClick={startStory} aria-label="Between home"><span className="brand-glyph">b<span/></span><span>between<small>兩地之間</small></span></button>
-      <nav className="top-nav" aria-label="Main navigation"><button className={workspace === 'evening' && ['intro','story'].includes(mode) ? 'active' : ''} onClick={startStory}>The story</button><button className={workspace === 'evening' && ['explore','receipt'].includes(mode) ? 'active' : ''} onClick={() => changeMode('explore')}>Your evening</button><button className={workspace === 'desk' ? 'active' : ''} onClick={openEvidenceDesk}>Research desk <ArrowUpRight size={13}/></button></nav>
+      <nav className="top-nav" aria-label="Main navigation"><button className={workspace === 'evening' && ['intro','story'].includes(mode) ? 'active' : ''} onClick={startStory}>The story</button><button className={workspace === 'evening' && ['explore','receipt'].includes(mode) ? 'active' : ''} onClick={() => changeMode('explore')}>Your evening</button><button id="research-desk-entry" onClick={openEvidenceDesk}>Research desk <ArrowUpRight size={13}/></button></nav>
       <span className="edition"><span className="status-dot"/> A FIELD GUIDE · VOL. 01</span>
     </header>}
     {workspace === 'desk' ? <EvidenceDesk key={deskVisit} initialSection={deskSection} spendingContext={spendingContext} onBack={returnFromDesk}/> : <>

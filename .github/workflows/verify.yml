@@ -34,3 +34,4 @@ jobs:
             artifacts/
             playwright-report/
             test-results/
+            !test-results/walkthrough-*/recording/*.webm

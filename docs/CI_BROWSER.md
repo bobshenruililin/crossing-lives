@@ -23,3 +23,12 @@ The export issue was traced to passing bundled JavaScript as a String.replace re
 Rendered review also found a cramped phone invitation strip and distant comparison feedback. The follow-up repair uses a deliberate mobile invitation layout, readable annotations, a compact live two-city summary, explicit mobile time/currency labels and a common absolute timeline scale. These changes require the next run's screenshots and assertions.
 
 The next run, [37474133114](https://github.com/bobshenruililin/crossing-lives/actions/runs/37474133114), confirmed the repaired portable file loads and completes an offline choice. Ten of thirteen tests passed. Remaining failures were a 360px header overflow, missing semantic roles on labelled timeline graphics, active-navigation contrast and a range-label association bug: each wrapping label's output appeared before its input, so the implicit association and test locator resolved to the output. Explicit input IDs/htmlFor now associate each control, with keyboard assertions targeting the slider role and checking the actual values after Home/ArrowRight. The narrowest header now uses two clear rows.
+
+
+## One canonical walkthrough recording
+
+The recording remains actual Playwright browser interaction with unchanged actions, assertions and reading pauses. Its canonical video and full metadata live under `artifacts/walkthrough/`; the HTML report gets a small pointer with relative paths and SHA-256 instead of another copy of the video.
+
+The upload step excludes only the duplicated raw recording at `test-results/walkthrough-*/recording/*.webm`. Failure traces, screenshots and the report remain included. Existing uploaded artifacts are untouched. This uses the [official upload-artifact v4 multiple-path/exclusion syntax](https://github.com/actions/upload-artifact/tree/v4#upload-using-multiple-paths-and-exclusions), without changing the runner, sandbox, permissions or retention period.
+
+A review of the verified spending artifact found four byte-identical 16,128,923-byte video copies. Deduplication reduces future archive volume; it does not reduce the captured journey or constitute a runtime performance measurement.

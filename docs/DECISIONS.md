@@ -70,3 +70,10 @@ The existing meal and walk choices shape what the two friends spend time doing. 
 The research door belongs in the optional Wallet, where the player has already chosen to examine money. The ordinary ending and Jun's message stay about the evening. “Who benefits from this spending?” opens the existing Business questions section with a small, read-only model context.
 
 The whole outing includes transport and is not one restaurant's revenue. Actual wages, costs, ownership and profit remain unverified. The separate fixed-pool exercise is not populated from the outing total or annual company ratios. This connects the individual story to an evidence question without pretending the price alone answers it.
+
+
+## Let the optional evidence arrive quickly
+
+Opening a spending question should reveal that question, rather than a second website entrance. The research area now has one compact Return control, a restrained paper palette and Sections on request. It keeps exact spending context and evidence limits together before the business questions. This is a reading space, not another layer of play or a replacement for the evening.
+
+The complete recorded evening is kept once per actual test attempt, with paths and a hash in the test report. This reduces duplicated review media without shortening the capture, losing failed-attempt evidence or changing runtime behavior.

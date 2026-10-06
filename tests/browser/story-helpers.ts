@@ -26,6 +26,8 @@ export async function closeDialogue(page: Page) {
 }
 
 export async function startStory(page: Page) {
+  const deskBack = page.getByRole('button', { name: 'Return to your evening', exact: true });
+  if (await deskBack.isVisible()) await deskBack.click();
   const navigation = page.getByRole('button', { name: 'The story', exact: true });
   if (await navigation.isVisible()) await navigation.click();
   await expect(story(page)).toBeVisible();
@@ -60,6 +62,17 @@ export async function openResearch(page: Page) {
     await page.getByRole('button', { name: 'Open research desk', exact: true }).click();
   }
   await expect(page.getByLabel('Search evidence')).toBeVisible();
+}
+
+export async function selectDeskSection(page: Page, name: 'Evidence library' | 'Business questions' | 'Model roadmap') {
+  const trigger = page.getByRole('button', { name: 'Sections', exact: true });
+  if (await trigger.getAttribute('aria-expanded') !== 'true') await trigger.click();
+  const navigation = page.locator('#desk-sections');
+  await expect(navigation).toBeVisible();
+  await navigation.getByRole('button', { name, exact: true }).click();
+  await expect(navigation).toBeHidden();
+  await expect(navigation.getByRole('button', { name, exact: true, includeHidden: true })).toHaveAttribute('aria-current', 'page');
+  await expect(page.locator('.desk-title h1')).toBeFocused();
 }
 
 export async function openAction(page: Page, name: string) {

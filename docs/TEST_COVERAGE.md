@@ -74,3 +74,11 @@ The emergency page must never silently reset saved state. Its fault-injected bro
 The receipt return also needs its focused control actually in the viewport; focus alone can hide a scroll-restoration defect. Tests must not scroll that control to manufacture a pass.
 
 Coverage is Chrome stable on Ubuntu with resized viewports, not physical-device/Safari or full screen-reader testing. Axe gates serious/critical violations rather than certifying WCAG. Development-server interaction checks are complemented by the production portable-file offline case; neither CI speed nor asset size establishes real-phone performance.
+
+## Compact research navigation
+
+The research area has no global website header. Tests open its actual Sections disclosure instead of clicking hidden section controls or bypassing the return path. Existing responsive cases exercise native keyboard activation, selected-section semantics, heading focus, Escape-to-trigger, and preservation of the evidence search across section changes.
+
+The 360/390px spending cases now measure the unchanged question and complete context in the untouched first viewport, before a test scroll or disclosure. Fourteen-pixel scope/caveat text must remain visible; shrinking it or checking only the full-height wrapper is not sufficient. All exact amounts, unknown-evidence boundaries, independent pool and blocked-storage/receipt return checks remain.
+
+Walkthrough packaging preserves every captured action, assertion and reading pause. Canonical filenames include the retry so failed attempts remain distinct; metadata records the actual file path, size and hash. The report points to that canonical video instead of embedding a duplicate.

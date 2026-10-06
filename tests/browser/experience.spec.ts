@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { defaultInputs } from '../../src/domain/data';
 import { legacyCompletedStory, seedLegacyPlanner } from './story-fixtures';
-import { dialogue, expectHomeScene, expectNoClippedText, expectNoOverflow as noOverflow, expectPhase, expectTouchTarget, readStorySave, showcase, startStory, openPlanner, openResearch, storyClock } from './story-helpers';
+import { dialogue, expectHomeScene, expectNoClippedText, expectNoOverflow as noOverflow, expectPhase, expectTouchTarget, readStorySave, selectDeskSection, showcase, startStory, openPlanner, openResearch, storyClock } from './story-helpers';
 
 test('independent practical edits preserve older notes without asking the player to record anything', async ({ page }) => {
   const legacy = await seedLegacyPlanner(page);
@@ -57,15 +57,15 @@ test('live constraints, costs, return route, allocation and evidence controls', 
   await expect(page.getByRole('heading',{name:'No matching evidence yet.'})).toBeVisible();
   await page.getByRole('button',{name:'Show all sources'}).click();
   await expect(page.locator('.source-card')).toHaveCount(4);
-  await page.getByRole('button',{name:'Business questions'}).click();
+  await selectDeskSection(page, 'Business questions');
   await expect(page.getByRole('heading',{name:'What does tonight’s spending tell us about who gained?'})).toBeVisible();
   await page.locator('.surplus-lab > summary').click();
   await page.getByLabel('Hypothetical pool · HKD',{exact:true}).fill('100');
   for (const label of ['Workers','Community','Business reserve']) {const slider = page.getByRole('slider',{name:new RegExp(label)}); await slider.focus(); await slider.press('Home'); await expect(slider).toHaveValue('0'); await slider.press('ArrowRight'); await expect(slider).toHaveValue('1');}
   await expect(page.locator('.allocation-proof')).toContainText('HK$33.34 + HK$33.33 + HK$33.33 = HK$100.00');
-  await page.getByRole('button',{name:'Model roadmap'}).click();
+  await selectDeskSection(page, 'Model roadmap');
   await expect(page.getByRole('heading',{name:'A model should earn your trust.'})).toBeVisible();
-  await page.getByRole('button',{name:'The story',exact:true}).click();
+  await startStory(page);
   await expectPhase(page, 'fork');
   await expect(page.locator('.play-world')).toBeVisible();
 });
@@ -95,7 +95,56 @@ for (const width of [360,390,1440]) {
     await showcase(page, `explore-${width}`);
     await openResearch(page);
     await noOverflow(page);
+    await expect(page.locator('.site-header, .site-footer')).toHaveCount(0);
+    const sections = page.getByRole('button', { name: 'Sections', exact: true });
+    const navigation = page.locator('#desk-sections');
+    await expect(navigation).toBeHidden();
+    await expect(sections).toHaveAttribute('aria-expanded', 'false');
+    await expectTouchTarget(sections);
+    await expect(page.getByRole('heading', { name: 'What do we actually know?', exact: true })).toBeFocused();
     await showcase(page, `evidence-${width}`);
+    const search = page.getByLabel('Search evidence');
+    await search.fill('border');
+    const matchingTitles = ['Border opening hours', 'One part of the journey', 'A dinner budget, not a quote'];
+    await expect(page.locator('.source-card h2')).toHaveText(matchingTitles);
+    // From the real search input, Shift+Tab reaches the actual Sections trigger.
+    // All section changes below use native keyboard activation, with no focus().
+    await page.keyboard.press('Shift+Tab');
+    await expect(sections).toBeFocused();
+    await page.keyboard.press('Enter');
+    await expect(navigation).toBeVisible();
+    await expect(navigation.locator('[aria-current="page"]')).toHaveText('Evidence library');
+    for (const control of await navigation.getByRole('button').all()) await expectTouchTarget(control);
+    await page.keyboard.press('Tab');
+    await expect(navigation.getByRole('button', { name: 'Evidence library', exact: true })).toBeFocused();
+    await page.keyboard.press('Tab');
+    await expect(navigation.getByRole('button', { name: 'Business questions', exact: true })).toBeFocused();
+    await showcase(page, `research-sections-open-${width}`);
+    await page.keyboard.press('Enter');
+    await expect(navigation).toBeHidden();
+    await expect(page.getByRole('heading', { name: 'What does tonight’s spending tell us about who gained?', exact: true })).toBeFocused();
+    await expect(navigation.locator('[aria-current="page"]')).toHaveText('Business questions');
+    await page.keyboard.press('Shift+Tab');
+    await expect(sections).toBeFocused();
+    await page.keyboard.press('Space');
+    await page.keyboard.press('Tab');
+    await expect(navigation.getByRole('button', { name: 'Evidence library', exact: true })).toBeFocused();
+    await page.keyboard.press('Escape');
+    await expect(navigation).toBeHidden();
+    await expect(sections).toBeFocused();
+    await expect(sections).toHaveAttribute('aria-expanded', 'false');
+    await page.keyboard.press('Space');
+    await page.keyboard.press('Tab');
+    await page.keyboard.press('Enter');
+    await expect(page.getByRole('heading', { name: 'What do we actually know?', exact: true })).toBeFocused();
+    await expect(navigation).toBeHidden();
+    await expect(navigation.locator('[aria-current="page"]')).toHaveText('Evidence library');
+    await expect(search).toHaveValue('border');
+    await expect(page.locator('.source-card h2')).toHaveText(matchingTitles);
+    await page.getByRole('button', { name: 'Return to your evening', exact: true }).click();
+    await expect(page.getByRole('button', { name: 'Research desk', exact: true })).toBeFocused();
+    await expect(page.getByRole('button', { name: 'Research desk', exact: true })).toBeInViewport();
+    await expect(page.getByRole('heading', { name: 'Shape your evening', exact: true })).toBeVisible();
   });
 }
 

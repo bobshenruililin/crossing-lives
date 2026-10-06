@@ -86,9 +86,9 @@ See [architecture](docs/ARCHITECTURE.md), [creative decisions](docs/DECISIONS.md
 
 ## Verification status
 
-Known-tested spending-bridge baseline `edb9fdcd0ea87308928fdc1383b14bfc0bbdcafb` passed TypeScript, build/export, 115 unit/SSR tests and all 75 browser cases on their first attempt. The Wallet's read-only spending context, independent pool, blocked-storage return, real party scope and offline use were exercised and visually reviewed.
+Known-tested recovery baseline `5a27d92d95ca7c3a3d3c59c81bfc2c73d52a259a` passed TypeScript, build/export, 115 unit/SSR tests and all 76 browser cases on their first attempt. It includes the complete evening, optional spending bridge, byte-preserving emergency reload and receipt-return visibility.
 
-A non-destructive emergency-reload correction and stricter receipt-return visibility check are subsequent fixes requiring their own run. See the [verification record](docs/VERIFICATION.md) and [coverage rationale](docs/TEST_COVERAGE.md) for exact evidence and limits. Review is model-assisted visual/code inspection, not a human user study or full accessibility certification. Browser coverage is Chrome stable on Ubuntu with resized viewports; physical phones and Safari remain unverified.
+The compact research landing and one-copy walkthrough packaging are subsequent refinements awaiting their own exact-commit browser run. See the [verification record](docs/VERIFICATION.md) and [coverage rationale](docs/TEST_COVERAGE.md) for evidence and limits. Review is model-assisted visual/code inspection, not a human user study or full accessibility certification. Browser coverage is Chrome stable on Ubuntu with resized viewports; physical phones and Safari remain unverified.
 
 ## Publication
 

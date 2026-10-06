@@ -1,0 +1,253 @@
+/* The research desk is a quiet paper reading area, separate from the evening. */
+.evidence-layout.evidence-desk {
+  --paper: #f6f3eb;
+  --ink: #38362f;
+  --muted: #676157;
+  --line: #dcd5c8;
+  display: block;
+  min-height: 0;
+  background: var(--paper);
+  color: var(--ink);
+  padding: 20px 32px 36px;
+}
+
+.evidence-desk .desk-navigation,
+.evidence-desk .desk-main {
+  width: 100%;
+  max-width: 760px;
+  margin-inline: auto;
+}
+
+.evidence-desk .desk-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 12px;
+}
+
+.evidence-desk .desk-back,
+.evidence-desk .desk-sections-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.evidence-desk .desk-sections-trigger {
+  flex-shrink: 0;
+  padding: 10px 2px 10px 10px;
+}
+
+.evidence-desk .desk-sections-trigger[aria-expanded='true'] svg {
+  transform: rotate(180deg);
+}
+
+.evidence-desk .desk-sections:not([hidden]) {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding-block: 12px;
+  border-bottom: 1px solid var(--line);
+}
+
+.evidence-desk .desk-sections button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid transparent;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+  text-align: left;
+}
+
+.evidence-desk .desk-sections button.active {
+  color: var(--ink);
+  background: #eae4d8;
+  border-color: #cfc5b4;
+  font-weight: 700;
+}
+
+.evidence-desk .desk-back:hover,
+.evidence-desk .desk-sections-trigger:hover {
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.evidence-desk .desk-sections button:hover {
+  background: #eee9df;
+}
+
+.evidence-desk button:focus-visible,
+.evidence-desk a:focus-visible,
+.evidence-desk h1:focus-visible {
+  outline: 3px solid #92653c;
+  outline-offset: 4px;
+}
+
+.evidence-desk .desk-main {
+  padding: 28px 0 0;
+}
+
+.evidence-desk .desk-title {
+  padding-top: 0;
+}
+
+.evidence-desk .desk-title h1 {
+  max-width: 720px;
+  margin-bottom: 14px;
+  font-size: clamp(32px, 4vw, 42px);
+  line-height: 1.16;
+  letter-spacing: -.035em;
+}
+
+.evidence-desk .desk-title > p:last-child {
+  max-width: 640px;
+  margin-bottom: 24px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.evidence-desk .research-banner {
+  padding: 20px;
+  gap: 12px;
+  margin-bottom: 28px;
+  background: #eee9de;
+  border-color: #dcd2c0;
+}
+
+.evidence-desk .research-banner > svg {
+  color: #806d50;
+}
+
+.evidence-desk .research-banner strong {
+  color: var(--ink);
+}
+
+.evidence-desk .research-banner p {
+  color: var(--muted);
+}
+
+.evidence-desk .source-summary,
+.evidence-desk .source-card,
+.evidence-desk .source-search,
+.evidence-desk .roadmap li,
+.evidence-desk .business-grid article,
+.evidence-desk .business-grid article > small {
+  border-color: var(--line);
+}
+
+.evidence-desk .source-summary > small,
+.evidence-desk .source-index,
+.evidence-desk .source-card p,
+.evidence-desk .source-card .source-note,
+.evidence-desk .authored-source,
+.evidence-desk .empty-evidence,
+.evidence-desk .roadmap p,
+.evidence-desk .business-grid article > p:not(.eyebrow),
+.evidence-desk .business-grid article > small,
+.evidence-desk .business-pool-boundary {
+  color: var(--muted);
+}
+
+.evidence-desk .source-search {
+  color: var(--muted);
+  background: #fffcf6;
+}
+
+.evidence-desk .source-search input::placeholder {
+  color: var(--muted);
+}
+
+.evidence-desk .source-search button {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+.evidence-desk .source-card a {
+  color: #6c5037;
+  border-color: #bba58c;
+}
+
+.evidence-desk .business-grid article {
+  background: #fffcf6;
+}
+
+.evidence-desk .open-question {
+  position: static;
+  display: inline-block;
+  margin-top: 16px;
+  color: #715b3e;
+  border-color: #dbcfbd;
+}
+
+.evidence-desk .roadmap li > span {
+  border-color: #c6b79d;
+}
+
+.evidence-desk .desk-disclaimer {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.evidence-desk .desk-ai-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.evidence-desk .desk-disclaimer p {
+  margin-bottom: 0;
+}
+
+@media (max-width: 640px) {
+  .evidence-layout.evidence-desk {
+    padding: 12px 20px 28px;
+  }
+
+  .evidence-desk .desk-toolbar {
+    gap: 8px;
+    padding-bottom: 8px;
+  }
+
+  .evidence-desk .desk-back,
+  .evidence-desk .desk-sections-trigger {
+    font-size: 12px;
+  }
+
+  .evidence-desk .desk-main {
+    padding-top: 22px;
+  }
+
+  .evidence-desk .desk-title h1 {
+    font-size: 32px;
+  }
+
+  .evidence-desk .research-banner {
+    padding: 16px;
+    gap: 10px;
+  }
+
+  .evidence-desk .research-banner > svg {
+    width: 18px;
+  }
+
+  .evidence-desk .source-summary > small {
+    margin-left: 0;
+  }
+
+  .evidence-desk .business-grid article {
+    padding: 22px;
+  }
+}

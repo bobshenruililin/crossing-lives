@@ -4,7 +4,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { legacyCompletedStory, seedStory, seedStoryRaw, STORY_KEY } from './story-fixtures';
 import {
   chooseDinner, chooseWalk, cityPreview, closeDialogue, depart, dialogue,
-  expectClock, expectJun, expectHomeScene, expectNoOverflow, expectPhase, expectSceneAssets, expectWorldViewport,
+  expectClock, expectJun, expectHomeScene, expectFictionCaption, expectNoOverflow, expectPhase, expectSceneAssets, expectTouchTarget, expectWorldViewport,
   openAction, openOptions, openPlanner, openResearch, readStorySave, returnHome, showcase, startStory,
 } from './story-helpers';
 
@@ -20,6 +20,29 @@ async function rewind(page: Parameters<typeof openOptions>[0], label: string, ph
   await page.getByRole('button', { name: label, exact: true }).click();
   await expectPhase(page, phase);
   await closeDialogue(page);
+}
+
+async function expectDefaultHomeActions(page: Parameters<typeof openAction>[0]) {
+  // Only ordinary preset endings are subject to this first-viewport gate.
+  // Longer warnings and zoom/reflow retain their separate natural-scroll tests.
+  expect(await dialogue(page).evaluate(element => element.scrollTop)).toBe(0);
+  for (const name of ['Finish the evening', 'Return to the scene']) {
+    const control = dialogue(page).getByRole('button', { name, exact: true });
+    await expectTouchTarget(control);
+    await expect(control).toBeInViewport({ ratio: 1 });
+    const result = await control.evaluate(element => {
+      const rect = element.getBoundingClientRect();
+      const panel = element.closest('dialog')!.getBoundingClientRect();
+      const hit = document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2);
+      return {
+        unclipped: rect.left >= Math.max(0, panel.left) && rect.right <= Math.min(innerWidth, panel.right)
+          && rect.top >= Math.max(0, panel.top) && rect.bottom <= Math.min(innerHeight, panel.bottom),
+        reachable: hit !== null && element.contains(hit),
+      };
+    });
+    expect(result.unclipped, `${name} fits the default home viewport without scrolling.`).toBe(true);
+    expect(result.reachable, `${name} is not covered by another element.`).toBe(true);
+  }
 }
 
 for (const width of [1440, 390, 360]) {
@@ -73,6 +96,8 @@ for (const width of [1440, 390, 360]) {
     await expectWorldViewport(page, `world-hk-night-${width}`);
     await returnHome(page);
     await expectHomeScene(page);
+    await expectFictionCaption(page);
+    await expectDefaultHomeActions(page);
     await showcase(page, `home-arrival-from-hk-${width}`);
     await expectClock(page, '19:45');
     await expect(page.getByRole('textbox')).toHaveCount(0);
@@ -109,6 +134,8 @@ for (const width of [1440, 390, 360]) {
     await expectWorldViewport(page, `world-sz-night-${width}`);
     await returnHome(page);
     await expectHomeScene(page);
+    await expectFictionCaption(page);
+    await expectDefaultHomeActions(page);
     await showcase(page, `home-arrival-from-sz-${width}`);
     await expectClock(page, '21:45');
     await openAction(page, 'Open phone');

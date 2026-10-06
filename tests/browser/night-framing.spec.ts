@@ -1,7 +1,7 @@
 import { test, expect, type Page } from '@playwright/test';
 import { selectStoryOption } from '../../src/story/engine';
 import {
-  chooseDinner, chooseWalk, closeDialogue, depart, dialogue, expectJun, expectHomeScene,
+  chooseDinner, chooseWalk, closeDialogue, depart, dialogue, expectJun, expectHomeScene, expectFictionCaption,
   expectNoOverflow, expectPhase, expectSceneAssets, expectSingleLineMoney,
   expectTouchTarget, openAction, openOptions, readStorySave, showcase, startStory,
   story, storyClock,
@@ -51,6 +51,7 @@ async function captureNight(page: Page, city: City, framing: Framing, filename: 
   }, { message: 'The attended part of the actual night artwork must be visible and unobscured by the dialogue.' }).toBe(true);
   await expect(page.locator('.play-world')).toHaveCSS('animation-name', 'none');
   await expectNoOverflow(page);
+  await expectFictionCaption(page);
   await showcase(page, filename);
   return readNightGeometry(page, city, framing);
 }
@@ -153,6 +154,7 @@ for (const width of [1440, 390]) {
       expect(selectStoryOption(direct)?.perPersonHKD).toBe(city === 'hk' ? 336 : 291.83);
       // The approved shared-origin ending replaces the destination painting.
       await expectHomeScene(page);
+      await expectFictionCaption(page);
     });
   }
 }

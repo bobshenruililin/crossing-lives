@@ -85,9 +85,9 @@ See [architecture](docs/ARCHITECTURE.md), [creative decisions](docs/DECISIONS.md
 
 ## Verification status
 
-Known-tested route baseline `8f8014219b7d7e77d54a5405682c21dcf17dfb00` passed TypeScript, build/export, 94 unit tests and all 62 browser cases on their first attempt. The route note, conditional forecasts, Wallet correction and offline local/rail/road paths were exercised. Human review of exact captures remains separate from automated clearance.
+Known-tested evening baseline `7bc1460787ee023d018d6e969c0038bc7be3d245` passed TypeScript, build/export, 94 unit tests and all 67 browser cases on their first attempt. Actual short/long framing, keyboard-only route use, shared home arrival and offline paths were exercised. A 159.68-second real-browser recording follows the complete evening; phone-sized night/home captures were also reviewed.
 
-Choice-specific night framing and a shared fictional home-arrival setting are a subsequent presentation pass. Earlier results do not clear those changes. See the [verification record](docs/VERIFICATION.md) and [coverage rationale](docs/TEST_COVERAGE.md) for evidence and limits.
+A thinner spatial route schematic and an unobscured fiction caption are a subsequent presentation refinement. Earlier results do not clear those changes. See the [verification record](docs/VERIFICATION.md) and [coverage rationale](docs/TEST_COVERAGE.md) for exact evidence and limits.
 
 ## Publication
 

@@ -3,7 +3,7 @@ import { pathToFileURL } from 'node:url';
 import path from 'node:path';
 import { existsSync } from 'node:fs';
 import {
-  chooseDinner, chooseWalk, closeDialogue, depart, dialogue, expectClock,
+  chooseDinner, chooseWalk, closeDialogue, depart, expectClock,
   expectJun, expectHomeScene, expectPhase, expectSceneAssets, openAction, openOptions, openPlanner,
   returnHome, showcase, startStory,
 } from './story-helpers';
@@ -41,7 +41,14 @@ test('portable production file keeps both cities, Jun, choices and quiet resume 
   await allAssetsEmbedded();
   await openAction(page, 'Open phone');
   await expect(page.locator('.route-note-forecast')).toContainText('modeled home 19:15');
-  await expect(page.locator('.route-note-forecast')).toContainText('disclosed 30-minute dinner delay');
+  await expect(page.locator('.route-note-condition')).toHaveText('Conditional plan');
+  await expect(page.locator('.route-loop-crossing')).toHaveCount(0);
+  // Full assumptions are now a visible disclosure, not default summary copy.
+  await page.getByRole('button', { name: 'Evening assumptions', exact: true }).click();
+  await expect(page.locator('.route-note-detail')).toBeVisible();
+  await expect(page.locator('.route-note-detail')).toContainText('60-minute simple dinner · assumed, still to choose');
+  await expect(page.locator('.route-note-detail')).toContainText('45-minute walk · assumed, still to choose');
+  await expect(page.locator('.route-note-detail')).toContainText('disclosed 30-minute dinner delay');
   await page.getByRole('button', { name: /^Coming home/ }).click();
   await expect(page.locator('.route-note-legs li')).toHaveCount(1);
   await expect(page.locator('.route-note-legs')).toContainText('Local return journey');
@@ -71,6 +78,7 @@ test('portable production file keeps both cities, Jun, choices and quiet resume 
   await page.getByRole('button', { name: 'Change route', exact: true }).click();
   await page.getByRole('radio', { name: 'Bus via Lok Ma Chau road crossing', exact: true }).check();
   await expect(page.locator('.route-note-forecast')).toContainText('modeled home 23:15');
+  await expect(page.locator('.route-loop-crossing')).toHaveText('Lok Ma Chau road crossing');
   await expect(page.getByLabel('Story clock', { exact: true })).toHaveText('16:30');
   await page.getByRole('button', { name: /^Going out/ }).click();
   await expect(page.locator('.route-note-legs li')).toHaveCount(3);
@@ -81,6 +89,7 @@ test('portable production file keeps both cities, Jun, choices and quiet resume 
   await page.getByRole('button', { name: 'Change route', exact: true }).click();
   await page.getByRole('radio', { name: 'Rail via Lo Wu', exact: true }).check();
   await expect(page.locator('.route-note-forecast')).toContainText('modeled home 22:15');
+  await expect(page.locator('.route-loop-crossing')).toHaveText('Lo Wu rail crossing');
   await page.getByRole('button', { name: 'Back to Jun', exact: true }).click();
   await depart(page, 'Shenzhen');
   await expectSceneAssets(page, 'shenzhen-table.webp', true);
@@ -116,7 +125,8 @@ test('portable production file keeps both cities, Jun, choices and quiet resume 
   await expectHomeScene(page, true);
   await expectClock(page, '21:45');
   await openAction(page, 'Open phone');
-  await expect(dialogue(page)).toContainText(/entry.*unverified/i);
+  await expect(page.locator('.route-note-uncertainty')).toBeVisible();
+  await expect(page.locator('.route-note-uncertainty')).toContainText(/entry.*unverified/i);
   await allAssetsEmbedded();
   await closeDialogue(page);
 

@@ -44,3 +44,10 @@ The Wallet test measures rendered text-line boxes, clipping and readable font si
 Short and long walks must differ in actual rendered framing, not only a class name or hidden state. New tests compare image scale, pan, original-image anchor coordinates and attended artwork regions, then retain exact clocks and costs. Jun's line is a brief authored acknowledgment of the selected meal and walk, not an inferred feeling or a reward.
 
 A home arrival must use the shared fictional Hong Kong setting after either branch. Destination table/harbor/avenue inspections and an in-person Jun portrait no longer belong in that room. Removing those home-only assertions is intentional; after-dinner and walking observations, preserved legacy save bytes and exact return outcomes remain covered. The keys are scenery, not a task. Offline tests must actually decode the new scene, and the real recording should show the complete return rather than stop at dinner arrival.
+
+
+## Progressive assumptions and visible text
+
+The spatial route refinement moves the full dinner/walk/delay explanation into a real Evening assumptions disclosure. Tests must open it and inspect the visible detail; a broad dialog text assertion could otherwise match the hidden screen-reader announcement and miss the visual requirement. The compact forecast, actual clock, named crossing, both directions and warnings stay directly checked. The complete recording explicitly shows this disclosure.
+
+Default night/home caption checks measure the rendered text fragments and dialogue overlap, not only CSS visibility. Default ending controls are checked inside the viewport and hit-tested. Long warning content and enlarged text may still scroll naturally; those cases must not be squeezed to make a default-sized screenshot pass.

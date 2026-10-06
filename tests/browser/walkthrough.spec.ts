@@ -58,8 +58,16 @@ test('record one real complete evening from invitation through dinner, walk, ret
     await expect(storyClock(page)).toHaveText('16:30');
     await expect(dialogue(page).getByRole('heading', { name: 'Out and home', exact: true })).toBeVisible();
     await expect(page.locator('.route-note-forecast')).toContainText('modeled home 19:15');
-    await expect(dialogue(page)).toContainText('30-minute dinner delay');
-    await hold('Unfold the out-and-back route: the conditional 19:15 home forecast includes the disclosed delay while the actual clock remains 16:30.', 12000);
+    await expect(page.locator('.route-note-condition')).toHaveText('Conditional plan');
+    await hold('Unfold the compact out-and-back route: the conditional home time is 19:15 while the actual clock remains 16:30.', 7000);
+    await page.getByRole('button', { name: 'Evening assumptions', exact: true }).click();
+    const assumptions = page.locator('.route-note-detail');
+    await expect(assumptions).toBeVisible();
+    await expect(assumptions).toContainText('60-minute simple dinner · assumed, still to choose');
+    await expect(assumptions).toContainText('45-minute walk · assumed, still to choose');
+    await expect(assumptions).toContainText('Includes the disclosed 30-minute dinner delay.');
+    await assumptions.getByRole('heading', { name: 'Evening assumptions', exact: true }).scrollIntoViewIfNeeded();
+    await hold('Open Evening assumptions to read the dinner, walk and disclosed delay included in that forecast.', 9000);
     await closeDialogue(page);
     await hold('Put the phone away and return to the scene.', 3000);
     await openAction(page, 'Talk about dinner');

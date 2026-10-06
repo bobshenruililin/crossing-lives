@@ -69,11 +69,25 @@ A pure presentation selector composes existing story previews. Its conditional f
 
 The Wallet correction keeps complete currency strings together without shrinking essential text. Rendered text-line and clipping checks passed at 360px and 390px, including larger amounts. The exact run exercised actual radio selection, Back/focus restoration, return-route state, the forecast-warning consistency regression and the offline local/rail/road flow. Human review of the 390px rail/road notes and Wallet found the content legible and the currency wrapping fixed. It also found the route note still text-heavy: a clearer visible crossing and spatial path are a future craft refinement, not something established by the passing suite. A subsequently added keyboard-arrow radio case is not included in this 62-case result.
 
-## Choice-specific night framing and shared home arrival, in progress
+## Verified night framing and shared home arrival, 6 October 2026
 
-The next presentation pass gives short and long walks different attention within the same original night scene. It recognizes the actual meal/walk combination in one authored line; no feelings, spare time or score are inferred. A separate original fictional home-arrival scene is prepared so a Shenzhen return does not leave the player looking at Shenzhen under a home label.
+Commit `7bc1460787ee023d018d6e969c0038bc7be3d245` passed TypeScript, build/export, all **94 unit tests** and all **67 browser cases on their first attempt**.
 
-These new camera, ending and media changes need their own exact-commit browser captures, complete-evening recording and human review. The passing route-note build does not clear them automatically.
+[Exact passing run](https://github.com/bobshenruililin/crossing-lives/actions/runs/37509219241)
+
+This pass gives short and long walks different attention within the same original night scene. It recognizes the actual meal/walk combination in one authored line; no feelings, spare time or score are inferred. A separate original fictional home-arrival scene now ensures a Shenzhen return does not leave the player looking at Shenzhen under a home label.
+
+The run verified actual framing and attended image regions at desktop and phone sizes, genuine keyboard-only route radio behavior, shared-home controls and offline decoding after both city returns and direct return. The real complete-evening recording is 159.68 seconds at 1440×900. Human review confirmed the spatial difference between short and long walks and the quiet, distinct home ending.
+
+Review also found the bottom fiction caption partly behind dialogue. The next pass repositions that caption and adds rendered-text bounds, overlap and default ending-control checks. A suspected missing Finish control was corrected after viewing the full-resolution screenshot; no such defect was established.
+
+The exact verified portable is 5,952,426 bytes with SHA-256 `10c9e6c779fe0ba6857ee241c540afd3b34780307937f050f122516e273fb6aa`.
+
+## Spatial route refinement, pending exact-commit verification
+
+The route note now presents one thin out-and-back line with the origin, named crossing and dinner area visible together. Local Hong Kong journeys do not invent a crossing. A compact conditional summary keeps the exact modeled home time and spare/past-deadline status; a real Evening assumptions disclosure contains the unchanged dinner, walk, delay and deadline explanation. Required warnings stay visible.
+
+Tests open and inspect the visible assumptions rather than accidentally passing against the screen-reader announcement. Full legs, exact amounts, unchanged clock/state, native radio keyboard behavior, return/direct-return, sources and offline use remain checked. The complete recording explicitly opens the assumptions. New actual screenshots and human density review are still required; this is a schematic, not geographic navigation.
 
 ## Browser infrastructure and export history
 

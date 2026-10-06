@@ -145,6 +145,36 @@ export async function expectNoOverflow(page: Page) {
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1)).toBe(true);
 }
 
+/** Literal rendered disclosure, including descenders, must remain readable
+ * outside an ordinary scene dialogue rather than hide behind its lower edge. */
+export async function expectFictionCaption(page: Page) {
+  const caption = page.locator('.scene-fiction');
+  await expect(caption).toBeVisible();
+  await expect(caption).toHaveText('Illustrated fiction · not a map');
+  const measure = () => caption.evaluate(async element => {
+    await document.fonts.ready;
+    const range = document.createRange(); range.selectNodeContents(element);
+    const rects = [...range.getClientRects()].filter(rect => rect.width > 0 && rect.height > 0);
+    const panel = document.querySelector('dialog[open]')?.getBoundingClientRect();
+    const style = getComputedStyle(element);
+    return {
+      fragments: rects.length,
+      inViewport: rects.every(rect => rect.left >= 0 && rect.right <= innerWidth && rect.top >= 0 && rect.bottom <= innerHeight),
+      overlap: rects.reduce((total, rect) => total + (panel
+        ? Math.max(0, Math.min(rect.right, panel.right) - Math.max(rect.left, panel.left))
+          * Math.max(0, Math.min(rect.bottom, panel.bottom) - Math.max(rect.top, panel.top)) : 0), 0),
+      fontSize: Number.parseFloat(style.fontSize), opacity: Number.parseFloat(style.opacity),
+    };
+  });
+  await expect.poll(async () => {
+    const result = await measure();
+    return result.fragments > 0 && result.inViewport && result.overlap === 0;
+  }, { message: 'The entire fiction caption must be inside the viewport and outside the open dialogue.' }).toBe(true);
+  const result = await measure();
+  expect(result.fontSize, 'Keep the fiction disclosure at least 12px.').toBeGreaterThanOrEqual(12);
+  expect(result.opacity).toBeGreaterThan(0);
+}
+
 export async function showcase(page: Page, filename: string, fullPage = false) {
   await page.evaluate(async () => { await document.fonts.ready; });
   await expectNoOverflow(page);
@@ -203,6 +233,7 @@ export async function expectWorldViewport(page: Page, filename: string) {
   await expect(page.locator('.site-header')).not.toBeVisible();
   await expect(page.locator('.site-footer')).not.toBeVisible();
   await expect(page.getByRole('textbox')).toHaveCount(0);
+  await expectFictionCaption(page);
   await showcase(page, filename);
 }
 

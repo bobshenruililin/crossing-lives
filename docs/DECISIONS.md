@@ -49,3 +49,10 @@ An actual phone screenshot exposed a wrapped final currency digit after all auto
 The short loop now attends to the nearby restaurant while the longer walk opens the harbor or avenue. Both use the same original scene and shared image coordinates, with the conversation placed away from the attended region. A brief line recognizes the actual dinner/walk combination without turning it into a score, memory task or claim about how the player feels.
 
 Returning from Shenzhen previously left its night painting beneath a home label. One restrained fictional Hong Kong entryway resolves that visual contradiction for both branches. It introduces no new travel, home address or collection mechanic. Destination inspections disappear at home; the evening can end quietly, with replay optional.
+
+
+## Show the crossing, keep detail on request
+
+The first route note passed its interaction checks but still looked like a small timetable. The refinement makes the starting area, selected crossing and dinner area visible on one original thin out-and-back schematic. It uses no geographic basemap, scale, live position or invented venue pin. Inspecting a direction emphasizes that line and opens the same engine-derived legs.
+
+A compact conditional home-time summary leaves room for this spatial relationship; the explicit meal, walk, delay and deadline assumptions remain one real disclosure away. Unknown costs and relevant warnings are never converted into a reassuring overall score.

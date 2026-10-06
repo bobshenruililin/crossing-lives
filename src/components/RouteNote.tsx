@@ -1,5 +1,5 @@
 import { useId, useState } from 'react';
-import { ArrowDown, ArrowLeft, ArrowUp, BusFront, ChevronDown, RotateCcw, TrainFront } from 'lucide-react';
+import { ArrowLeft, ArrowRight, BusFront, ChevronDown, RotateCcw, TrainFront } from 'lucide-react';
 import { formatClock } from '../domain/engine';
 import type { ShenzhenRoute } from '../domain/model';
 import { selectStoryProgress } from '../story/engine';
@@ -28,26 +28,52 @@ export function RouteNote({state,onSelectRoute,onBack,onReconsiderDeparture,retu
   const back=<button type="button" className="route-note-back" onClick={onBack}><ArrowLeft size={16} aria-hidden="true"/>{backLabel}</button>;
   if(!view) return <div className="route-note"><p className="route-note-caption">Story clock · {formatClock(selectStoryProgress(state).clockMinutes)} · UTC+8</p><p>Choose a city with Jun to unfold the journey out and home.</p>{back}</div>;
   const journey=expanded==='outward'?view.outward:expanded==='inward'?view.inward:null;
+  const option=view.conditionalOption;
+  const crossing=option.crossingPlan?.crossing;
+  const directPreview=returnIntent==='direct'&&state.currentAttempt.phase==='afterDinner';
+  const forecastLabel=view.actualProgress.homeComplete?'Completed in this model':directPreview?'Conditional · return now, no walk':view.isConditional?'Conditional plan':'Chosen evening · modeled';
   const direction=(item:RouteJourney)=><button type="button" className={`route-direction route-${item.id}`} key={item.id} aria-expanded={expanded===item.id} aria-controls={`${id}-detail`} onClick={()=>toggle(item.id)}>
-    {item.id==='outward'?<ArrowDown size={17} aria-hidden="true"/>:<ArrowUp size={17} aria-hidden="true"/>}
+    {item.id==='outward'?<ArrowRight size={17} aria-hidden="true"/>:<ArrowLeft size={17} aria-hidden="true"/>}
     <span><span className="route-direction-label"><strong>{item.title}</strong><span>{formatRouteDuration(item.durationMinutes)}</span></span><small>{formatClock(item.startMinutes)}–{formatClock(item.endMinutes)}</small><small>{item.status} <ChevronDown size={13} aria-hidden="true"/></small></span>
   </button>;
   return <div className="route-note" data-route={view.route} data-return-intent={returnIntent}>
-    <div className="route-note-top">{back}<span className="route-note-caption">Schematic · not live<br/>Story clock {formatClock(view.actualProgress.clockMinutes)} · UTC+8</span></div>
+    <div className="route-note-top">{back}<span className="route-note-caption">Illustrative · not live<br/>Story clock {formatClock(view.actualProgress.clockMinutes)} · UTC+8</span></div>
     <div className="route-note-selected"><strong>{view.routeLabel}</strong>{view.canSelectRoute?<button type="button" aria-expanded={expanded==='route'} aria-controls={`${id}-choices`} onClick={()=>toggle('route')}>Change route <ChevronDown size={14}/></button>:<small>Chosen route · read-only</small>}</div>
     {view.canSelectRoute&&<fieldset className="route-note-choices" id={`${id}-choices`} hidden={expanded!=='route'}><legend>Choose the crossing route</legend>{view.routeChoices.map(choice=>{const Icon=choice.route==='rail'?TrainFront:BusFront;return <label key={choice.route}><input type="radio" name={`${id}-route`} value={choice.route} checked={view.route===choice.route} onChange={()=>onSelectRoute(choice.route)}/><Icon size={18} aria-hidden="true"/><span>{choice.label}</span></label>;})}{view.tradeoff&&<p className="route-note-tradeoff">{view.tradeoff}</p>}</fieldset>}
-    <div className="route-note-summary"><p className="route-note-forecast">{view.forecastText}</p><p className="route-note-deadline">{view.deadlineText}</p></div>
+    <div className="route-note-summary">
+      <p className="route-note-condition">{forecastLabel}</p>
+      <p className="route-note-forecast">{view.actualProgress.homeComplete?'Home':'modeled home'} <strong>{formatClock(option.returnMinutes)}</strong><span> · {option.spareMinutes>=0?`${formatRouteDuration(option.spareMinutes)} spare`:'past deadline'}</span></p>
+      <button type="button" className="route-note-assumptions" aria-expanded={expanded==='evening'} aria-controls={`${id}-detail`} onClick={()=>toggle('evening')}>Evening assumptions <ChevronDown size={14} aria-hidden="true"/></button>
+    </div>
     <p className="route-note-sr-only" role="status" aria-atomic="true">{view.announcement}</p>
-    <section className="route-loop" aria-label="Complete round-trip route">
-      <div className="route-loop-node"><strong>{view.originLabel.replace(' (scenario)','')}</strong><small>Leave {formatClock(view.outward.startMinutes)} · home {formatClock(view.inward.endMinutes)}</small></div>
+    <section className="route-loop" aria-label="Complete round-trip route" data-inspected={journey?.id??(returnFirst?'inward':undefined)} data-crossing={Boolean(crossing)}>
+      <p className="route-loop-caption">Out and back · schematic, not to scale</p>
+      <ol className="route-loop-places">
+        <li className="route-loop-origin"><strong>{view.originLabel.replace(' (scenario)','')}</strong></li>
+        {crossing&&<li className="route-loop-crossing"><strong>{crossing}</strong></li>}
+        <li className="route-loop-destination"><strong>{view.destinationLabel.replace(' (scenario)','')}</strong></li>
+      </ol>
+      <svg className="route-loop-line" viewBox="0 0 300 48" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+        <g className="route-loop-outward">
+          <path d="M12 24 V20 Q12 12 20 12 H280 Q288 12 288 20 V24"/>
+          <path d="m78 8 5 4-5 4 m144-8 5 4-5 4"/>
+          {crossing&&<circle cx="150" cy="12" r="3.5"/>}
+        </g>
+        <g className="route-loop-inward">
+          <path d="M288 24 V28 Q288 36 280 36 H20 Q12 36 12 28 V24"/>
+          <path d="m83 32-5 4 5 4 m144-8-5 4 5 4"/>
+          {crossing&&<circle cx="150" cy="36" r="3.5"/>}
+        </g>
+        <g className="route-loop-endpoints"><circle cx="12" cy="24" r="4"/><circle cx="288" cy="24" r="4"/></g>
+      </svg>
+      <p className="route-note-sr-only">Going out from {view.originLabel}{crossing?` through ${crossing}`:''} to {view.destinationLabel}. Coming home follows the same {crossing?'crossing':'local route'} back to the starting area.</p>
       <div className="route-loop-directions">{returnFirst?[direction(view.inward),direction(view.outward)]:[direction(view.outward),direction(view.inward)]}</div>
-      <div className="route-loop-node"><strong>{view.destinationLabel.replace(' (scenario)','')}</strong><small>Arrive {formatClock(view.outward.endMinutes)} · leave {formatClock(view.inward.startMinutes)}</small></div>
     </section>
     {view.warnings.length>0&&<div className="route-note-warnings" role="note">{view.warnings.map(warning=><p key={warning}>{warning}</p>)}</div>}
     <div className="route-note-folds"><button type="button" aria-expanded={expanded==='costs'} aria-controls={`${id}-detail`} onClick={()=>toggle('costs')}>Whole-outing cost detail <ChevronDown size={15}/></button><button type="button" aria-expanded={expanded==='sources'} aria-controls={`${id}-detail`} onClick={()=>toggle('sources')}>Hours and sources <ChevronDown size={15}/></button></div>
     <div id={`${id}-detail`} className="route-note-detail" hidden={!expanded||expanded==='route'}>
       {journey&&<><h3>{journey.title} · leg details</h3><ol className="route-note-legs">{journey.legs.map(leg=><li key={leg.id}><strong>{leg.label}</strong><span>{formatClock(leg.startMinutes)}–{formatClock(leg.endMinutes)} · {formatRouteDuration(leg.durationMinutes)}</span>{leg.kind==='travel'?<p>{leg.from} → {leg.to}</p>:<p>Authored clearance allowance, not a current queue estimate.</p>}</li>)}</ol><p>Journey durations are authored allowances, not a timetable, live arrival estimate or confirmed transport service.</p></>}
-      {expanded==='evening'&&<><h3>{view.middle.title}</h3><p>{view.middle.mealText}<br/>{view.middle.walkText}<br/>{view.middle.delayText}</p><p>Dinner ends {formatClock(view.middle.dinnerEndMinutes)} · leave area {formatClock(view.middle.endMinutes)}.</p></>}
+      {expanded==='evening'&&<><h3>Evening assumptions</h3><p>{view.middle.mealText}<br/>{view.middle.walkText}<br/>{view.middle.delayText}</p><p className="route-note-deadline">{view.deadlineText}</p><p>Dinner ends {formatClock(view.middle.dinnerEndMinutes)} · leave area {formatClock(view.middle.endMinutes)}.</p></>}
       {expanded==='costs'&&<><h3>Whole-outing cost</h3><p>{view.middle.mealText}<br/>{view.middle.walkText}<br/>{view.middle.delayText}</p><p className="route-note-total">{view.costText}</p><p>Illustrative group amounts for two adults, including travel both ways. CNY uses {view.fxHKDPerCNY} HKD per CNY, an authored exchange assumption.</p><ul className="route-note-cost-lines">{view.costLines.map(line=><li key={line.id}><strong>{line.label}</strong><span>{line.nativeGroupAmount===null||line.hkdGroupAmount===null?'Unknown · required cost missing':<><span className="route-money">{line.currency} {line.nativeGroupAmount.toFixed(2)}</span>{line.currency==='CNY'&&<> = <span className="route-money">{formatRouteMoney(line.hkdGroupAmount)}</span></>} for two</>}</span><small>{line.note}</small></li>)}</ul></>}
       {expanded==='sources'&&(view.crossingHours?<><h3>Published crossing hours</h3><p>{view.crossingHours.label}</p><p>{view.crossingFitText} {view.crossingHours.marginText}</p><p>{view.crossingHours.source.note} <a href={view.crossingHours.source.url} target="_blank" rel="noreferrer">{view.crossingHours.source.title}</a> · checked {view.crossingHours.source.checkedDate}.</p><p>Times, fares, dinner prices and clearance allowances are authored scenario inputs. Luohu is this scenario’s dinner area, not a verified venue.</p></>:<><h3>Local journey assumptions</h3><p>Local travel times and costs are authored scenario inputs. Check current transport, prices and opening hours before real travel.</p></>)}
     </div>

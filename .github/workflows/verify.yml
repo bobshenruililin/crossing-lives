@@ -25,6 +25,10 @@ jobs:
       - run: npm run test:browser
         env:
           CROSSING_BROWSER_CHANNEL: chrome
+      - name: Capture cold production scene readiness
+        run: npx playwright test --config=playwright.production.config.ts
+        env:
+          CROSSING_BROWSER_CHANNEL: chrome
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -35,3 +39,4 @@ jobs:
             playwright-report/
             test-results/
             !test-results/walkthrough-*/recording/*.webm
+            !test-results/production-capture/**/recording/*.webm

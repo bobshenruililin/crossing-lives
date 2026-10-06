@@ -171,15 +171,25 @@ Commit `d901c5783b4646000ff18435bf0a5b36f3e4886a` passed all **128 unit/SSR test
 
 The portable is byte-identical across the test-only repair: 5,978,895 bytes, SHA-256 `4356bc94765e5477d91c6f2e9e922f59340eb12e403f6c07a55131bc2d37c307`. Actual 360px consent inspection confirmed the replacement explanation, preserved-story boundary, explicit confirm, cancel and close are legible. Temporary-demo isolation remains the separate next browser gate.
 
-## Temporary demo, pending browser verification
+## Verified temporary demo, 6 October 2026
 
 A five-file implementation adds a page-local temporary flag, a real new-tab link and quiet unsaved-mode identity. It uses the existing Room to wander story and skips all story/planner storage reads, writes and removals, including reset/legacy paths. It does not restore a saved backup or create another engine.
 
 Ten new unit/SSR checks bring the source suite to **138 tests**. Independent full-component execution for HTTPS and file URLs exercised initialization, replay, remount, planner import/receipt/research and both resets with zero storage acquisitions/adapter calls. The final five-file delta was hash-checked onto the latest consent source; it did not replace newer browser tests or documentation with an older staged tree.
 
-The prepared suite has **90 browser cases**: it retains the prior 83, adds six grouped temporary-session scenarios and a separate observer negative control, and extends the existing offline case. Actual new-tab navigation, active-document storage getter/method instrumentation, blocked original in-memory state, file-query offline use and phone identity/geometry remain browser gates. No passing temporary-mode browser result is claimed here yet.
+Commit `553006a3f34a9916a0b5b3318c30d1e662f0238b` passed **138 unit/SSR tests and all 90 browser cases without retries**, plus TypeScript, build and portable export. The suite retains the prior 83 cases, adds six grouped temporary-session scenarios and a separate observer negative control, and extends the existing offline case. Actual new-tab navigation, active-document storage getter/method instrumentation, blocked original in-memory state, file-query offline use and phone identity/geometry all passed.
+
+[Exact passing run](https://github.com/bobshenruililin/crossing-lives/actions/runs/37542667635)
+
+Actual invitation, free-exploration and research captures at 360/390px show readable mode identity and controls. The portable is 5,982,854 bytes with SHA-256 `ee2c05ec643afc1fe58106f1a3e0e8feb45c03d294f569bcbaba34b1708d676d`. A clean manifest-only archive contains the exact 87 source files, excluding dependency symlinks and generated files. The accompanying short cue card retains the manual presentation's single provocation; no timed human rehearsal is claimed.
 
 Independent test review identified that exposed bindings may discard events once a page closes. The corrected design requires exact nonempty canary logs without native data access or log clearing, preserves all active-document zero-access assertions, and compares original bytes after close. It does not certify an unobservable unload interval from an empty host array.
+
+## Bounded recording and payload review
+
+Read-only inspection of the exact `d901c57` normal-edition production portable measured 5,978,895 bytes (5.70 MiB). All nine included illustrations were referenced. Its real 25-fps recording showed roughly 80 ms, 200 ms and 40 ms of empty artwork before the first table, night and home scenes, respectively; dialogue remained visible and scenes recovered. These are frame observations from that recording, not request/decode durations or a timing guarantee on other devices.
+
+The exact edition's reduced-motion computed-effect checks and offline production-file path passed. No cold production startup, constrained-network, low-end device or 60-fps smoothness was established. A separate passive, constrained production capture is the next measurement step; it changes no story or loading behavior. Its future results must distinguish loaded dimensions, native decode events and actual painted frames.
 
 ## Delivery and coverage limits
 

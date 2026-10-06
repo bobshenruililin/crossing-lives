@@ -91,9 +91,11 @@ See [architecture](docs/ARCHITECTURE.md), [creative decisions](docs/DECISIONS.md
 
 ## Verification status
 
-Known-tested consent/presenter edition `d901c5783b4646000ff18435bf0a5b36f3e4886a` passed TypeScript, build/export, 128 unit/SSR tests and all 83 browser cases without retries. Every planner import now needs explicit replacement consent. Both same-assumption presenter paths were exercised through one complete evening and the worker-rights question.
+Known-tested edition `553006a3f34a9916a0b5b3318c30d1e662f0238b` passed TypeScript, build/export, **138 unit/SSR tests and all 90 browser cases without retries**. The real temporary new-tab and offline-file paths passed with original-state preservation, active-document storage isolation and visible unsaved-mode identity. Every planner import still needs explicit replacement consent. Both same-assumption presenter paths were exercised through one complete evening and the worker-rights question.
 
-The temporary-demo capability is a subsequent implementation whose exact browser and visual gate is still pending. See the [verification record](docs/VERIFICATION.md), [temporary-session boundary](docs/TEMPORARY_DEMO.md) and [coverage rationale](docs/TEST_COVERAGE.md). Review is model-assisted visual/code inspection, not a human user study, a timed human presentation or full accessibility certification. Browser coverage is Chrome stable on Ubuntu with resized viewports; physical phones and Safari remain unverified.
+See the [verification record](docs/VERIFICATION.md), [temporary-session boundary](docs/TEMPORARY_DEMO.md) and [coverage rationale](docs/TEST_COVERAGE.md). Actual temporary-mode screenshots at 360/390px were reviewed. Review is model-assisted visual/code inspection, not a human user study, a timed human presentation or full accessibility certification. Browser coverage is Chrome stable on Ubuntu with resized viewports; physical phones and Safari remain unverified.
+
+A read-only recording review found brief empty-artwork flashes at some scene changes. A separate constrained production capture is being prepared to measure the issue before a narrow rendering correction; no cold-start or real-phone performance claim is made.
 
 ## Publication
 

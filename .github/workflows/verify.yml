@@ -19,6 +19,8 @@ jobs:
       - name: Verify installed Chrome stable
         run: google-chrome --version
       - run: npx playwright install-deps chromium
+      - name: Install Playwright's video recorder
+        run: npx playwright install ffmpeg
       - run: npm run export:portable
       - run: npm run test:browser
         env:

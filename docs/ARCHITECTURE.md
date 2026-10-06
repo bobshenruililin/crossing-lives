@@ -14,7 +14,7 @@ An original, individual-first Hong Kong–Shenzhen outing decision journal. This
 - `src/domain`: typed fixtures and pure deterministic, independently tested comparison/allocation functions. Costs preserve original currency and shared/per-person scope. Missing values stay unknown.
 - `src/components`: accessible UI and illustration composition.
 - `src/App.tsx`: presentation modes, local versioned persistence, honest recovery paths.
-- `public/art`: original visual assets. Schematic, not navigational geography.
+- `public/art`: original illustrated settings, explicitly imaginary. The separate transport schematic carries route evidence.
 - Business workspaces are a transparent scaffold for future sourced business evidence. No invented economic claims.
 
 ## Acceptance

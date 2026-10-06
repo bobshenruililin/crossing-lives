@@ -2,17 +2,17 @@
 
 **Between / 兩地之間** is the first interactive prototype of an individual-first Hong Kong–Shenzhen decision project: one evening, two possibilities.
 
-It combines an original illustrated story with a practical, editable whole-outing comparison. The goal is to help someone make a thoughtful choice, not to declare one city inherently better.
+It begins inside an original illustrated place. Short conversations and ordinary objects let an evening unfold; an optional practical comparison exposes the whole-outing arithmetic when wanted. Neither city is assigned an inherently better outcome.
 
 ## What is here
 
-- A six-beat playable fictional Saturday with Jun, free scene inspections and explicit commitments
-- Dinner/shared-order choices, a disclosed optional delay, short/long walks, mementos, checkpoint rewind and one preserved alternative evening
+- A scene-led fictional Saturday with Jun, free observations, natural spoken choices and explicit travel/meal/walk commitments
+- Dinner/shared-order choices, a disclosed optional delay, short/long walks and an ordinary home ending
 - Editable departure, return deadline, budget, party size and personal weights
 - Complete local and cross-border outings, including return travel and border closing margins
 - Native-currency line items, per-person and group costs, explicit shared orders
 - Rule-based explanations, with unknown data and unresolved eligibility kept visible
-- A locally saved field note, resume and reset/replay
+- Quiet local resume, with no collection, streak, recording or completion task in play; older notes remain preserved
 - A separate research desk with published references, assumptions and honest business-research scaffolding
 - An optional fixed-surplus allocation lab that conserves the same pool to the cent
 - Original generated illustrations, self-hosted fonts, reduced-motion styling, keyboard dialogs and media/storage recovery
@@ -80,13 +80,13 @@ The art is an imagined setting, not a geographic or transport map. See [asset pr
 
 New cities and scenarios should add domain data and route/cost contracts before UI proliferation. A future AI layer should consume the same auditable engine and evidence records; it should never replace known constraints with invented facts.
 
-See [architecture](docs/ARCHITECTURE.md), [creative decisions](docs/DECISIONS.md) and [verification record](docs/VERIFICATION.md).
+See [architecture](docs/ARCHITECTURE.md), [creative decisions](docs/DECISIONS.md), the [short presenter path](docs/PRESENTER_PATH.md) and the [verification record](docs/VERIFICATION.md).
 
 ## Verification status
 
-Known-green baseline `c290341` passed TypeScript, build/export, 28 domain tests and all 13 browser cases, including a real offline portable-file choice. Desktop and 360/390px screenshots were visually reviewed and led to composition, readability and comparison-feedback corrections.
+Known-green playable baseline `0e14f2f9529653bdcd85107190230f6c0f8acbd2` passed TypeScript, build/export, 74 unit tests and all 26 browser cases on their first attempt. This includes both city night scenes, Jun, complete journals and replay, navigation with blocked storage, rejected-save recovery and the portable file opened offline. Desktop and 360/390px screenshots were visually reviewed.
 
-The playable-evening pass adds new narrative, art and persistence behavior. Its current TypeScript/build and 74 unit checks pass; its expanded browser/night-art/offline checks must pass on the exact new commit before this pass is called verified. See the dated record rather than assuming the baseline clearance covers new features.
+The current world-first interface and two additional persistence edge cases await a new exact-commit browser run. The intervening scene-and-sidebar candidate was superseded before publication. Earlier clearance does not silently apply to later edits. See the [verification record](docs/VERIFICATION.md) for commit-specific evidence.
 
 ## Publication
 

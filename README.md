@@ -89,9 +89,9 @@ See [architecture](docs/ARCHITECTURE.md), [creative decisions](docs/DECISIONS.md
 
 ## Verification status
 
-Known-tested compact research/navigation baseline `f9df5f68322dc53ed8b526f26f9c8fa2cb5b39c6` passed TypeScript, build/export, 115 unit/SSR tests and all 76 browser cases without retries. It includes the complete evening, spending bridge, nondestructive recovery, compact evidence landing and genuine phone-sized planner entry/return focus.
+Known-tested membership edition `cb8fb485e90e2355b75d634ec00512279963c583` passed TypeScript, build/export, 128 unit/SSR tests and all 78 browser cases without retries. It includes the complete evening, spending bridge, nondestructive recovery, compact evidence landing and sourced membership questions. Phone-sized captures of the initial entry and worker/surplus questions were visually reviewed.
 
-The sourced membership lens is a subsequent refinement awaiting its own exact-commit browser evidence. See the [verification record](docs/VERIFICATION.md) and [coverage rationale](docs/TEST_COVERAGE.md) for evidence and limits. Review is model-assisted visual/code inspection, not a human user study or full accessibility certification. Browser coverage is Chrome stable on Ubuntu with resized viewports; physical phones and Safari remain unverified.
+See the [verification record](docs/VERIFICATION.md) and [coverage rationale](docs/TEST_COVERAGE.md) for exact evidence and limits. Review is model-assisted visual/code inspection, not a human user study or full accessibility certification. Browser coverage is Chrome stable on Ubuntu with resized viewports; physical phones and Safari remain unverified.
 
 ## Publication
 

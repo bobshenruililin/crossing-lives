@@ -143,11 +143,27 @@ The two phone failures were at the new return-to-planner focus assertion. The ac
 
 Archive inspection of the initial compact run verified one canonical 16,758,462-byte video, with SHA-256 `311de561221cb73ec8c58762cad6aeb7f219eb218354f2b379cf58823cb23084` matching its report pointer. Recording actions and readable pauses were not shortened to achieve this.
 
-## Optional membership-rights evidence, pending exact-commit verification
+## Verified optional membership-rights evidence, 6 October 2026
 
-The next bounded addition is an initially closed, question-led comparison of Home Market and The Cheese Board Collective. It separates customer benefits, worker decisions and surplus claims, with immediate limits and exact sources. Cheese Board's 2022 operating details stay historical; current terms and audited amounts remain unverified. Sources retrieved through official indexed text are not described as a successful fresh PDF fetch.
+This bounded addition is an initially closed, question-led comparison of Home Market and The Cheese Board Collective. It separates customer benefits, worker decisions and surplus claims, with immediate limits and exact sources. Cheese Board's 2022 operating details stay historical; current terms and audited amounts remain unverified. Sources retrieved through official indexed text are not described as a successful fresh PDF fetch.
 
-The view accepts no outing or pool inputs and changes only its local reading selection. Thirteen new unit/render checks bring the source suite to **128 tests**. Two additional phone cases and the expanded offline path bring the planned browser suite to **78 cases**. They require native radio behavior, visible uncertainty, actual source disclosures, unchanged saved data and independent allocation controls. Browser, pixel and release clearance are still pending.
+The view accepts no outing or pool inputs and changes only its local reading selection. Thirteen new unit/render checks bring the source suite to **128 tests**. Two additional phone cases and the expanded offline path bring the browser suite to **78 cases**. Commit `cb8fb485e90e2355b75d634ec00512279963c583` passed all 128 unit/SSR tests, all 78 browser cases without retries, TypeScript, build and portable export.
+
+[Exact passing run](https://github.com/bobshenruililin/crossing-lives/actions/runs/37530682207)
+
+The actual run exercised native radio behavior, visible historical/current uncertainty with Sources closed, real source disclosures, exact legacy storage preservation and the independent pool. One case changed the pool to HK$180 and worker weight to 51, then required those edited values and their allocation proof to survive topic changes before explicitly restoring defaults. The production portable opened the questions with no HTTP requests.
+
+Visual inspection of actual 360/390px images confirmed the closed evidence entry immediately follows the spending context, and the worker/surplus questions remain readable without clipping. The optional reading is longer than a story exchange; it is not a mandatory part of play. This is not evidence of human audience understanding.
+
+The exact verified portable is 5,977,643 bytes with SHA-256 `1237abfcd1dacfdef829a6bf841e0390465f5fc59343e8718f70075e2bd08dae`.
+
+## Explicit planner import and presenter run sheet, pending verification
+
+A presenter-flow review found that the former “Compare this evening” label could suggest a comparison of two completed stories. The actual selector transfers current story choices into the separate practical planner and recalculates the other city from starting assumptions. It can replace a user's existing planner inputs.
+
+The Wallet now calls this action “Use this evening in planner”, explains replacement and requires “Replace plan and explore” before invoking the unchanged import callback. Cancel, Escape and the confirmation's close control return to the Wallet without transferring inputs; focus returns to the import action. There is no new comparison engine, data migration or historical-playthrough renderer.
+
+The presenter document now proposes one ten-minute arc: free same-assumption previews, one audience city choice, one completed evening and the direct worker-rights question. Its timings are a rehearsal plan, not observed human comprehension or an already recorded presentation. Dedicated browser paths and import-cancellation/offline checks are being added; their exact run is still pending. Temporary-demo isolation is a separately approved, unmerged implementation at this point.
 
 ## Delivery and coverage limits
 

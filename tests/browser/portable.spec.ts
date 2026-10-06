@@ -202,6 +202,32 @@ test('portable production file keeps both cities, Jun, choices and quiet resume 
   await expectClock(page, '21:30');
   await allAssetsEmbedded();
 
+  await openAction(page, 'Open wallet');
+  const beforeImport = await page.evaluate(() => ({
+    story: localStorage.getItem('between-playable-v2'), plan: localStorage.getItem('between-journal-v1'),
+  }));
+  const useEvening = page.getByRole('button', { name: 'Use this evening in planner', exact: true });
+  await useEvening.click();
+  await expect(dialogue(page).getByRole('heading', { name: 'Use this evening in planner?', exact: true })).toBeFocused();
+  await showcase(page, 'portable-planner-import-confirmation-offline');
+  await page.getByRole('button', { name: 'Keep my plan', exact: true }).click();
+  await expect(useEvening).toBeFocused();
+  expect(await page.evaluate(() => ({ story: localStorage.getItem('between-playable-v2'), plan: localStorage.getItem('between-journal-v1') }))).toEqual(beforeImport);
+  await useEvening.click();
+  await page.getByRole('button', { name: 'Replace plan and explore', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Shape your evening', exact: true })).toBeVisible();
+  await expect(page.getByLabel('Budget per person')).toHaveValue('400');
+  await expect(page.locator('.party-field output')).toHaveText('2');
+  await page.locator('.option-sz .outing-settings > summary').click();
+  await expect(page.locator('.option-sz').getByLabel('Dinner in Shenzhen · minutes', { exact: true })).toHaveValue('60');
+  await expect(page.locator('.option-sz').getByLabel('Wander in Shenzhen · minutes', { exact: true })).toHaveValue('0');
+  await expect(page.locator('.option-sz').getByLabel('Authored scenario delay · minutes', { exact: true })).toHaveValue('30');
+  expect(await page.evaluate(() => localStorage.getItem('between-playable-v2'))).toBe(beforeImport.story);
+  expect(requests).toEqual([]);
+  await startStory(page); await expectHomeScene(page, true);
+  await expect(page.getByLabel('Story clock', { exact: true })).toHaveText('21:30');
+  await allAssetsEmbedded();
+
   await openOptions(page);
   await page.getByRole('button', { name: 'Start a fresh evening', exact: true }).click();
   await page.getByRole('button', { name: 'Start a fresh story', exact: true }).click();

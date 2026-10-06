@@ -89,3 +89,10 @@ Walkthrough packaging preserves every captured action, assertion and reading pau
 Typed source/render tests cover all three question states, exact official links, dates and retrieval limits, historical 2022 terms, unknown-versus-absent rights, candidacy uncertainty and the closed initial disclosure. Rendering both cities, every supported party count and incomplete totals must leave the membership view and independent pool identical.
 
 The new phone cases use native keyboard radio navigation, require one active question and two reading rows, and inspect material historical/current limits with Sources still closed. They preserve story/planner/session bytes and the independently edited allocation controls. Source retrieval detail is tested only after opening its real disclosure. The production portable must also open the topics without network requests. These are additional checks awaiting their exact-commit browser run, not retrospective claims about the earlier recovery build.
+
+
+## Consent and a literal presenter route
+
+Planner-import tests must distinguish opening an explanation from actually replacing inputs. A modified separate plan and legacy story bytes should remain identical through cancellation, Escape and close; only explicit confirmation may transfer the current inputs. The older browse-only action remains separate. Offline and blocked-storage behavior need real controls and state checks, not a direct reducer call or test-side restoration.
+
+The presenter-path cases begin from an unseeded default story, inspect both conditional city forecasts while the actual clock stays 16:30, take one branch through a simple dinner and 45-minute walk with the disclosed delay, then open the worker-rights question. They validate reachable controls and scenario arithmetic. No artificial ten-minute wait, claim of a human rehearsal or audience-comprehension assertion is added.

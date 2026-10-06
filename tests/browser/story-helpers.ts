@@ -47,9 +47,16 @@ export async function openPlanner(page: Page, copyStory = false) {
   if (!copyStory && await navigation.isVisible()) {
     await navigation.click();
   } else {
-    if (copyStory) await openAction(page, 'Open wallet');
-    else await openOptions(page);
-    await page.getByRole('button', { name: copyStory ? 'Compare this evening' : 'Open my plan', exact: true }).click();
+    if (copyStory) {
+      await openAction(page, 'Open wallet');
+      await page.getByRole('button', { name: 'Use this evening in planner', exact: true }).click();
+      await expect(dialogue(page).getByRole('heading', { name: 'Use this evening in planner?', exact: true })).toBeFocused();
+      await expect(dialogue(page)).toContainText('This replaces your separate plan inputs');
+      await page.getByRole('button', { name: 'Replace plan and explore', exact: true }).click();
+    } else {
+      await openOptions(page);
+      await page.getByRole('button', { name: 'Open my plan', exact: true }).click();
+    }
   }
   await expect(page.getByRole('heading', { name: 'Shape your evening', exact: true })).toBeVisible();
 }

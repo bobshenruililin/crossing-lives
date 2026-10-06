@@ -40,7 +40,7 @@ export function resetPlayableSave() {
 }
 
 
-type Panel = 'invitation'|'observation'|'wallet'|'phone'|'phoneNote'|'destination'|'arrived'|'dinner'|'afterDinner'|'walkChoice'|'walked'|'return'|'home'|'options'|'reset'|'legacyReplay';
+type Panel = 'invitation'|'observation'|'wallet'|'plannerImport'|'phone'|'phoneNote'|'destination'|'arrived'|'dinner'|'afterDinner'|'walkChoice'|'walked'|'return'|'home'|'options'|'reset'|'legacyReplay';
 type Place = {id:StoryHotspot;label:string;icon:typeof Utensils;x:number;y:number};
 const approximateMoney = (value:number|null) => value===null?'Unknown total':`about HK$${Math.round(value).toLocaleString('en-HK')}/person`;
 const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -91,6 +91,8 @@ export default function PlayableEvening({onBrowsePlanner,onPlanner,onResearch,on
   const previousDialoguePanel = useRef<Panel|null>(null);
   const returnFocus = useRef<HTMLElement|null>(null);
   const walletControl = useRef<HTMLButtonElement>(null);
+  const plannerImportControl = useRef<HTMLButtonElement>(null);
+  const restorePlannerImportFocus = useRef(false);
   const resumeAtMount = useRef(resumePanel);
   const resumeConsumed = useRef(false);
   const nextPlace = useRef<HTMLButtonElement>(null);
@@ -124,6 +126,10 @@ export default function PlayableEvening({onBrowsePlanner,onPlanner,onResearch,on
       if(panel!=='phone' && restorePhoneFocus.current){
         const label=restorePhoneFocus.current;restorePhoneFocus.current=null;
         Array.from(dialogue.current?.querySelectorAll<HTMLButtonElement>('button') ?? []).find(button=>(button.getAttribute('aria-label')??button.textContent?.trim())===label)?.focus();
+      }
+      if(panel==='wallet' && restorePlannerImportFocus.current){
+        restorePlannerImportFocus.current=false;
+        plannerImportControl.current?.focus();
       }
     } else if(dialogue.current?.open) dialogue.current.close();
     previousDialoguePanel.current=panel;
@@ -196,6 +202,11 @@ export default function PlayableEvening({onBrowsePlanner,onPlanner,onResearch,on
     } else closePanel();
   };
   const closePanel = () => {
+    if(panel==='plannerImport'){
+      restorePlannerImportFocus.current=true;
+      setPanel('wallet');setLine(0);
+      return;
+    }
     if(panel==='legacyReplay' && pendingReplay){
       const previous=pendingReplay.fromPanel;
       setPendingReplay(null);setPanel(previous);setLine(0);
@@ -209,6 +220,10 @@ export default function PlayableEvening({onBrowsePlanner,onPlanner,onResearch,on
       if(target?.isConnected && !target.closest('dialog')) target.focus({preventScroll:true});
       else (nextPlace.current ?? scene.current)?.focus({preventScroll:true});
     });
+  };
+  const confirmPlannerImport = () => {
+    dialogue.current?.close();setPanel(null);setLine(0);
+    onPlanner(selectStoryInputs(state));
   };
   const inspect = (place:Place) => {if(!city) action({type:'PREVIEW_CITY',city:'hk'});panTo(place.x,true,cameraMode&&scene.current&&scene.current.clientWidth>900?(place.x>50?.78:.32):.5);action({type:'INSPECT',hotspot:place.id});openPanel('observation',place.id);};
   const chooseCity = (id:OptionId) => {action({type:'PREVIEW_CITY',city:id});setAttended('table');};
@@ -248,8 +263,8 @@ export default function PlayableEvening({onBrowsePlanner,onPlanner,onResearch,on
     city==='sz'?'This was a fictional crossing. Entry eligibility, transport services and queues still need checking before a real trip.':'The modelled local journey is complete. Its travel time was an editable assumption.',
   ] : [`The way back is part of the evening too. ${option ? `${minutes(option.inwardMinutes)} is allowed for the return.` : ''}`,city==='sz'?'That includes an assumed clearance buffer. Real entry eligibility, services and queues still need checking.':'The local journey time is an editable assumption. The phone has our modelled return time.'];
   const observation = attended==='table'?tableObservation:attended==='wander'?walkObservation:homeObservation;
-  const dialogueHeading = panel==='invitation'?'Dinner, then a walk?':panel==='observation'?attended==='table'?'By the table':attended==='wander'?city==='hk'?'By the harbor':'Along the avenue':'The way home':panel==='wallet'?'Wallet':panel==='phone'?'Out and home':panel==='phoneNote'?'From Jun':panel==='destination'?'Shall we eat here?':panel==='arrived'?'At the table':panel==='dinner'?'The menu':panel==='afterDinner'?'After dinner':panel==='walkChoice'?'A little walk?':panel==='walked'?attempt.walkChoice==='short'?'Just outside':city==='hk'?'By the water':'On the avenue':panel==='return'?'Time to head back?':panel==='home'?'Back home':panel==='reset'?'Begin a fresh evening?':panel==='legacyReplay'?'Clear an older saved detail?':'Story options';
-  const isJun=!atHome&&panel!==null&&!['wallet','phone','options','reset','legacyReplay'].includes(panel);
+  const dialogueHeading = panel==='invitation'?'Dinner, then a walk?':panel==='observation'?attended==='table'?'By the table':attended==='wander'?city==='hk'?'By the harbor':'Along the avenue':'The way home':panel==='wallet'?'Wallet':panel==='plannerImport'?'Use this evening in planner?':panel==='phone'?'Out and home':panel==='phoneNote'?'From Jun':panel==='destination'?'Shall we eat here?':panel==='arrived'?'At the table':panel==='dinner'?'The menu':panel==='afterDinner'?'After dinner':panel==='walkChoice'?'A little walk?':panel==='walked'?attempt.walkChoice==='short'?'Just outside':city==='hk'?'By the water':'On the avenue':panel==='return'?'Time to head back?':panel==='home'?'Back home':panel==='reset'?'Begin a fresh evening?':panel==='legacyReplay'?'Clear an older saved detail?':'Story options';
+  const isJun=!atHome&&panel!==null&&!['wallet','plannerImport','phone','options','reset','legacyReplay'].includes(panel);
   const continueLine = () => setLine(value=>value+1);
 
   return <section className={`playable-evening play-phase-${phase} ${atTable?'at-table':''} ${atHome?'at-home':''} ${panel?'dialogue-active':''} ${atTable&&panel?'table-dialogue-open':''} ${atHome&&panel?'home-dialogue-open':''} ${cameraMode?`scene-camera-${cameraMode}`:''}`} style={tableFrameHeight===null?undefined:{'--table-frame-height':`${tableFrameHeight}px`} as React.CSSProperties} data-camera={cameraMode??undefined} data-camera-anchor-x={cameraPlace?.x} data-attended-object={atHome&&panel?panel==='phone'||panel==='phoneNote'?'phone':'home':atTable&&panel?tableTarget:undefined} data-table-framed={atTable&&panel&&tableFrameHeight!==null?'true':undefined} data-home-framed={atHome&&panel&&tableFrameHeight!==null?'true':undefined} aria-label="Play an illustrative evening">
@@ -285,12 +300,13 @@ export default function PlayableEvening({onBrowsePlanner,onPlanner,onResearch,on
 
     <dialog className={`world-dialogue ${dialogueOnLeft?'dialogue-left':'dialogue-right'} ${dialogueAtTop?'dialogue-top':''} ${isJun&&!atTable?'with-jun':'object-dialogue'} ${atTable?'table-dialogue':''} ${atHome?'home-dialogue':''}`} ref={dialogue} aria-labelledby="world-dialogue-title" onKeyDown={containDialogueFocus} onCancel={event=>{event.preventDefault();closePanel();}} onClick={event=>{if(event.target===event.currentTarget) closePanel();}}>
       {panel && <div className="dialogue-surface">
-        <button className="dialogue-close" aria-label="Return to the scene" onClick={closePanel}><X size={20}/></button>
+        <button className="dialogue-close" aria-label={panel==='plannerImport'?'Return to Wallet':'Return to the scene'} onClick={closePanel}><X size={20}/></button>
         {isJun && !atTable && <div className="dialogue-portrait"><JunPortrait/><span>JUN {panel==='invitation'&&<small>Fictional companion</small>}</span></div>}
         <div className="dialogue-body"><h2 id="world-dialogue-title" ref={dialogueTitle} tabIndex={-1}>{dialogueHeading}</h2>
           {panel==='invitation' && <><p className="spoken-line">{junDialogue.invitation}</p><div className="spoken-replies"><button onClick={()=>{chooseCity('hk');openPanel('destination');}}>Let’s stay nearby. <ArrowRight size={16}/></button><button onClick={()=>{chooseCity('sz');openPanel('destination');}}>Let’s cross for dinner. <ArrowRight size={16}/></button></div><button className="dialogue-next" onClick={closePanel}>Look around first <ChevronDown size={17}/></button></>}
           {panel==='observation' && <><p className="spoken-line">{observation[Math.min(line,observation.length-1)]}</p><p className="dialogue-footnote">Looking around doesn’t advance the story clock.</p>{line<observation.length-1?<Continue onClick={continueLine}/>:<button className="dialogue-next" onClick={closePanel}>Back to looking around <ChevronDown size={17}/></button>}{attended==='home'&&<button className="object-model-link" onClick={()=>openRoute(true)}>Unfold the return route <ArrowRight size={15}/></button>}</>}
-          {panel==='wallet' && <><p className="object-intro">An allowance for this fictional outing, not cash or a live account balance.</p><dl className="pocket-facts"><div><dt>Spending allowance / person</dt><dd>{money(state.baseInputs.budgetPerPersonHKD)}</dd></div>{(option?[option]:comparison.options).map(item=><div key={item.id}><dt>{cityName(item.id)} · projected outing / person</dt><dd>{money(item.perPersonHKD)}</dd></div>)}</dl><p className="dialogue-footnote">Estimates include dinner, drinks and the return journey. Optional shared orders are split between two adults. CNY costs use the model’s exchange assumption, not a live rate.</p><div className="wallet-business-bridge"><button className="object-model-link" onClick={()=>{dialogue.current?.close();setPanel(null);setLine(0);onBusinessLens(option,state.baseInputs.partySize);}}>Who benefits from this spending? <ArrowRight size={15}/></button><p className="dialogue-footnote">This is customer spending. Pay, costs and profits need different evidence.</p></div>{walletWarningOption && <>{routeView?.isConditional&&(!walletWarningOption.homeFeasible||!walletWarningOption.crossingFeasible)&&<p className="dialogue-footnote wallet-forecast">{routeView.forecastText}</p>}<ConstraintWarnings option={walletWarningOption}/></>}<button className="object-model-link" onClick={()=>{closePanel();onPlanner(selectStoryInputs(state));}}>Compare this evening <ArrowRight size={15}/></button><button className="dialogue-next" onClick={closePanel}>Put the wallet away <ChevronDown size={17}/></button></>}
+          {panel==='wallet' && <><p className="object-intro">An allowance for this fictional outing, not cash or a live account balance.</p><dl className="pocket-facts"><div><dt>Spending allowance / person</dt><dd>{money(state.baseInputs.budgetPerPersonHKD)}</dd></div>{(option?[option]:comparison.options).map(item=><div key={item.id}><dt>{cityName(item.id)} · projected outing / person</dt><dd>{money(item.perPersonHKD)}</dd></div>)}</dl><p className="dialogue-footnote">Estimates include dinner, drinks and the return journey. Optional shared orders are split between two adults. CNY costs use the model’s exchange assumption, not a live rate.</p><div className="wallet-business-bridge"><button className="object-model-link" onClick={()=>{dialogue.current?.close();setPanel(null);setLine(0);onBusinessLens(option,state.baseInputs.partySize);}}>Who benefits from this spending? <ArrowRight size={15}/></button><p className="dialogue-footnote">This is customer spending. Pay, costs and profits need different evidence.</p></div>{walletWarningOption && <>{routeView?.isConditional&&(!walletWarningOption.homeFeasible||!walletWarningOption.crossingFeasible)&&<p className="dialogue-footnote wallet-forecast">{routeView.forecastText}</p>}<ConstraintWarnings option={walletWarningOption}/></>}<button ref={plannerImportControl} className="object-model-link" onClick={()=>openPanel('plannerImport',undefined,'wallet')}>Use this evening in planner <ArrowRight size={15}/></button><p className="dialogue-footnote">After confirmation, this replaces your separate plan inputs. The planner recalculates the other city from this evening’s starting assumptions, rather than comparing saved playthroughs.</p><button className="dialogue-next" onClick={closePanel}>Put the wallet away <ChevronDown size={17}/></button></>}
+          {panel==='plannerImport' && <><p className="object-intro">This replaces your separate plan inputs with this evening’s inputs. Your story and older saved notes stay as they are.</p><p className="dialogue-footnote">The planner recalculates the other city from this evening’s starting assumptions, rather than comparing saved playthroughs.</p><button className="dialogue-commit" onClick={confirmPlannerImport}>Replace plan and explore <ArrowRight size={17}/></button><button className="dialogue-next" onClick={closePanel}>Keep my plan <ArrowLeft size={17}/></button></>}
           {panel==='phone' && <RouteNote state={state} onSelectRoute={route=>action({type:'SET_ROUTE',route})} onBack={backFromPhone} onReconsiderDeparture={()=>commit({type:'REWIND',checkpoint:'fork'},'destination')} returnFirst={phoneContext.returnFirst} returnIntent={phoneContext.returnIntent} backLabel={phoneContext.from==='phoneNote'?'Back to the message':phoneContext.from?'Back to Jun':'Put the phone away'} showRouteChoicesInitially={phoneContext.changeRoute}/>}
           {panel==='phoneNote' && <div className="authored-phone-note"><p className="phone-note-label">Authored fictional story message</p><p className="spoken-line">{junDialogue.homeMessage}</p><button className="dialogue-next" onClick={()=>openRoute(true)}>Check the journey <ArrowRight size={16}/></button><button className="object-model-link" onClick={closePanel}>Put the phone away <ChevronDown size={15}/></button></div>}
           {panel==='destination' && city && <><p className="spoken-line">{city==='hk'?'We can stay nearby and eat by the harbor.':'We could take the train or go by road. Either way, we’ll need time to get back.'}</p>{routeView&&<><div className="departure-selected-route"><span>{routeView.routeLabel}</span>{city==='sz'&&<button onClick={()=>openRoute(false,'planned',true)}>Change route <ChevronDown size={14}/></button>}</div><p className="departure-facts complete-evening-estimate"><strong>Complete evening estimate</strong>{routeView.consequence}</p><p className="dialogue-footnote departure-forecast">{routeView.forecastText}</p><button className="object-model-link" onClick={()=>openRoute()}>Unfold the route <ArrowRight size={15}/></button><ConstraintWarnings option={routeView.conditionalOption} entry/></>}<button className="dialogue-commit" onClick={()=>commit({type:'COMMIT_DEPARTURE',city,route:attempt.route},'arrived')}>{city==='hk'?'Head to the table':attempt.route==='rail'?'Head to the station':'Take the road route'} <ArrowRight size={17}/></button></>}

@@ -84,3 +84,10 @@ The complete recorded evening is kept once per actual test attempt, with paths a
 The first research space honestly identified missing evidence but offered little documented material to examine. An optional question-led comparison now uses Home Market and The Cheese Board Collective to separate a customer benefit, a worker decision right and a claim on surplus. Its closed entry follows the spending context, before the generic research prompts. Only one question is active; two reading rows replace a wall of additional cards.
 
 These organizations are in different settings and are not a controlled comparison. Cheese Board's detailed operating rules are explicitly historical 2022 evidence with current terms unverified. Home Market's cited pages not establishing worker voting rights is a source limitation, not a finding that workers lack voice. The source ledger is available on request, while dates and material limits stay beside each claim. This adds a due-diligence question without estimating either firm's finances or changing the evening.
+
+
+## Import a plan only when asked
+
+“Compare this evening” was too easy to read as a comparison of two completed playthroughs. The planner actually receives current story inputs and regenerates the other city from starting assumptions. The action now names that import and explains that it replaces separate-plan inputs. A small confirmation reuses the existing scene dialog; cancellation returns to the Wallet without copying anything. Every import asks, avoiding a brittle guess about which saved plans matter.
+
+The Fellows run sheet keeps a single argument: compare the same assumed activities before departure, take one audience city choice, complete that evening, then ask about documented worker rights. It does not tour every tool or pretend an annual company ratio explains a dinner bill. A ten-minute script is a rehearsal aid, not evidence of audience understanding.

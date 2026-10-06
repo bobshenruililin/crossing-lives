@@ -42,7 +42,7 @@ Say: “We changed the meal and walk as well as the city. This is a comparison o
 
 **Wallet → Compare this evening** explicitly sends the story’s current choices to the practical comparison. **More → Open my plan** instead opens the separate practical plan without replacing it. Change a budget or return deadline and show the nearby two-city feedback.
 
-For the business lens, use **More → Open research desk → Business questions**. Ask what evidence would explain the price and who decides how a surplus is used. The fixed-pool exercise redistributes one hypothetical amount. It does not equate a customer saving with company profit or assume that ownership creates extra returns.
+For the business lens, use **Wallet → Who benefits from this spending?** This opens Business questions with the selected illustrative whole-outing estimate, including transport. Ask what evidence would explain the price and who decides how a surplus is used. The amount is customer spending, not restaurant revenue or verified profit. The fixed-pool exercise redistributes one hypothetical amount. It does not equate a customer saving with company profit or assume that ownership creates extra returns.
 
 End with one question: “Which assumption would you verify first?” No live AI, invented finding or collection mechanic is needed.
 

@@ -31,7 +31,7 @@ Commit `4199ead7f518cd5124a1f1861d39afa2438fd5cb` passed TypeScript, all 74 then
 
 [Exact world-first run](https://github.com/bobshenruililin/crossing-lives/actions/runs/37490862878)
 
-The actual recording completed in 82 seconds and identifies that commit. Both city flows, night assets, offline portable execution, accessibility scanning and the existing reflow case ran successfully. Human review found the scene much more prominent, while menu duplication and the lack of a distinct table-arrival composition still need work.
+The actual recording completed in 82 seconds and identifies that commit. Both city flows, night assets, offline portable execution, accessibility scanning and the existing reflow case ran successfully. Visual review found the scene much more prominent, while menu duplication and the lack of a distinct table-arrival composition still need work.
 
 Evidence naming matters: the initial `world-opening` screenshots showed exploration after a helper dismissed the first dialogue. The recording's four-second frame shows the true initial Jun invitation, with unrelated tools hidden. Subsequent tests capture `initial-invitation` before dismissal and `exploration` afterward. A full-height wrapper alone is not accepted as proof of artwork coverage.
 
@@ -67,7 +67,7 @@ This pass replaces stacked route details with one optional phone schematic of th
 
 A pure presentation selector composes existing story previews. Its conditional full-evening forecast includes the disclosed delay and states the assumed simple dinner and walk, while the actual story clock remains separate. It does not invent a live queue, timetable, last service, fare or venue location. Thirteen new unit tests cover these contracts, bringing the source suite to 94. An independent read-only source/component audit also checked 288 scenario combinations and 8,064 route views against the ordinary completed-engine outcomes. It found and verified a correction to Wallet timing warnings, which had still excluded the future delay. This independent audit is calculation/component evidence; the exact browser result is recorded separately above.
 
-The Wallet correction keeps complete currency strings together without shrinking essential text. Rendered text-line and clipping checks passed at 360px and 390px, including larger amounts. The exact run exercised actual radio selection, Back/focus restoration, return-route state, the forecast-warning consistency regression and the offline local/rail/road flow. Human review of the 390px rail/road notes and Wallet found the content legible and the currency wrapping fixed. It also found the route note still text-heavy: a clearer visible crossing and spatial path are a future craft refinement, not something established by the passing suite. A subsequently added keyboard-arrow radio case is not included in this 62-case result.
+The Wallet correction keeps complete currency strings together without shrinking essential text. Rendered text-line and clipping checks passed at 360px and 390px, including larger amounts. The exact run exercised actual radio selection, Back/focus restoration, return-route state, the forecast-warning consistency regression and the offline local/rail/road flow. Visual review of the 390px rail/road notes and Wallet found the content legible and the currency wrapping fixed. It also found the route note still text-heavy: a clearer visible crossing and spatial path are a future craft refinement, not something established by the passing suite. A subsequently added keyboard-arrow radio case is not included in this 62-case result.
 
 ## Verified night framing and shared home arrival, 6 October 2026
 
@@ -77,7 +77,7 @@ Commit `7bc1460787ee023d018d6e969c0038bc7be3d245` passed TypeScript, build/expor
 
 This pass gives short and long walks different attention within the same original night scene. It recognizes the actual meal/walk combination in one authored line; no feelings, spare time or score are inferred. A separate original fictional home-arrival scene now ensures a Shenzhen return does not leave the player looking at Shenzhen under a home label.
 
-The run verified actual framing and attended image regions at desktop and phone sizes, genuine keyboard-only route radio behavior, shared-home controls and offline decoding after both city returns and direct return. The real complete-evening recording is 159.68 seconds at 1440×900. Human review confirmed the spatial difference between short and long walks and the quiet, distinct home ending.
+The run verified actual framing and attended image regions at desktop and phone sizes, genuine keyboard-only route radio behavior, shared-home controls and offline decoding after both city returns and direct return. The real complete-evening recording is 159.68 seconds at 1440×900. Visual review confirmed the spatial difference between short and long walks and the quiet, distinct home ending.
 
 Review also found the bottom fiction caption partly behind dialogue. The next pass repositions that caption and adds rendered-text bounds, overlap and default ending-control checks. A suspected missing Finish control was corrected after viewing the full-resolution screenshot; no such defect was established.
 
@@ -93,11 +93,25 @@ The route note now presents one thin out-and-back line with the origin, named cr
 
 Tests open and inspect the visible assumptions rather than accidentally passing against the screen-reader announcement. Full legs, exact amounts, unchanged clock/state, native radio keyboard behavior, return/direct-return, sources and offline use remain checked. The complete recording explicitly opens the assumptions. Actual 390px review found the spatial line legible, the forecast less dense, and the fiction caption and default ending controls visible. It remains a schematic, not geographic navigation. The complete real-browser recording is 164.72 seconds. The verified portable is 5,955,456 bytes with SHA-256 `d78e7bb15d51a08e7881a3776685874a2a37d3d8568a15ba3abddb15001ff7db`.
 
-## Jun's human throughline, pending exact-commit verification
+## Verified Jun throughline and staging repair, 6 October 2026
 
-A subsequent narrative pass replaces generic interface-like recaps with a few authored lines about Jun's connection to both places. The player's own history and familiarity are not inferred. The optional home-phone note is plainly fictional, reflects the existing city/walk or direct-return choice, and keeps the completed route reachable. It has no notification badge, reply requirement, read state or message history.
+Commit `d7f9a12d36e4862f85345946b27a32466c54a4df` passed 102 unit tests and 70 of 71 browser cases. The remaining case exposed a real overlap between Shenzhen's longer acknowledgment and the attended avenue region. No control or numeric failure was established.
 
-Eight new pure selector tests bring the source suite to 102. They check approved branches, zero-walk copy, replay, uncommitted states, and preservation of time, bill, eligibility, familiarity and legacy notes. Actual opening/table text fit, optional-note focus/navigation, offline behavior and the new complete recording still require their own exact-commit browser and creative review.
+The one-condition repair `1c723b5449b8094a5af7e871517757fb28141d30` passed TypeScript, build/export, all **102 unit tests** and all **71 browser cases on their first attempt**, with the original geometry assertions unchanged.
+
+[Exact passing repair run](https://github.com/bobshenruililin/crossing-lives/actions/runs/37516591106)
+
+This narrative pass replaces generic interface-like recaps with a few authored lines about Jun's connection to both places. The player's own history and familiarity are not inferred. The optional home-phone note is plainly fictional, reflects the existing city/walk or direct-return choice, and keeps the completed route reachable. It has no notification badge, reply requirement, read state or message history.
+
+Eight new pure selector tests bring the source suite to 102. They check approved branches, zero-walk copy, replay, uncommitted states, and preservation of time, bill, eligibility, familiarity and legacy notes. The exact browser run exercised opening/table text fit, optional-note focus/navigation, byte-preserving rereading, both city/direct-return callbacks and offline use. Visual inspection confirmed the repaired Shenzhen avenue remains clear and the home note stays quiet and plainly fictional. This is an independent visual/code review, not a human user study. The video duration is 179.96 seconds; the same run’s test metadata reports 175,892ms elapsed. These are separate artifact measurements, not a promised player completion time.
+
+The verified portable is 5,957,641 bytes with SHA-256 `ec5cac38f407fcbd797256b5894303593d0573dd4c59d1f338979a5151bd227d`.
+
+## Optional spending-to-research bridge, pending exact-commit verification
+
+A subsequent bounded bridge lets the Wallet open the existing Business questions section with a frozen whitelist of the selected whole-outing HKD totals and party count. It includes transport; no restaurant revenue, wage, cost or profit is inferred. Missing totals remain incomplete, no selection creates no amount, and the independent fixed surplus pool is unchanged.
+
+The source suite adds 13 focused context/SSR tests for 115 total. They include all supported party counts, unknown/zero values, rounding, nonmutation, source navigation and byte-identical fixed-pool markup across contexts. This is not browser clearance. Actual entry/return focus, blocked-storage preservation, optional receipt context, mobile readability and offline interaction still need the new exact-commit run. The same pass makes Jun's Shenzhen long-walk memory refer to the visible café lights under the trees.
 
 ## Browser infrastructure and export history
 

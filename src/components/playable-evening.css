@@ -200,3 +200,7 @@
 .authored-phone-note .spoken-line{font-size:23px;line-height:1.4;margin-bottom:18px}
 .authored-phone-note .object-model-link{width:100%;justify-content:space-between;font-size:13px;line-height:1.5}
 @media(max-width:700px){.authored-phone-note .spoken-line{font-size:21px;line-height:1.4}}
+
+.wallet-business-bridge{border-top:1px solid var(--scene-line);padding-top:7px;margin:14px 0}
+.wallet-business-bridge .object-model-link{width:100%;justify-content:space-between;font-size:13px;line-height:1.5;text-align:left;padding:10px 0}
+.wallet-business-bridge .dialogue-footnote{font-size:13px;line-height:1.6;margin:0 0 4px}

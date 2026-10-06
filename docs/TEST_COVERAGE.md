@@ -27,7 +27,7 @@ Browser cases verify the real choices, clock and bill in both cities. Rounded ch
 - Reconsidering an evening asks for confirmation only when it would destroy an older hidden note/detail. Cancel and Escape preserve serialized state; confirmation applies the existing guarded action.
 - A test locator ambiguity is corrected by targeting the actual element, while retaining its warning text and data assertions. Assertions are not weakened to accept a genuine focus or layout failure.
 
-## Human review
+## Visual review
 
 Inspect what is actually attended to, how a decision changes the place, whether the next action is understandable, and whether dialogue obscures its subject. Watch the real opening rather than inferring pacing from screenshots. A scene can satisfy dimensions yet still feel static or overloaded; that remains a design defect to address.
 
@@ -58,3 +58,10 @@ Default night/home caption checks measure the rendered text fragments and dialog
 Pure copy-selector tests keep the exact approved branches, uncommitted/direct-return distinctions, replay behavior and unchanged numeric/state outputs. Browser tests must independently check the longer initial/table text at phone widths, visible primary actions, and the optional home-note route/Back/close focus path. Merely matching a string from the same selector is not proof of a usable dialogue.
 
 The home note is authored fiction. Opening, closing or rereading it must not create a read flag, message history or reward; legacy details remain untouched. Existing home-route checks should explicitly choose Check the journey rather than silently bypass the note, while maintaining every route, eligibility and offline assertion.
+
+
+## Whole-outing spending is not business profit
+
+Context tests whitelist only engine totals and party/city scope, preserve unknowns and valid zero, and prohibit private notes or inferred business outputs. Server rendering proves incomplete/default copy and identical independent fixed-pool markup. There is no genuine user-interface path that removes a fixture cost, so the missing-total state is unit/SSR coverage, not a claimed browser interaction.
+
+Browser coverage must exercise the real Wallet link, exact per-person/group context, null city selection, independent pool, and the one-time Wallet return/focus path with normal and blocked storage. The separate practical planner and legacy bytes must remain unchanged. Existing receipt entry uses its real party count, and general research links still open the evidence library.

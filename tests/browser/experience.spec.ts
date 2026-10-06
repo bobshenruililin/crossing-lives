@@ -57,7 +57,7 @@ test('live constraints, costs, return route, allocation and evidence controls', 
   await page.getByRole('button',{name:'Show all sources'}).click();
   await expect(page.locator('.source-card')).toHaveCount(4);
   await page.getByRole('button',{name:'Business questions'}).click();
-  await expect(page.getByRole('heading',{name:'A cheaper dinner isn’t a business model.'})).toBeVisible();
+  await expect(page.getByRole('heading',{name:'What does tonight’s spending tell us about who gained?'})).toBeVisible();
   await page.locator('.surplus-lab > summary').click();
   await page.getByLabel('Hypothetical pool · HKD',{exact:true}).fill('100');
   for (const label of ['Workers','Community','Business reserve']) {const slider = page.getByRole('slider',{name:new RegExp(label)}); await slider.focus(); await slider.press('Home'); await expect(slider).toHaveValue('0'); await slider.press('ArrowRight'); await expect(slider).toHaveValue('1');}

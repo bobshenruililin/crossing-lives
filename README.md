@@ -73,6 +73,7 @@ The art is an imagined setting, not a geographic or transport map. See [asset pr
 - `src/components/RouteNote.tsx`: optional phone schematic and progressive route details
 - `src/persistence/journal.ts`: versioned practical-plan storage, distinct from story storage
 - `src/components/EvidenceDesk.tsx`: separate research workspace
+- `src/business/context.ts`: immutable, whitelisted whole-outing spending context; no business-cost inference
 - `tests/domain.test.ts`: money, timing, unknown data and preference edge cases
 - `tests/story.test.ts`: idempotent commitments, explicit rewind, immutable alternate and safe decoding
 - `tests/persistence.test.ts`: corrupt/blocked storage and last-valid-save protection
@@ -85,9 +86,9 @@ See [architecture](docs/ARCHITECTURE.md), [creative decisions](docs/DECISIONS.md
 
 ## Verification status
 
-Known-tested spatial-route baseline `301f8d8e535f8f6003960a2da37d7710508912aa` passed TypeScript, build/export, 94 unit tests and all 67 browser cases without retries. Actual route/caption/ending captures were reviewed; the real complete-evening recording is 164.72 seconds. Both city and direct-return paths still work offline.
+Known-tested Jun/staging baseline `1c723b5449b8094a5af7e871517757fb28141d30` passed TypeScript, build/export, 102 unit tests and all 71 browser cases on their first attempt. The initial Jun pass exposed a genuine scene-overlap issue; a one-condition placement repair passed the unchanged geometry gate. The optional fictional home note, exact state/bytes, mobile text fit and offline paths were exercised and visually reviewed.
 
-A short authored human throughline for Jun is a subsequent narrative pass. It adds no numeric mechanics or save fields, but its text fit, optional home-phone message and interaction need their own browser and creative review. See the [verification record](docs/VERIFICATION.md) and [coverage rationale](docs/TEST_COVERAGE.md) for exact evidence and limits.
+An optional whole-outing spending bridge into the existing business-research workspace is a subsequent pass. It adds no business-profit estimate or allocation formula, but its navigation/focus and mobile context still require their own browser review. See the [verification record](docs/VERIFICATION.md) and [coverage rationale](docs/TEST_COVERAGE.md) for exact evidence and limits. Visual/code review is not a human user study.
 
 ## Publication
 

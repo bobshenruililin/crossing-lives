@@ -23,7 +23,7 @@ const walks = {
   },
   sz: {
     short: 'I used to stop around here on those Saturday walks.',
-    long: 'I used to take the long way past these lights. It’s nice having company this time.',
+    long: 'I remember those café lights under the trees. It’s nice having company this time.',
   },
 } as const;
 const homeMessages = {
@@ -33,7 +33,7 @@ const homeMessages = {
   },
   sz: {
     short: 'Home. A familiar corner, a good dinner. I’m glad we made the trip.',
-    long: 'Home. That walk brought back more than I expected. I’m glad I showed you.',
+    long: 'Home. I’m still seeing those café lights under the trees. I’m glad we took the longer way.',
   },
 } as const;
 const directReturnMessage = 'Home. Thanks for heading back with me after dinner. Let’s do this again.';

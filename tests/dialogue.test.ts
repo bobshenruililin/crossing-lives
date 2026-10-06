@@ -33,7 +33,7 @@ test('meal acknowledgments distinguish simple dinner from the actual shared orde
 test('walk dialogue follows the actual short or long place attended in each city', () => {
   const lines = {
     hk: { short: 'We’re barely around the corner, and it already feels like a break.', long: 'I’d forgotten how the restaurant lights look from down here.' },
-    sz: { short: 'I used to stop around here on those Saturday walks.', long: 'I used to take the long way past these lights. It’s nice having company this time.' },
+    sz: { short: 'I used to stop around here on those Saturday walks.', long: 'I remember those café lights under the trees. It’s nice having company this time.' },
   };
   for (const city of ['hk', 'sz'] as const) for (const walk of ['short', 'long'] as const) {
     const copy = selectJunDialogue(evening(city, 'simple', walk));
@@ -45,7 +45,7 @@ test('walk dialogue follows the actual short or long place attended in each city
 test('optional home callback is choice-specific and direct return never recalls a walk', () => {
   const lines = {
     hk: { short: 'Home. I’m glad we had time for a proper catch-up.', long: 'Home. I’m still seeing those lights on the water. Thanks for coming out.' },
-    sz: { short: 'Home. A familiar corner, a good dinner. I’m glad we made the trip.', long: 'Home. That walk brought back more than I expected. I’m glad I showed you.' },
+    sz: { short: 'Home. A familiar corner, a good dinner. I’m glad we made the trip.', long: 'Home. I’m still seeing those café lights under the trees. I’m glad we took the longer way.' },
   };
   for (const city of ['hk', 'sz'] as const) for (const dinner of ['simple', 'linger'] as const) {
     for (const walk of ['short', 'long'] as const) assert.equal(selectJunDialogue(evening(city, dinner, walk)).homeMessage, lines[city][walk]);

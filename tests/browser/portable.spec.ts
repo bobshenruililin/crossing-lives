@@ -166,6 +166,25 @@ test('portable production file keeps both cities, Jun, choices and quiet resume 
   await allAssetsEmbedded();
   await closeDialogue(page);
 
+  await openAction(page, 'Open wallet');
+  await page.getByRole('button', { name: 'Who benefits from this spending?', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'What does tonight’s spending tell us about who gained?', exact: true })).toBeFocused();
+  await expect(page.locator('.spending-context')).toContainText('HK$260.22 per person · HK$520.44 for 2 people (HKD)');
+  await expect(page.locator('.spending-context')).toContainText('including transport');
+  await page.locator('.surplus-lab > summary').click();
+  await expect(page.getByLabel('Hypothetical pool · HKD', { exact: true })).toHaveValue('120');
+  // The desk has no bitmap images to decode; the request recorder still gates
+  // the entire offline excursion, then every restored scene image is decoded.
+  expect(requests).toEqual([]);
+  await showcase(page, 'portable-business-context-offline', true);
+  await page.getByRole('button', { name: 'Return to your evening', exact: true }).click();
+  await expect(dialogue(page).getByRole('heading', { name: 'Wallet', exact: true })).toBeFocused();
+  await closeDialogue(page);
+  await expect(page.getByRole('button', { name: 'Open wallet', exact: true })).toBeFocused();
+  await expectHomeScene(page, true);
+  await expectClock(page, '21:30');
+  await allAssetsEmbedded();
+
   await openOptions(page);
   await page.getByRole('button', { name: 'Start a fresh evening', exact: true }).click();
   await page.getByRole('button', { name: 'Start a fresh story', exact: true }).click();

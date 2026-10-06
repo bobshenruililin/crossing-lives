@@ -63,15 +63,25 @@ function JunPortrait() {
   return <div className="jun-avatar"><span aria-hidden="true">J</span>{!failed && <img data-art="jun-portrait.webp" src={art('jun-portrait.webp')} alt="Jun, a fictional adult companion." onError={()=>setFailed(true)}/>}</div>;
 }
 
-export default function PlayableEvening({onBrowsePlanner,onPlanner,onResearch}: {onExit:()=>void;onBrowsePlanner:()=>void;onPlanner:(inputs:OutingInputs)=>void;onResearch:()=>void}) {
+interface PlayableEveningProps {
+  onExit:()=>void;
+  onBrowsePlanner:()=>void;
+  onPlanner:(inputs:OutingInputs)=>void;
+  onResearch:()=>void;
+  onBusinessLens:(option:OutingOption|null,partySize:number)=>void;
+  resumePanel?:'wallet';
+  onResumeHandled?:()=>void;
+}
+
+export default function PlayableEvening({onBrowsePlanner,onPlanner,onResearch,onBusinessLens,resumePanel,onResumeHandled}:PlayableEveningProps) {
   const initial = useMemo(readPlayable,[]);
   const [state,dispatch] = useReducer(storyReducer,initial.state);
   const [warning,setWarning] = useState(initial.warning);
-  const [panel,setPanel] = useState<Panel|null>(()=>initial.state.currentAttempt.phase==='fork'&&!initial.state.previewCity?'invitation':null);
+  const [panel,setPanel] = useState<Panel|null>(()=>resumePanel==='wallet'?'wallet':initial.state.currentAttempt.phase==='fork'&&!initial.state.previewCity?'invitation':null);
   const [line,setLine] = useState(0);
   const [pendingReplay,setPendingReplay] = useState<{action:StoryAction;nextPanel:Panel;fromPanel:Panel|null}|null>(null);
   const [attended,setAttended] = useState<StoryHotspot>('table');
-  const [tableTarget,setTableTarget] = useState<keyof typeof tableObjects>('jun');
+  const [tableTarget,setTableTarget] = useState<keyof typeof tableObjects>(resumePanel==='wallet'?'wallet':'jun');
   const [tableFrameHeight,setTableFrameHeight] = useState<number|null>(null);
   const [phoneContext,setPhoneContext] = useState<{from:Panel|null;line:number;object:keyof typeof tableObjects;returnFirst:boolean;returnIntent:RouteReturnIntent;changeRoute:boolean}>({from:null,line:0,object:'jun',returnFirst:false,returnIntent:'planned',changeRoute:false});
   const phoneSourceLabel = useRef<string|null>(null);
@@ -80,6 +90,9 @@ export default function PlayableEvening({onBrowsePlanner,onPlanner,onResearch}: 
   const dialogueTitle = useRef<HTMLHeadingElement>(null);
   const previousDialoguePanel = useRef<Panel|null>(null);
   const returnFocus = useRef<HTMLElement|null>(null);
+  const walletControl = useRef<HTMLButtonElement>(null);
+  const resumeAtMount = useRef(resumePanel);
+  const resumeConsumed = useRef(false);
   const nextPlace = useRef<HTMLButtonElement>(null);
   const scene = useRef<HTMLDivElement>(null);
   const attempt = state.currentAttempt;
@@ -115,6 +128,13 @@ export default function PlayableEvening({onBrowsePlanner,onPlanner,onResearch}: 
     } else if(dialogue.current?.open) dialogue.current.close();
     previousDialoguePanel.current=panel;
   },[panel,line]);
+  useEffect(()=>{
+    if(resumeAtMount.current==='wallet'&&!resumeConsumed.current&&panel==='wallet'&&dialogue.current?.open){
+      returnFocus.current=walletControl.current;
+      resumeConsumed.current=true;
+      onResumeHandled?.();
+    }
+  },[panel,onResumeHandled]);
   const action = (next:StoryAction) => {
     if(next.type==='RESET'){protectSavedBytes=false;inTabWarning='';setWarning('');}
     dispatch(next);
@@ -252,11 +272,11 @@ export default function PlayableEvening({onBrowsePlanner,onPlanner,onResearch}: 
     <div className="world-interface" hidden={!!panel}>
       <div className="world-controls">
         {!atHome&&<nav className="scene-places" aria-label={atTable?'Objects on the table':city?'Places in this scene':'Look at either city'}>
-          {atTable ? <><button onClick={openTableMenu} aria-label={phase==='arrival'?'Read the menu':'Look at the table'}><Utensils size={16}/><span>Menu</span></button><button onClick={()=>openPanel('phone')} aria-label="Open phone"><Smartphone size={16}/><span>Phone</span></button><button onClick={()=>openPanel('wallet')} aria-label="Open wallet"><Wallet size={16}/><span>Wallet</span></button></> : city ? places.map(place=><button key={place.id} onClick={()=>inspect(place)} aria-label={`Look at ${place.label}`}><place.icon size={17}/><span>{place.id==='table'?'Table':place.id==='wander'?city==='hk'?'Harbor':'Avenue':'Way home'}</span></button>) : (['hk','sz'] as const).map(id=><button key={id} onClick={()=>chooseCity(id)} aria-label={`Look at ${cityName(id)}`}><MapPin size={17}/><span>{cityName(id)}</span></button>)}
+          {atTable ? <><button onClick={openTableMenu} aria-label={phase==='arrival'?'Read the menu':'Look at the table'}><Utensils size={16}/><span>Menu</span></button><button onClick={()=>openPanel('phone')} aria-label="Open phone"><Smartphone size={16}/><span>Phone</span></button><button ref={walletControl} onClick={()=>openPanel('wallet')} aria-label="Open wallet"><Wallet size={16}/><span>Wallet</span></button></> : city ? places.map(place=><button key={place.id} onClick={()=>inspect(place)} aria-label={`Look at ${place.label}`}><place.icon size={17}/><span>{place.id==='table'?'Table':place.id==='wander'?city==='hk'?'Harbor':'Avenue':'Way home'}</span></button>) : (['hk','sz'] as const).map(id=><button key={id} onClick={()=>chooseCity(id)} aria-label={`Look at ${cityName(id)}`}><MapPin size={17}/><span>{cityName(id)}</span></button>)}
         </nav>}
         <div className="scene-actions">
           {city && <button className="scene-next" ref={nextPlace} onClick={()=>phase==='home'?commit({type:'TRY_OTHER_CITY'},'destination'):openPanel(contextPanel,undefined,atTable?'jun':undefined)}>{nextLabel}<ArrowRight size={17}/></button>}
-          <div className="pocket-tools" role="group" aria-label="Things with you">{!atTable&&<><button onClick={()=>openPanel('wallet')} aria-label="Open wallet"><Wallet size={21}/><span>Wallet</span></button><button onClick={()=>openPanel('phone')} aria-label="Open phone"><Smartphone size={21}/><span>Phone</span></button></>}<button onClick={()=>openPanel('options')} aria-label="Story options"><MoreHorizontal size={23}/><span>More</span></button></div>
+          <div className="pocket-tools" role="group" aria-label="Things with you">{!atTable&&<><button ref={walletControl} onClick={()=>openPanel('wallet')} aria-label="Open wallet"><Wallet size={21}/><span>Wallet</span></button><button onClick={()=>openPanel('phone')} aria-label="Open phone"><Smartphone size={21}/><span>Phone</span></button></>}<button onClick={()=>openPanel('options')} aria-label="Story options"><MoreHorizontal size={23}/><span>More</span></button></div>
         </div>
       </div>
       {city && phase==='fork' && <button className="other-shore" onClick={()=>chooseCity(city==='hk'?'sz':'hk')} aria-label={`Look at ${cityName(city==='hk'?'sz':'hk')}`}><ArrowLeft size={14}/> Look at {cityName(city==='hk'?'sz':'hk')}</button>}
@@ -270,7 +290,7 @@ export default function PlayableEvening({onBrowsePlanner,onPlanner,onResearch}: 
         <div className="dialogue-body"><h2 id="world-dialogue-title" ref={dialogueTitle} tabIndex={-1}>{dialogueHeading}</h2>
           {panel==='invitation' && <><p className="spoken-line">{junDialogue.invitation}</p><div className="spoken-replies"><button onClick={()=>{chooseCity('hk');openPanel('destination');}}>Let’s stay nearby. <ArrowRight size={16}/></button><button onClick={()=>{chooseCity('sz');openPanel('destination');}}>Let’s cross for dinner. <ArrowRight size={16}/></button></div><button className="dialogue-next" onClick={closePanel}>Look around first <ChevronDown size={17}/></button></>}
           {panel==='observation' && <><p className="spoken-line">{observation[Math.min(line,observation.length-1)]}</p><p className="dialogue-footnote">Looking around doesn’t advance the story clock.</p>{line<observation.length-1?<Continue onClick={continueLine}/>:<button className="dialogue-next" onClick={closePanel}>Back to looking around <ChevronDown size={17}/></button>}{attended==='home'&&<button className="object-model-link" onClick={()=>openRoute(true)}>Unfold the return route <ArrowRight size={15}/></button>}</>}
-          {panel==='wallet' && <><p className="object-intro">An allowance for this fictional outing, not cash or a live account balance.</p><dl className="pocket-facts"><div><dt>Spending allowance / person</dt><dd>{money(state.baseInputs.budgetPerPersonHKD)}</dd></div>{(option?[option]:comparison.options).map(item=><div key={item.id}><dt>{cityName(item.id)} · projected outing / person</dt><dd>{money(item.perPersonHKD)}</dd></div>)}</dl><p className="dialogue-footnote">Estimates include dinner, drinks and the return journey. Optional shared orders are split between two adults. CNY costs use the model’s exchange assumption, not a live rate.</p>{walletWarningOption && <>{routeView?.isConditional&&(!walletWarningOption.homeFeasible||!walletWarningOption.crossingFeasible)&&<p className="dialogue-footnote wallet-forecast">{routeView.forecastText}</p>}<ConstraintWarnings option={walletWarningOption}/></>}<button className="object-model-link" onClick={()=>{closePanel();onPlanner(selectStoryInputs(state));}}>Compare this evening <ArrowRight size={15}/></button><button className="dialogue-next" onClick={closePanel}>Put the wallet away <ChevronDown size={17}/></button></>}
+          {panel==='wallet' && <><p className="object-intro">An allowance for this fictional outing, not cash or a live account balance.</p><dl className="pocket-facts"><div><dt>Spending allowance / person</dt><dd>{money(state.baseInputs.budgetPerPersonHKD)}</dd></div>{(option?[option]:comparison.options).map(item=><div key={item.id}><dt>{cityName(item.id)} · projected outing / person</dt><dd>{money(item.perPersonHKD)}</dd></div>)}</dl><p className="dialogue-footnote">Estimates include dinner, drinks and the return journey. Optional shared orders are split between two adults. CNY costs use the model’s exchange assumption, not a live rate.</p><div className="wallet-business-bridge"><button className="object-model-link" onClick={()=>{dialogue.current?.close();setPanel(null);setLine(0);onBusinessLens(option,state.baseInputs.partySize);}}>Who benefits from this spending? <ArrowRight size={15}/></button><p className="dialogue-footnote">This is customer spending. Pay, costs and profits need different evidence.</p></div>{walletWarningOption && <>{routeView?.isConditional&&(!walletWarningOption.homeFeasible||!walletWarningOption.crossingFeasible)&&<p className="dialogue-footnote wallet-forecast">{routeView.forecastText}</p>}<ConstraintWarnings option={walletWarningOption}/></>}<button className="object-model-link" onClick={()=>{closePanel();onPlanner(selectStoryInputs(state));}}>Compare this evening <ArrowRight size={15}/></button><button className="dialogue-next" onClick={closePanel}>Put the wallet away <ChevronDown size={17}/></button></>}
           {panel==='phone' && <RouteNote state={state} onSelectRoute={route=>action({type:'SET_ROUTE',route})} onBack={backFromPhone} onReconsiderDeparture={()=>commit({type:'REWIND',checkpoint:'fork'},'destination')} returnFirst={phoneContext.returnFirst} returnIntent={phoneContext.returnIntent} backLabel={phoneContext.from==='phoneNote'?'Back to the message':phoneContext.from?'Back to Jun':'Put the phone away'} showRouteChoicesInitially={phoneContext.changeRoute}/>}
           {panel==='phoneNote' && <div className="authored-phone-note"><p className="phone-note-label">Authored fictional story message</p><p className="spoken-line">{junDialogue.homeMessage}</p><button className="dialogue-next" onClick={()=>openRoute(true)}>Check the journey <ArrowRight size={16}/></button><button className="object-model-link" onClick={closePanel}>Put the phone away <ChevronDown size={15}/></button></div>}
           {panel==='destination' && city && <><p className="spoken-line">{city==='hk'?'We can stay nearby and eat by the harbor.':'We could take the train or go by road. Either way, we’ll need time to get back.'}</p>{routeView&&<><div className="departure-selected-route"><span>{routeView.routeLabel}</span>{city==='sz'&&<button onClick={()=>openRoute(false,'planned',true)}>Change route <ChevronDown size={14}/></button>}</div><p className="departure-facts complete-evening-estimate"><strong>Complete evening estimate</strong>{routeView.consequence}</p><p className="dialogue-footnote departure-forecast">{routeView.forecastText}</p><button className="object-model-link" onClick={()=>openRoute()}>Unfold the route <ArrowRight size={15}/></button><ConstraintWarnings option={routeView.conditionalOption} entry/></>}<button className="dialogue-commit" onClick={()=>commit({type:'COMMIT_DEPARTURE',city,route:attempt.route},'arrived')}>{city==='hk'?'Head to the table':attempt.route==='rail'?'Head to the station':'Take the road route'} <ArrowRight size={17}/></button></>}

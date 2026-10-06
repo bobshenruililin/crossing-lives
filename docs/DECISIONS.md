@@ -63,3 +63,10 @@ A compact conditional home-time summary leaves room for this spatial relationshi
 Visual review found a clear journey but a weak human throughline. A few short lines now give fictional Jun ordinary personal connections to each place: harbor dinners from early working life and earlier Saturday walks around Luohu. Both are Jun's memories, not assumed player biography, researched testimony or proof that one city is intrinsically familiar.
 
 The existing meal and walk choices shape what the two friends spend time doing. Jun notices that experience rather than reciting a tally. At home an optional, explicitly authored phone note provides a small callback; no unread indicator, reply, collection, relationship score or saved message history is added. The quiet home ending and the complete route remain available without reading it.
+
+
+## A question the spending can—and cannot—answer
+
+The research door belongs in the optional Wallet, where the player has already chosen to examine money. The ordinary ending and Jun's message stay about the evening. “Who benefits from this spending?” opens the existing Business questions section with a small, read-only model context.
+
+The whole outing includes transport and is not one restaurant's revenue. Actual wages, costs, ownership and profit remain unverified. The separate fixed-pool exercise is not populated from the outing total or annual company ratios. This connects the individual story to an evidence question without pretending the price alone answers it.

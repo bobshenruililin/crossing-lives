@@ -38,3 +38,10 @@ The research desk owns the fixed-pool allocation experiment. It is not part of a
 ## Authored character copy
 
 `src/story/dialogue.ts` selects a few fixed fictional lines from the existing city, meal, walk and phase. It is pure and adds no persisted fields, inferred player familiarity, emotional score or chat backend. Legacy notes are not inputs to the returned text. The home phone note is transient presentation; the real completed route and its evidence still use the existing route-view selector.
+
+
+## Optional spending bridge
+
+`src/business/context.ts` whitelists only the selected city, actual modeled party count, engine-provided HKD per-person/group totals and explicit illustrative/whole-outing metadata. It performs no allocation, revenue or profit calculation and carries no inputs or notes. Missing totals stay null.
+
+App navigation holds this context only while opening the existing Business questions lens. Returning from a story Wallet visit requests that panel once and restores focus through the existing in-tab story state; it does not copy story choices into the separate planner. The fixed-pool component receives no spending-context prop. A practical receipt can open the same lens using its own actual party count.

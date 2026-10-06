@@ -39,3 +39,13 @@
 .outing-settings{border-top:1px solid #d4deca;font-size:13px}.outing-settings>summary{display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer;padding:15px 0;line-height:1.6}.outing-settings>div{padding:6px 0 16px}.optional-order{display:flex;gap:8px;align-items:flex-start;font-size:13px;line-height:1.7;margin:4px 0 19px}.optional-order input{width:17px;height:17px;accent-color:#28523e;margin:3px 0 0;flex-shrink:0}.outing-settings .field-note{font-size:12px;line-height:1.8;border-top:1px solid #d6dfcb;padding-top:15px}.desk-main .surplus-lab{margin-top:28px}
 /* The offscreen target stays truly clipped in full-page captures until focused. */
 .skip-link:not(:focus){clip-path:inset(50%);width:1px;height:1px;padding:0;overflow:hidden;white-space:nowrap}
+
+/* The research bridge is a small readable note inside the existing business lens. */
+.evidence-layout .research-banner strong{font-size:14px;line-height:1.6}
+.evidence-layout .research-banner p{font-size:14px;line-height:1.8}
+.spending-context>div{min-width:0;overflow-wrap:anywhere}
+.business-pool-boundary{font-size:14px;line-height:1.8;color:#5c6c55;margin:28px 0 0}
+.desk-main .business-pool-boundary+.surplus-lab{margin-top:14px}
+
+/* Keep the research return control easy to reach by touch as well as keyboard. */
+.evidence-layout .desk-back{min-height:44px;padding:10px 0}

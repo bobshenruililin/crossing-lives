@@ -28,7 +28,7 @@ async function modifyPracticalPlan(page: Page) {
   await page.getByLabel('Leave at', { exact: true }).fill('18:00');
   await page.getByLabel('Home by', { exact: true }).fill('22:00');
   await page.locator('.assumptions > summary').click();
-  await page.getByLabel('Shenzhen route', { exact: true }).selectOption('bus');
+  await page.getByRole('combobox', { name: 'Shenzhen route', exact: true }).selectOption('bus');
   await page.getByRole('checkbox', { name: /everyone in this group/ }).check();
 }
 
@@ -40,7 +40,7 @@ async function expectPracticalInputs(page: Page, imported: boolean) {
   await expect(page.getByLabel('Leave at', { exact: true })).toHaveValue(imported ? '16:30' : '18:00');
   await expect(page.getByLabel('Home by', { exact: true })).toHaveValue(imported ? '23:30' : '22:00');
   if (!(await page.locator('.assumptions').evaluate((element: HTMLDetailsElement) => element.open))) await page.locator('.assumptions > summary').click();
-  await expect(page.getByLabel('Shenzhen route', { exact: true })).toHaveValue(imported ? 'rail' : 'bus');
+  await expect(page.getByRole('combobox', { name: 'Shenzhen route', exact: true })).toHaveValue(imported ? 'rail' : 'bus');
   const eligibility = page.getByRole('checkbox', { name: /everyone in this group/ });
   if (imported) await expect(eligibility).not.toBeChecked();
   else await expect(eligibility).toBeChecked();

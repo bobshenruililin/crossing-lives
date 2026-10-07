@@ -14,7 +14,11 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   timeout: 60_000,
   expect: { timeout: 10_000 },
-  reporter: [['list'], ['html', { outputFolder: 'playwright-report/world', open: 'never' }]],
+  reporter: [
+    ['list'],
+    ['json', { outputFile: 'artifacts/world/playwright-results.json' }],
+    ['html', { outputFolder: 'playwright-report/world', open: 'never' }],
+  ],
   use: {
     baseURL: `http://127.0.0.1:${port}`,
     channel,

@@ -4,7 +4,9 @@ on:
     branches: [main]
   pull_request:
 jobs:
-  verify:
+  # Independent jobs expose world logs promptly and preserve retained checks on world failure.
+  world:
+    name: Connected world evidence
     runs-on: ubuntu-24.04
     permissions:
       contents: read
@@ -15,6 +17,8 @@ jobs:
           node-version: '24'
           cache: npm
       - run: npm ci
+      - name: Verify evidence packaging contracts
+        run: node --test scripts/world-evidence.test.mjs
       - id: source_checks
         run: npm run check
       - name: Verify connected world source
@@ -28,33 +32,81 @@ jobs:
       - name: Install Playwright's video recorder
         id: video_recorder
         run: npx playwright install ffmpeg
-      - id: legacy_export
-        run: npm run export:portable
       - name: Build the connected world
         id: world_export
         run: npm run export:world
-      - name: Build the decision-led prototype
-        id: decision_export
-        run: npm run export:decision
       - name: Verify and record the connected world
         id: world_tests
         if: ${{ always() && steps.source_checks.outcome == 'success' && steps.world_source_checks.outcome == 'success' && steps.chrome_check.outcome == 'success' && steps.browser_deps.outcome == 'success' && steps.video_recorder.outcome == 'success' && steps.world_export.outcome == 'success' }}
         run: npx playwright test --config=playwright.world.config.ts
         env:
           CROSSING_BROWSER_CHANNEL: chrome
-      - name: Upload world evidence for first visual review
+      - name: Prepare small world review
+        id: world_review
         if: always()
+        run: node scripts/world-evidence.mjs review "$RUNNER_TEMP/world-review"
+        env:
+          WORLD_TEST_OUTCOME: ${{ steps.world_tests.outcome }}
+      - name: Upload small world review first
+        if: ${{ always() && steps.world_review.outcome == 'success' }}
         uses: actions/upload-artifact@v4
         with:
-          name: crossing-lives-world-preview
+          name: crossing-lives-world-review
           retention-days: 7
-          if-no-files-found: ignore
-          path: |
-            artifacts/crossing-lives-world.html
-            artifacts/world/
-            playwright-report/world/
-            test-results/world/
-            !test-results/world/**/recording/*.webm
+          if-no-files-found: error
+          path: ${{ runner.temp }}/world-review/
+      - name: Install pinned official artifact client
+        id: world_artifact_client
+        if: always()
+        run: |
+          npm install --prefix "$RUNNER_TEMP/world-artifact-client" --save-exact --ignore-scripts --no-audit --no-fund @actions/artifact@2.3.2
+          node scripts/world-evidence.mjs verify-client "$RUNNER_TEMP/world-artifact-client"
+      - name: Preserve complete world evidence in retrievable parts
+        if: ${{ always() && steps.world_artifact_client.outcome == 'success' }}
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const { pathToFileURL } = require('node:url');
+            const { resolve } = require('node:path');
+            const { makeBundle, uploadBundle, uploadFilm } = await import(pathToFileURL(resolve('scripts/world-evidence.mjs')).href);
+            const { DefaultArtifactClient } = require(resolve(process.env.RUNNER_TEMP, 'world-artifact-client/node_modules/@actions/artifact'));
+            const client = new DefaultArtifactClient();
+            let filmError;
+            try {
+              const film = await uploadFilm(process.cwd(), resolve(process.env.RUNNER_TEMP, 'world-film'), client);
+              core.info(`Standalone full film: ${JSON.stringify(film)}`);
+            } catch (error) { filmError = error; }
+            const out = resolve(process.env.RUNNER_TEMP, 'world-evidence');
+            await makeBundle(process.cwd(), out);
+            await uploadBundle(out, client);
+            if (filmError) throw filmError;
+  verify:
+    name: Retained decision, original and production checks
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - id: source_checks
+        run: npm run check
+      - name: Verify installed Chrome stable
+        id: chrome_check
+        run: google-chrome --version
+      - id: browser_deps
+        run: npx playwright install-deps chromium
+      - name: Install Playwright's video recorder
+        id: video_recorder
+        run: npx playwright install ffmpeg
+      - id: legacy_export
+        run: npm run export:portable
+      - name: Build the decision-led prototype
+        id: decision_export
+        run: npm run export:decision
       - name: Verify the decision-led production entry
         id: decision_tests
         if: ${{ always() && steps.source_checks.outcome == 'success' && steps.chrome_check.outcome == 'success' && steps.browser_deps.outcome == 'success' && steps.video_recorder.outcome == 'success' && steps.decision_export.outcome == 'success' }}
@@ -74,8 +126,6 @@ jobs:
             playwright-report/decision/
             test-results/decision/
             !test-results/decision/**/recording/*.webm
-      # A world or decision failure must not skip independent retained checks.
-      # The early artifact is partial evidence; the job must finish to pass.
       - name: Verify the retained original experience
         if: ${{ always() && steps.source_checks.outcome == 'success' && steps.chrome_check.outcome == 'success' && steps.browser_deps.outcome == 'success' && steps.video_recorder.outcome == 'success' && steps.legacy_export.outcome == 'success' }}
         run: npm run test:browser
@@ -97,7 +147,8 @@ jobs:
             test-results/
             !artifacts/world/
             !artifacts/crossing-lives-world.html
-            !test-results/world/**/recording/*.webm
+            !test-results/world/
+            !playwright-report/world/
             !artifacts/decision/
             !artifacts/crossing-lives-decision-prototype.html
             !test-results/walkthrough-*/recording/*.webm

@@ -97,7 +97,7 @@ test('all twelve mechanisms remain distinct, short and publicly bounded', () => 
   }
   assert.equal(kinds.size, 12);
   assert.match(WORLD_CONTENT.setup.guardrail, /child fare treatment remains unknown/);
-  assert.equal(createHash('sha256').update(readFileSync(new URL('../src/world/interactions/content.ts', import.meta.url))).digest('hex'), '67f9201b86b2b80487920ca1d00cd7cf31235c2cecafc25e26f8c9ebe7269f98');
+  assert.equal(createHash('sha256').update(readFileSync(new URL('../src/world/interactions/content.ts', import.meta.url))).digest('hex'), '56d5f8a54eaa57224d07a78a266974dcc15a9978bb29806ea7c82c8a7d3b2e79');
 });
 
 test('parcel additional arithmetic has exactly the disclosed difference and its own common unit', () => {
@@ -210,7 +210,7 @@ test('interaction source has no storage, demographic arithmetic, asynchronous nu
   const dir = new URL('../src/world/interactions/', import.meta.url);
   const source = readdirSync(dir).filter(name => /\.(?:ts|tsx|css)$/.test(name) && name !== 'content.ts').map(name => readFileSync(new URL(name, dir), 'utf8')).join('\n');
   assert.doesNotMatch(source, /localStorage|sessionStorage|setInterval|requestAnimationFrame|Date\.now|fetch\(/);
-  assert.doesNotMatch(source, /from ['"][^'"]*(?:domain|decision|story|legacy)/);
+  assert.doesNotMatch(source, /from ['"][^'"]*(?:domain|decision(?!s(?:['"/]))|story|legacy)/);
   assert.doesNotMatch(source, /context\.party|context\.day|context\.scenario/);
   const css = readFileSync(new URL('interactions.css', dir), 'utf8');
   assert.match(css, /\.wi-choices label\s*\{[^}]*min-height:44px/);

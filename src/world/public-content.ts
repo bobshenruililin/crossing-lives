@@ -1018,7 +1018,7 @@ export const WORLD_CONTENT = {
       "sceneId": "office-floor",
       "title": "A quiet floor",
       "placeLabel": "Fictional commercial building",
-      "pointLabel": "Lift directory",
+      "pointLabel": "Office notebook",
       "thought": "An empty-looking room tells us what was visible then. Does it tell us whether the space was leased?",
       "primaryThought": "An empty-looking room tells us what was visible then. Does it tell us whether the space was leased?",
       "interactionId": "office-floor",

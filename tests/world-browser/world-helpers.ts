@@ -2,13 +2,14 @@ import { expect, type Locator, type Page, type TestInfo } from '@playwright/test
 import { createHash } from 'node:crypto';
 import { mkdir, readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
-import { artFor, CASES, exitFor, nameFor, pointFor } from './world-fixtures';
+import { artFor, CASES, DECISION_CASES, exitFor, isDecisionScene, nameFor, pointFor } from './world-fixtures';
+import type { ComparisonSceneId } from './world-fixtures';
 import type { SceneId } from '../../src/world/types';
 
 export const world = (page: Page) => page.getByTestId('world-app');
 export const player = (page: Page) => page.getByTestId('world-player');
 export const insight = (page: Page, id: SceneId) => page.getByTestId(id === 'planning-museum' ? 'regional-map-discovery' : `world-insight-${id}`);
-export const choiceAttribute = (id: SceneId) => id === 'planning-museum' ? 'data-region' : 'data-choice';
+export const choiceAttribute = (id: ComparisonSceneId) => id === 'planning-museum' ? 'data-region' : 'data-choice';
 export const background = (page: Page) => page.locator('.world-background');
 export const stage = (page: Page) => page.getByTestId('world-stage');
 export const visibleButton = (page: Page, name: string) => page.getByRole('button', { name, exact: true }).filter({ visible: true });
@@ -154,7 +155,7 @@ export async function approvedArtHash(id: SceneId) {
   expect(artFor(id).approved, `${id} requires reviewed approved art.`).toBe(true);
   return createHash('sha256').update(await readFile(resolve('public-world', artFor(id).src))).digest('hex');
 }
-export async function geometryFingerprint(page: Page, id: SceneId) {
+export async function geometryFingerprint(page: Page, id: ComparisonSceneId) {
   const svg = insight(page, id).locator(id === 'planning-museum' ? 'svg.rmd-map' : 'svg.wi-visual');
   // Observe final paint after finite authored transitions, without disabling them.
   await svg.evaluate(async el => {
@@ -167,7 +168,7 @@ export async function geometryFingerprint(page: Page, id: SceneId) {
   }));
   return createHash('sha256').update(JSON.stringify(geometry)).digest('hex');
 }
-export async function selectChoice(page: Page, id: SceneId, index: 0 | 1) {
+export async function selectChoice(page: Page, id: ComparisonSceneId, index: 0 | 1) {
   const choice = CASES[id].choices[index];
   if (id === 'planning-museum') {
     const button = insight(page, id).getByRole('button', { name: choice.label, exact: true });
@@ -178,7 +179,7 @@ export async function selectChoice(page: Page, id: SceneId, index: 0 | 1) {
   await expect(insight(page, id)).toHaveAttribute('data-choice', choice.value);
   await expect(insight(page, id).getByRole('radio', { name: choice.label, exact: true })).toBeChecked();
 }
-export async function expectFacts(page: Page, id: SceneId, index: 0 | 1) {
+export async function expectFacts(page: Page, id: ComparisonSceneId, index: 0 | 1) {
   if (id === 'planning-museum') {
     const component = insight(page, id), map = component.getByTestId('regional-geographic-map');
     await expect(map).toHaveAttribute('viewBox', index === 0 ? '0 0 1000 790' : '0 0 1000 751');
@@ -200,11 +201,6 @@ export async function expectFacts(page: Page, id: SceneId, index: 0 | 1) {
   await expect(insight(page, id).locator('svg')).toHaveAccessibleName(/.{25}/);
   if (id === 'metro-carriage') await expect(insight(page, id).locator('[data-journey-part][data-included=true]')).toHaveCount(index === 0 ? 1 : 7);
   if (id === 'border-arrival') { await expect(insight(page, id).locator('[data-gate]')).toHaveCount(index === 0 ? 1 : 4); await expect(insight(page, id).locator('[data-gate]:not([data-status=not-checked])')).toHaveCount(0); }
-  if (id === 'rental-home') {
-    const heights = await insight(page, id).locator('[data-money-role]').evaluateAll(nodes => nodes.map(n => Number(n.getAttribute('height'))));
-    expect(heights).toEqual([48, 96]);
-    if (index === 1) expect(await insight(page, id).locator('[data-money-role=deposit]').evaluate(el => getComputedStyle(el).strokeDasharray)).not.toBe('none');
-  }
   if (id === 'luxury-home') {
     const widths = await insight(page, id).locator('[data-payment-part]').evaluateAll(nodes => nodes.map(n => Number(n.getAttribute('width'))));
     expect(Math.abs(widths[0] / widths[1] - 2)).toBeLessThan(1e-6);
@@ -228,9 +224,10 @@ export async function expectUnknown(page: Page, id: SceneId) {
     await expect(component.getByText(CASES[id].unknown, { exact: true })).toBeVisible();
     await evidence.locator(':scope > summary').click(); return;
   }
-  const evidence = insight(page, id).locator('.wi-evidence');
+  const unknown = isDecisionScene(id) ? DECISION_CASES[id].unknown : CASES[id].unknown;
+  const evidence = insight(page, id).locator(isDecisionScene(id) ? '.wd-evidence' : '.wi-evidence');
   await evidence.locator(':scope > summary').click();
-  await expect(evidence.getByText(CASES[id].unknown, { exact: true })).toBeVisible();
+  await expect(evidence.getByText(unknown, { exact: true })).toBeVisible();
   await evidence.locator(':scope > summary').click();
 }
 export async function expectHitTarget(target: Locator) {

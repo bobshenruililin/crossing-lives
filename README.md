@@ -1,8 +1,8 @@
 # crossing-lives
 
-**Crossing Lives** explores everyday cross-border decisions through an original pixel world, complete outing comparisons and visible changes in circumstances. The current flagship asks how an evening changes when departure or home-by time changes. Neither city is assigned an inherently better outcome.
+**Crossing Lives** explores everyday cross-border decisions through an original pixel world, complete outing comparisons and visible changes in circumstances. The current world links a cross-border day plan to encounters with transport, shopping, work and housing. Neither city is assigned an inherently better outcome.
 
-## Connected pixel world: first browser candidate
+## Connected pixel world: meaningful choices
 
 The new main experience opens at **`/world.html`**. One click on Play starts a fictional two-friend field trip. People, day and scenario are optional; scenario choices change the starting place or route focus, while every location stays open. Walk with the keyboard, touch controls or ground taps; marked doors connect twelve distinct original places.
 
@@ -17,7 +17,9 @@ npm run check:world        # World shell, all world interactions/maps, types and
 npm run export:world       # Standalone artifacts/crossing-lives-world.html
 ```
 
-**Verification status:** the first complete source/build/export checks pass. Actual world browser execution, narrow-screen composition, coherent indoor character scale and the untrimmed walkthrough are still pending for this candidate. Passing source checks is not a human user study or a claim that the full experience is ready. The existing decision and original entries remain tested fallbacks.
+The home clock now keeps an explicit assumed Hong Kong–Shenzhen round trip while you decide which visits to keep, shorten or leave out. The parcel counter compares collection with delivery; the rental room compares available cash with recurring rent. Each uses an explicit in-tab choice and clearly labelled fictional inputs. The taken day plan appears on the map; parcel and lease examples remain separate.
+
+**Verification status:** the preceding `a5031f70b5ef66eb89cc1b4e790dff972ff1eb2d` edition passed all 12 world cases and the retained checks, and produced an untrimmed twelve-place film. Its actual route and selected frames were reviewed. This stronger-choice candidate passes source/type/build checks; its own 16-case browser run, compact panels and 5–8-minute full recording remain pending. Review is model-assisted, not a human user study. Earlier entries remain tested fallbacks.
 
 ## Earlier decision-led episode
 
@@ -27,7 +29,7 @@ The person is visible and controllable from the first screen. Walk freely betwee
 
 The clock controls operate within one authored evening: departure 15:00–20:00, or home-by 20:00–01:00 next day, in 15-minute steps. Other inputs remain fixed for this episode. These are illustrative prices and journey assumptions, not a verified travel plan. An optional friend invitation after arrival opens a separate before-departure what-if: the exact chosen outing, with two adults becoming three and the same one shared extra. The source journey stays intact. Work routines, housing and regional explainers remain planned extensions.
 
-Run `npm run dev:decision`, or `npm run export:decision` for the independent production/offline artifact. The earlier entry remains a verified fallback, and the new page does not read or replace its saved data. The adjustable Phone was verified at `ed162b58aff24b0adb7d028e1f3676b8aff9338d`. The first node journey was then verified at `5dd081592d3e9b2d5b3443b7dc69010abc8e9f6b`, including its actual mobile recording, offline build and retained checks. **This immediate-entry revision is source-tested; its own browser and first-30-second visual gate is still pending.** The preceding friend run reached real rendered previews but failed a test that incorrectly expected local Hong Kong to need crossing confirmation; this revision corrects that exact expectation while retaining Shenzhen's unknown eligibility. Passing source tests does not establish audience understanding.
+Run `npm run dev:decision`, or `npm run export:decision` for the independent production/offline artifact. The earlier entry remains a verified fallback, and the new page does not read or replace its saved data. The adjustable Phone was verified at `ed162b58aff24b0adb7d028e1f3676b8aff9338d`. The first node journey was then verified at `5dd081592d3e9b2d5b3443b7dc69010abc8e9f6b`, including its actual mobile recording, offline build and retained checks. The retained immediate-entry episode was verified through `a5031f70b5ef66eb89cc1b4e790dff972ff1eb2d`, including its 54 decision/movement/friend browser cases and offline checks. Local Hong Kong does not require the cross-border eligibility confirmation; Shenzhen remains unknown until separately verified. Passing source tests does not establish audience understanding.
 
 The movement source keeps the selected snapshot and whole-outing forecast. It does not charge again, treat planned meals as money already spent, or relabel the Lo Wu route as the separate Futian pilot route. See [the episode scope](docs/DECISION_PROTOTYPE.md), [immediate-entry review gates](docs/IMMEDIATE_ENTRY_REVIEW.md), [the bounded journey](docs/NODE_JOURNEY_REVIEW.md) and [the optional friend episode](docs/FRIEND_INVITATION_REVIEW.md).
 

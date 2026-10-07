@@ -1,14 +1,15 @@
 import { test, expect } from '@playwright/test';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
-import { SCENES, CASES } from './world-fixtures';
-import { capture, closePoint, expectFacts, expectScene, openPoint, player, selectChoice, stage, startWorld, takeExit, walkToEntrance, world } from './world-helpers';
+import { SCENES, CASES, isDecisionScene } from './world-fixtures';
+import { capture, closePoint, expectFacts, expectScene, insight, openPoint, player, selectChoice, stage, startWorld, takeExit, walkToEntrance, world } from './world-helpers';
+import { expectMapPlan, expectPrimaryVisible, takeSceneDecision } from './world-decision-paths';
 import { auditWorldStorage } from './world-storage';
 
 /** Actual browser video from a cold context; real controls and reading pauses.
  * No warm-up images, state seed, trace restart, overlays, edited or trimmed film. */
 test('record the complete cold world walkthrough with twelve places and readable choices', async ({ browser, baseURL }, info) => {
-  test.setTimeout(330_000);
+  test.setTimeout(540_000);
   const commit = process.env.GITHUB_SHA ?? process.env.CROSSING_WORLD_COMMIT;
   expect(commit, 'A recording must identify the exact tested commit.').toMatch(/^[a-f0-9]{40}$/);
   const viewport = { width: 1440, height: 900 };
@@ -17,14 +18,20 @@ test('record the complete cold world walkthrough with twelve places and readable
   const reportPath = resolve(directory, 'whole-world-recording.json');
   const context = await browser.newContext({ baseURL, viewport, reducedMotion: 'no-preference', recordVideo: { dir: info.outputPath('recording'), size: viewport } });
   const audit = await auditWorldStorage(context), page = await context.newPage(), video = page.video();
-  const started = Date.now(); let completed = false;
+  const started = Date.now(); let completed = false, recordedThroughMs = 0;
   const errors: string[] = []; page.on('pageerror', error => errors.push(error.message));
-  const actions: { action: string; startedMs: number; finishedMs: number; requestedPauseMs: number; scene: string | null; art: string | null; choice: string | null }[] = [];
+  const actions: { action: string; startedMs: number; finishedMs: number; requestedPauseMs: number; scene: string | null; art: string | null; choice: string | null; decision: { mechanism: string | null; step: string | null; status: string | null; homeBy: string | null } | null }[] = [];
   const chapter = async (action: string, pause: number, run?: () => Promise<void>) => {
     const startedMs = Date.now() - started;
     if (run) await run();
     await page.waitForTimeout(pause); // Intentional human reading time, not a loading/performance gate.
-    actions.push({ action, startedMs, finishedMs: Date.now() - started, requestedPauseMs: pause,
+    const decisionPanel = page.locator('.world-decision');
+    const decision = await decisionPanel.count() ? {
+      mechanism: await decisionPanel.getAttribute('data-mechanism'), step: await decisionPanel.getAttribute('data-step'),
+      status: await decisionPanel.getByRole('status').count() ? await decisionPanel.getByRole('status').innerText() : null,
+      homeBy: await decisionPanel.getByRole('slider').count() ? await decisionPanel.getByRole('slider').inputValue() : null,
+    } : null;
+    actions.push({ action, startedMs, finishedMs: Date.now() - started, requestedPauseMs: pause, decision,
       scene: await world(page).getAttribute('data-scene'), art: await world(page).getAttribute('data-art-status'), choice: await page.locator('.world-insight').count() ? await page.locator('.world-insight').getAttribute('data-choice') : await page.getByTestId('regional-map-discovery').count() ? `${await page.getByTestId('regional-map-discovery').getAttribute('data-region')}/${await page.getByTestId('regional-map-discovery').getAttribute('data-chapter')}` : null });
   };
   try {
@@ -43,34 +50,53 @@ test('record the complete cold world walkthrough with twelve places and readable
       } else if (index) {
         await chapter(`Walk through the real entrance into ${id}.`, 3_000, () => takeExit(page, SCENES[index - 1], id));
       }
-      await chapter(`Explore ${id}: ${CASES[id].choices[0].label}.`, 5_000, async () => { await openPoint(page, id); await expectFacts(page, id, 0); });
+      if (isDecisionScene(id)) {
+        let actionStartedMs = Date.now() - started;
+        await openPoint(page, id);
+        await takeSceneDecision(page, id, async (label, readingMs) => {
+          await chapter(`${id}: ${label}`, readingMs);
+          actions.at(-1)!.startedMs = actionStartedMs;
+          if (await page.getByRole('dialog').count()) await capture(page, info, `film-${id}-decision-${actions.length}`);
+          actionStartedMs = Date.now() - started;
+        });
+        continue;
+      }
+      await chapter(`Explore ${id}: ${CASES[id].choices[0].label}.`, 6_000, async () => { await openPoint(page, id); await expectFacts(page, id, 0); });
       if (id === 'planning-museum') {
         for (const index of [1, 2, 3]) await chapter(`Museum geographic chapter ${index + 1}: select its real place anchor.`, 2_000, async () => {
-          await page.getByTestId('regional-map-discovery').locator(`[data-chapter-index="${index}"]`).click();
+          const chapterControl = page.getByTestId('regional-map-discovery').locator(`[data-chapter-index="${index}"]`);
+          await expectPrimaryVisible(chapterControl); await chapterControl.click();
           await expect(page.getByTestId('regional-active-label')).toBeVisible();
         });
       }
-      await chapter(`Change ${id} with the real control: ${CASES[id].choices[1].label}.`, 6_000, async () => { await selectChoice(page, id, 1); await expectFacts(page, id, 1); });
+      await chapter(`Change ${id} with the real control: ${CASES[id].choices[1].label}.`, 7_000, async () => {
+        const choice = insight(page, id).getByRole(id === 'planning-museum' ? 'button' : 'radio', { name: CASES[id].choices[1].label, exact: true });
+        await expectPrimaryVisible(choice);
+        await selectChoice(page, id, 1); await expectFacts(page, id, 1);
+      });
       if (['parcel-counter', 'rental-home', 'luxury-home', 'office-floor', 'learning-center', 'planning-museum'].includes(id)) {
         await capture(page, info, `film-${id}-visible-consequence`);
       }
       await closePoint(page);
     }
-    await chapter('Open the connected-world map; its links are illustrative, not city geography.', 7_000, async () => {
+    await chapter('Open the world map and read the explicitly taken home plan; all twelve places remain open.', 10_000, async () => {
       await page.getByRole('button', { name: 'Open world map', exact: true }).click();
       await expect(page.getByRole('dialog', { name: 'World map', exact: true })).toContainText('Illustrative connections, not geographic directions.');
+      await expectMapPlan(page);
+      await capture(page, info, 'film-taken-home-plan-after-parcel-and-lease');
     });
     await chapter('Close the map and finish inside the planning museum.', 4_000, async () => { await page.keyboard.press('Escape'); await expectScene(page, 'planning-museum'); });
     await audit.expectZero(page); expect(errors).toEqual([]);
     const duration = Date.now() - started;
-    expect(duration, 'The continuous film includes at least three minutes of actual play and reading.').toBeGreaterThanOrEqual(180_000);
-    expect(duration, 'This first full tour stays within the five-minute review window; exact duration is reported without trimming.').toBeLessThanOrEqual(300_000);
+    expect(duration, 'The approved untrimmed tour includes at least five minutes of real decisions and readable play.').toBeGreaterThanOrEqual(300_000);
+    expect(duration, 'The approved untrimmed full-world tour stays within eight minutes.').toBeLessThanOrEqual(480_000);
     completed = true;
   } finally {
     // Save the complete video even when a gate interrupts the tour. The runner owns tracing.
+    recordedThroughMs = Date.now() - started;
     await context.close();
     if (video) { await video.saveAs(canonicalVideo); await video.delete(); }
-    await writeFile(reportPath, JSON.stringify({ commit, viewport, entry: `${baseURL}/world.html`, startedAt: new Date(started).toISOString(), durationMs: Date.now() - started,
+    await writeFile(reportPath, JSON.stringify({ commit, viewport, entry: `${baseURL}/world.html`, startedAt: new Date(started).toISOString(), durationMs: recordedThroughMs, approvedDurationMs: { minimum: 300_000, maximum: 480_000 }, pacingTarget: 'Natural five to six minutes; approved range five to eight minutes',
       completed, videoPresent: Boolean(video), reducedMotion: false, coldContext: true, input: 'real keyboard and pointer controls',
       artifact: 'artifacts/world/walkthrough/crossing-lives-whole-world-1440x900.webm', actions, errors }, null, 2));
     await info.attach('whole-world-recording-report', { path: reportPath, contentType: 'application/json' });

@@ -531,7 +531,7 @@ export const SCENE_ART_OVERRIDES: Partial<Record<SceneId, Partial<SceneRecord>>>
         "x": 668.8,
         "y": 451.68,
         "approach": {
-          "x": 668.8,
+          "x": 595,
           "y": 781.03
         },
         "label": "Lease on the table",
@@ -660,7 +660,7 @@ export const SCENE_ART_OVERRIDES: Partial<Record<SceneId, Partial<SceneRecord>>>
           "x": 718.96,
           "y": 771.62
         },
-        "label": "Lift directory",
+        "label": "Office notebook",
         "icon": "▦",
         "thought": "An empty-looking room tells us what was visible then. Does it tell us whether the space was leased?",
         "interactionId": "office-floor"

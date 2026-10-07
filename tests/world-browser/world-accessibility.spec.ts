@@ -1,7 +1,8 @@
 import AxeBuilder from '@axe-core/playwright';
 import { test, expect, type Locator, type Page } from '@playwright/test';
-import { capture, closePoint, expectFacts, expectNoOverflow, insight, mapTo, openPoint, player, position, selectChoice, startWorld } from './world-helpers';
-import { pointFor } from './world-fixtures';
+import { capture, closePoint, expectNoOverflow, insight, mapTo, openPoint, player, position, startWorld } from './world-helpers';
+import { isDecisionScene, pointFor } from './world-fixtures';
+import { expectParcelResult, setDeadlineWithNativeKeys } from './world-decision-paths';
 
 async function validFocus(page: Page) {
   const focus = await page.evaluate(() => {
@@ -50,7 +51,7 @@ test('real Tab, Enter, Space and Escape keep focus visible and reach evidence; a
     await validFocus(page);
     await axe(page);
     const dialog = page.getByRole('dialog', { name: pointFor(id).label, exact: true });
-    const evidence = insight(page, id).locator(id === 'planning-museum' ? '.rmd-research' : '.wi-evidence');
+    const evidence = insight(page, id).locator(id === 'planning-museum' ? '.rmd-research' : isDecisionScene(id) ? '.wd-evidence' : '.wi-evidence');
     const summary = evidence.locator(':scope > summary');
     await tabTo(page, summary); await page.keyboard.press('Space');
     await expect(evidence).toHaveAttribute('open', '');
@@ -73,13 +74,16 @@ test('reduced motion is reflected in actual computed styles and still changes vi
   await startWorld(page);
   const before = await position(page); await page.keyboard.press('ArrowRight');
   await expect(player(page)).toHaveAttribute('data-walking', 'false'); expect((await position(page)).x).toBeGreaterThan(before.x);
-  await openPoint(page, 'hk-home', 'key'); await selectChoice(page, 'hk-home', 1); await expectFacts(page, 'hk-home', 1);
-  const styles = await page.locator('.world-sprite-crop,.world-target,.wi-hand,.wi-window,.wi-path,.wi-marker').evaluateAll(nodes => nodes.map(el => {
+  await openPoint(page, 'hk-home', 'key'); await setDeadlineWithNativeKeys(page, 'earlier');
+  await expect(insight(page, 'hk-home').getByRole('status')).toContainText('30 minutes late');
+  const styles = await page.locator('.world-sprite-crop,.world-target,.wd-clock-hour,.wd-clock-minute,.wd-time-activity,.wd-deadline-marker').evaluateAll(nodes => nodes.map(el => {
     const s = getComputedStyle(el); return { animation: s.animationName, transition: s.transitionDuration, animationDuration: s.animationDuration };
   }));
   expect(styles.length).toBeGreaterThan(5);
   for (const style of styles) { expect(style.animation).toBe('none'); expect(style.transition.split(',').every(s => parseFloat(s) === 0)).toBe(true); expect(style.animationDuration.split(',').every(s => parseFloat(s) === 0)).toBe(true); }
-  await closePoint(page); await mapTo(page, 'parcel-counter'); await openPoint(page, 'parcel-counter', 'key'); await selectChoice(page, 'parcel-counter', 1);
-  expect(await insight(page, 'parcel-counter').locator('.wi-path.is-active').evaluate(el => getComputedStyle(el).animationName)).toBe('none');
-  await expectFacts(page, 'parcel-counter', 1);
+  await closePoint(page); await mapTo(page, 'parcel-counter'); await openPoint(page, 'parcel-counter', 'key');
+  await insight(page, 'parcel-counter').getByRole('button', { name: /^Go just for it/ }).click();
+  await insight(page, 'parcel-counter').getByRole('button', { name: /^Home delivery/ }).click();
+  expect(await insight(page, 'parcel-counter').locator('.wd-parcel-object').evaluate(el => getComputedStyle(el).animationName)).toBe('none');
+  await expectParcelResult(page, 'delivery', 'dedicated-trip');
 });

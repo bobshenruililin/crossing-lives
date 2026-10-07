@@ -1,8 +1,9 @@
 import { test, expect } from '@playwright/test';
-import { CASES, SCENES, nameFor } from './world-fixtures';
+import { CASES, SCENES, isDecisionScene, nameFor } from './world-fixtures';
 import { approvedArtHash, capture, choiceAttribute, closePoint, expectFacts, expectNoOverflow, expectScene, expectUnknown, geometryFingerprint, insight, mapTo, openPoint, player, position, renderedArtHash, selectChoice, startWorld, takeExit, walkToEntrance, world } from './world-helpers';
 import { expectVisibleSprite, expectVisibleWorldTargets, expectWorldDominant, observeFrames, readFrames } from './world-geometry';
 import { checkRegionalDiscovery } from './world-regional';
+import { decisionGeometry, expectInitialDecision, expectMapPlan, expectParcelResult, expectTakenDecision, setDeadlineWithNativeKeys, takeSceneDecision } from './world-decision-paths';
 import { auditWorldStorage } from './world-storage';
 
 for (const viewport of [{ width: 390, height: 844 }, { width: 1440, height: 900 }, { width: 360, height: 844 }]) {
@@ -68,6 +69,14 @@ test('all twelve places have distinct decoded art and distinct working visual me
       approved.add(await approvedArtHash(id)); rendered.add(await renderedArtHash(page));
       await capture(page, info, `${index + 1}-${id}-world`);
       await openPoint(page, id);
+      if (isDecisionScene(id)) {
+        const decision = await takeSceneDecision(page, id);
+        shapes.add(decision.before); mechanisms.add(decision.mechanism);
+        await openPoint(page, id); await expectTakenDecision(page, id);
+        await capture(page, info, `${index + 1}-${id}-taken-decision`);
+        await expectUnknown(page, id); await closePoint(page);
+        continue;
+      }
       await expect(insight(page, id)).toHaveAttribute(choiceAttribute(id), CASES[id].choices[0].value);
       await expectFacts(page, id, 0); const before = await geometryFingerprint(page, id);
       await selectChoice(page, id, 1); await expectFacts(page, id, 1);
@@ -86,14 +95,18 @@ test('all twelve places have distinct decoded art and distinct working visual me
     // Revisit all twelve through real map buttons; no direct reducer/state injection.
     for (const id of SCENES) {
       await mapTo(page, id); await openPoint(page, id, 'key');
+      if (isDecisionScene(id)) { await expectTakenDecision(page, id); await closePoint(page); continue; }
       await expect(insight(page, id)).toHaveAttribute(choiceAttribute(id), CASES[id].choices[1].value);
       await expectFacts(page, id, 1); await closePoint(page);
     }
-    await mapTo(page, 'hk-home'); await openPoint(page, 'hk-home', 'key'); await selectChoice(page, 'hk-home', 0); await closePoint(page);
-    await mapTo(page, 'parcel-counter'); await openPoint(page, 'parcel-counter', 'key'); await expectFacts(page, 'parcel-counter', 1); await closePoint(page);
+    await page.getByRole('button', { name: 'Open world map', exact: true }).click(); await expectMapPlan(page); await page.keyboard.press('Escape');
+    await mapTo(page, 'hk-home'); await openPoint(page, 'hk-home', 'key'); await setDeadlineWithNativeKeys(page, 'later');
+    await insight(page, 'hk-home').getByRole('button', { name: 'Take this plan', exact: true }).click();
+    await mapTo(page, 'parcel-counter'); await openPoint(page, 'parcel-counter', 'key'); await expectTakenDecision(page, 'parcel-counter'); await closePoint(page);
+    await mapTo(page, 'rental-home'); await openPoint(page, 'rental-home', 'key'); await expectTakenDecision(page, 'rental-home'); await closePoint(page);
     await audit.expectZero(page); expect(errors).toEqual([]);
     await page.reload(); await page.getByRole('button', { name: 'Play', exact: true }).click(); await expectScene(page, 'hk-home');
-    await openPoint(page, 'hk-home', 'key'); await expectFacts(page, 'hk-home', 0);
+    await openPoint(page, 'hk-home', 'key'); await expectInitialDecision(page, 'hk-home');
     await audit.expectZero(page); await audit.proveNegativeControl(page);
   } finally { await context.close(); }
 });
@@ -116,7 +129,10 @@ test('optional people, day and scenario controls change the cast and route witho
   await expect(page.locator('.world-map-canvas .in-route')).toHaveCount(3);
   await page.keyboard.press('Escape');
   await mapTo(page, 'parcel-counter'); await openPoint(page, 'parcel-counter', 'key');
-  await expectFacts(page, 'parcel-counter', 0); const familyGeometry = await geometryFingerprint(page, 'parcel-counter'); await closePoint(page);
+  await insight(page, 'parcel-counter').getByRole('button', { name: /^Already going/ }).click();
+  await insight(page, 'parcel-counter').getByRole('button', { name: /^Collect it/ }).click();
+  await expectParcelResult(page, 'collection', 'already-going'); const familyGeometry = await decisionGeometry(page, 'parcel-counter');
+  await insight(page, 'parcel-counter').getByRole('button', { name: 'Use collection', exact: true }).click();
   for (const [party, count] of [['solo', 1], ['couple', 2], ['older-couple', 2], ['family', 3]] as const) {
     await page.getByRole('button', { name: 'Change people and day', exact: true }).click();
     await page.getByRole('combobox', { name: 'People', exact: true }).selectOption(party);
@@ -125,8 +141,8 @@ test('optional people, day and scenario controls change the cast and route witho
     await page.getByRole('button', { name: 'Keep exploring', exact: true }).click();
     await expect(page.locator('.world-sprite')).toHaveCount(count);
     await expect(page.getByRole('button', { name: 'Change people and day', exact: true })).toContainText(String(count));
-    await openPoint(page, 'parcel-counter', 'key'); await expectFacts(page, 'parcel-counter', 0);
-    expect(await geometryFingerprint(page, 'parcel-counter')).toBe(familyGeometry);
+    await openPoint(page, 'parcel-counter', 'key'); await expectParcelResult(page, 'collection', 'already-going');
+    expect(await decisionGeometry(page, 'parcel-counter')).toBe(familyGeometry);
     await expect(insight(page, 'parcel-counter')).not.toContainText(/family total|child fare:\s*\d|full outing total/i); await closePoint(page);
   }
   await capture(page, info, 'family-visible-without-fabricated-fare');

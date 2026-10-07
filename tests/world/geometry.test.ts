@@ -57,3 +57,16 @@ test('returning focus to the inspected clock can keep the nearby pair and clock 
   const camera=cameraFor(360,844,clock,anchors);
   for(const point of anchors){const x=camera.left+point.x*camera.scale;assert.ok(x>=25&&x<=335);}
 });
+
+test('the rental stance keeps the player and either-side companion beside the lease marker', () => {
+  const scene=getScene('rental-home'), lease=scene.points[0], stance=lease.approach!;
+  // Reviewed sprite crop bounds relative to each foot anchor, in the same source plane.
+  const playerRight=stance.x+(391-330)/534*scene.playerBodyHeight;
+  for(const viewport of [{width:360,height:844},{width:390,height:844},{width:1440,height:900}]) {
+    const scale=cameraFor(viewport.width,viewport.height,stance).scale, markerRadius=22/scale;
+    assert.ok(playerRight<lease.x-markerRadius,'The main visible body must clear the entire44px lease marker.');
+    const companionRightSide=stance.x+scene.playerBodyHeight*.42;
+    const companionLeft=companionRightSide-(650-459)/1066*scene.playerBodyHeight*.98;
+    assert.ok(companionLeft>lease.x+markerRadius,'A companion following from the other side must also clear the marker.');
+  }
+});

@@ -14,21 +14,22 @@ export const exitFor = (from: SceneId, to: SceneId) => {
 };
 export interface ChoiceCase { value: string; label: string; numbers: readonly [string, string, string][] }
 export interface SceneCase { mechanism: string; choices: readonly [ChoiceCase, ChoiceCase]; unknown: string }
-export const CASES: Record<SceneId, SceneCase> = {
-  'hk-home': { mechanism: 'clock-window', choices: [
-    { value: 'later', label: 'More time', numbers: [['Home by', '23:30', 'local clock']] },
-    { value: 'earlier', label: 'Earlier home', numbers: [['Home by', '22:30', 'local clock']] },
-  ], unknown: 'No complete Futian itinerary has been timed here.' },
+export const DECISION_SCENES = ['hk-home', 'parcel-counter', 'rental-home'] as const;
+export type DecisionSceneId = typeof DECISION_SCENES[number];
+export type ComparisonSceneId = Exclude<SceneId, DecisionSceneId>;
+export const isDecisionScene = (id: SceneId): id is DecisionSceneId => (DECISION_SCENES as readonly string[]).includes(id);
+export const DECISION_CASES: Record<DecisionSceneId, { mechanism: string; unknown: string }> = {
+  'hk-home': { mechanism: 'home-plan', unknown: 'No complete Futian itinerary has been timed here.' },
+  'parcel-counter': { mechanism: 'parcel-destination', unknown: 'Delivery duration, real fares, current fees, item eligibility and return terms are unknown.' },
+  'rental-home': { mechanism: 'lease-tradeoff', unknown: 'Real rent, included charges, refund deductions, lease-break rights and eligibility require exact terms.' },
+};
+export const CASES: Record<ComparisonSceneId, SceneCase> = {
   'metro-carriage': { mechanism: 'journey-strip', choices: [
     { value: 'ride', label: 'Train ride', numbers: [] }, { value: 'whole', label: 'Door to door', numbers: [] },
   ], unknown: 'Direction-matched journey times, queues and onward services are unknown.' },
   'border-arrival': { mechanism: 'gate-chain', choices: [
     { value: 'crossing', label: 'Crossing only', numbers: [] }, { value: 'whole-trip', label: 'Whole trip', numbers: [] },
   ], unknown: 'Admission and travel-document conditions remain unverified.' },
-  'parcel-counter': { mechanism: 'parcel-path', choices: [
-    { value: 'already-going', label: 'Already going', numbers: [['Extra logistics', '16', 'CNY-equivalent'], ['Extra time', '20', 'minutes']] },
-    { value: 'dedicated-trip', label: 'Go just for it', numbers: [['Extra logistics', '116', 'CNY-equivalent'], ['Extra time', '160', 'minutes']] },
-  ], unknown: 'Delivery duration, real fares, current fees, item eligibility and return terms are unknown.' },
   'mall-foodcourt': { mechanism: 'catchment-response', choices: [
     { value: 'cross-border', label: 'Visitor-led', numbers: [] }, { value: 'local-routine', label: 'Routine-led', numbers: [] },
   ], unknown: 'Customer origins, spending shares, demand trends, margins and actual adaptation are unmeasured.' },
@@ -39,10 +40,6 @@ export const CASES: Record<SceneId, SceneCase> = {
     { value: 'open', label: 'Passage open', numbers: [['Example walk', '6', 'minutes']] },
     { value: 'closed', label: 'Passage closed', numbers: [['Example walk', '14', 'minutes']] },
   ], unknown: 'No real urban-village boundary, rent, tenure, redevelopment or resident characteristic is asserted.' },
-  'rental-home': { mechanism: 'rental-cash', choices: [
-    { value: 'cash-out', label: 'Cash leaving', numbers: [['Rent paid', '6,000', 'HKD'], ['Deposit held', '12,000', 'HKD']] },
-    { value: 'claims', label: 'What remains', numbers: [['Use paid', '6,000', 'HKD'], ['Return claim', '12,000', 'HKD']] },
-  ], unknown: 'Real rent, included charges, refund deductions, lease-break rights and eligibility require exact terms.' },
   'luxury-home': { mechanism: 'ownership-payment', choices: [
     { value: 'payment', label: 'Split the payment', numbers: [['Interest paid', '8,000', 'HKD'], ['Debt reduced', '4,000', 'HKD']] },
     { value: 'asset', label: 'Look at the asset', numbers: [['Debt reduced', '4,000', 'HKD']] },

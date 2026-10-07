@@ -51,18 +51,22 @@ export async function typeReason(page: Page, locator: Locator, text: string, mod
 
 /** The source is constructed entirely through ordinary user controls. */
 export async function prepareSource(page: Page, activate: Activate, options: {
-  city?: 'Hong Kong' | 'Shenzhen'; revision?: 'deadline' | 'earlier-departure' | 'short-walk';
+  city?: 'Hong Kong' | 'Shenzhen'; revision?: 'baseline' | 'deadline' | 'earlier-departure' | 'short-walk';
   mode?: InputMode; url?: string;
 } = {}) {
   const city = options.city ?? 'Shenzhen';
   const revision = options.revision ?? 'deadline';
   const mode = options.mode ?? 'pointer';
-  await startFresh(page, options.url);
+  await startFresh(page, options.url, activate);
   await activate(action(page, `Start with ${city}`));
   await activate(action(page, 'What matters to you?'));
   await activate(action(page, 'Exploration'));
   await typeReason(page, page.getByRole('textbox', { name: 'Your reason (optional)', exact: true }), 'My starting reason belongs to the earlier outing.', mode);
   await activate(action(page, 'Back to evening'));
+  if (revision === 'baseline') {
+    await expect(experience(page)).toHaveAttribute('data-stage', 'baseline');
+    return;
+  }
   await activate(action(page, revision === 'earlier-departure' ? 'Change departure' : 'Change home-by'));
   for (let step = 0; step < (revision === 'earlier-departure' ? 2 : 4); step += 1) await activate(action(page, '15 minutes earlier'));
   await expect(clockControl(page, revision === 'earlier-departure' ? 'departure' : 'homeBy')).toHaveValue(revision === 'earlier-departure' ? '990' : '1350');
@@ -78,12 +82,11 @@ export async function prepareSource(page: Page, activate: Activate, options: {
 }
 
 export async function arriveFromSource(page: Page, activate: Activate, city: 'Hong Kong' | 'Shenzhen' = 'Shenzhen') {
-  await activate(action(page, 'Explore the chosen evening'));
+  await activate(action(page, 'Put down phone'));
   if (city === 'Shenzhen') await activate(action(page, 'Station entrance'));
   await activate(action(page, city === 'Shenzhen' ? 'Board for Lo Wu' : 'Head to local dinner'));
   const journey = page.getByTestId('decision-journey');
   await expect(journey).not.toHaveAttribute('data-art-status', 'pending');
-  if (await journey.getAttribute('data-phase') === 'outward') await activate(action(page, 'Continue to arrival'));
   await expect(journey).toHaveAttribute('data-phase', 'arrived');
   await expect(action(page, 'A message about next time')).toHaveAttribute('id', 'decision-next-invitation');
 }
@@ -240,7 +243,9 @@ export async function expectPartyFacts(page: Page, party: 2 | 3, options: { depa
     await expect(outcome).toHaveAttribute('data-deadline-minute', String(options.deadline ?? 1350));
     await expect(outcome).toHaveAttribute('data-dinner-minutes', '90');
     await expect(outcome).toHaveAttribute('data-walk-minutes', String(walk));
-    await expect(outcome).toHaveAttribute('data-entry-fit', 'unknown');
+    // HK needs no cross-border clearance; this is not an immigration attestation.
+    // The three-adult Shenzhen entry check remains explicitly unconfirmed.
+    await expect(outcome).toHaveAttribute('data-entry-fit', city === 'HK' ? 'true' : 'unknown');
     await expect(outcome).toContainText(String(cost));
     await expect(outcome).toContainText(`walk ${walk} min`);
   }

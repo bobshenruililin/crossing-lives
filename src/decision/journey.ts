@@ -3,6 +3,8 @@ import type { DecisionSession, DecisionSnapshot, Priority } from './session';
 export type JourneyNode = 'counter' | 'station';
 export type JourneyOption = DecisionSnapshot['result']['options'][number];
 export interface DecisionJourney {
+  /** The complete source session at departure, including explicit reasons. */
+  readonly source: DecisionSession;
   /** References to the chosen immutable pair. No engine call or new travel inputs. */
   readonly snapshot: DecisionSnapshot;
   readonly option: JourneyOption;
@@ -13,6 +15,7 @@ export interface DecisionJourney {
   readonly artStatus: 'pending' | 'ready' | 'fallback';
 }
 export type JourneyEvent =
+  | { type: 'depart-selected'; session: DecisionSession; node: JourneyNode; hasPreview: boolean }
   | { type: 'begin'; session: DecisionSession }
   | { type: 'move'; node: JourneyNode }
   | { type: 'depart' }
@@ -20,9 +23,24 @@ export type JourneyEvent =
   | { type: 'arrive' }
   | { type: 'reset' };
 
+/** Only the current, explicitly selected plan can depart. Replay is inspection. */
+export function selectedDeparturePlan(session: DecisionSession) {
+  if (session.stage !== 'baseline' && session.stage !== 'revised') return null;
+  const snapshot = session.snapshots[session.stage];
+  const choice = session.choices[session.stage];
+  const option = snapshot && choice ? snapshot.result.options.find(item => item.id === choice.optionId) : null;
+  return snapshot && option ? { snapshot, option } : null;
+}
+
 /** Presentation only: node inspection is free; departure captures arrival once. */
 export function journeyReducer(state: DecisionJourney | null, event: JourneyEvent): DecisionJourney | null {
   if (event.type === 'reset') return null;
+  if (event.type === 'depart-selected') {
+    if (state || event.hasPreview) return state;
+    const plan = selectedDeparturePlan(event.session);
+    if (!plan || event.node !== (plan.option.id === 'sz' ? 'station' : 'counter')) return state;
+    return Object.freeze({ source: event.session, ...plan, priorities: Object.freeze([...event.session.priorities]), node: event.node, phase: 'outward', committedArrivalMinutes: plan.option.arrivalMinutes, artStatus: 'pending' });
+  }
   if (event.type === 'begin') {
     if (state) return state;
     const { session } = event;
@@ -31,7 +49,7 @@ export function journeyReducer(state: DecisionJourney | null, event: JourneyEven
     if (session.stage !== 'revised' || !snapshot || !choice) return state;
     const option = snapshot.result.options.find(item => item.id === choice.optionId);
     if (!option) return state;
-    return Object.freeze({ snapshot, option, priorities: Object.freeze([...session.priorities]), node: 'counter', phase: 'exploring', committedArrivalMinutes: null, artStatus: 'pending' });
+    return Object.freeze({ source: session, snapshot, option, priorities: Object.freeze([...session.priorities]), node: 'counter', phase: 'exploring', committedArrivalMinutes: null, artStatus: 'pending' });
   }
   if (!state) return state;
   if (event.type === 'move') {

@@ -1,4 +1,4 @@
-/* A quiet scene layer. These rules do not change the initial comparison layout. */
+/* The street is the immediate entry. Inspection sheets use the same scene plane. */
 .decision-journey-scene { position: absolute; inset: 0; background: #454c49; }
 .decision-journey-frame { position: absolute; inset: 0; overflow: clip; }
 .decision-journey-plane { position: absolute; transition: left 500ms ease, top 500ms ease; }
@@ -18,6 +18,7 @@
 .decision-journey-object-targets .decision-hotspot-mark { width: 25px; height: 25px; font-size: 19px; opacity: .8; }
 .decision-journey-object-targets .decision-hotspot:focus-visible .decision-hotspot-mark, .decision-journey-object-targets .decision-hotspot:hover .decision-hotspot-mark { opacity: 1; }
 .decision-journey-place { position: absolute; z-index: 5; top: 17px; left: 22px; max-width: calc(100% - 135px); padding: 9px 12px; background: #29312fec; color: #fff3db; border: 1px solid #ccbea57d; box-shadow: 3px 3px #1c25253b; }
+.decision-journey-place[hidden] { display: none; }
 .decision-journey-place span { display: block; font-size: 12px; }
 .decision-journey-place strong { display: block; font-size: 18px; font-weight: 750; }
 .decision-journey-place small { font-size: 12px; font-weight: 500; }
@@ -32,8 +33,8 @@
 .decision-journey-dialogue .decision-journey-forecast { font-size: 13px; margin-top: 10px; border-top: 1px solid #cdbca0; padding-top: 8px; }
 .decision-journey-link { border: 0; background: transparent; padding: 8px 0; min-height: 44px; text-decoration: underline; text-underline-offset: 3px; text-align: left; font-size: 13px; }
 .decision-journey-invite { position: absolute; z-index: 3; top: 94px; right: 22px; border: 1px solid #c7ab7c; padding: 8px 12px; min-height: 44px; background: #f8ebd0ed; color: #463e32; box-shadow: 3px 3px #25342f66; font-size: 13px; }
-.decision-journey-outward { position: absolute; inset: 0; display: flex; justify-content: center; align-items: center; align-content: center; flex-wrap: wrap; gap: 12px; padding: 100px 30px 230px; background: #334946; color: #f7e6c5; }
-.decision-journey-outward > span { font-size: 17px; text-align: center; padding: 14px 8px; border-top: 2px solid #ddbd7c; border-bottom: 2px solid #ddbd7c; }
+.decision-journey-outward { position: absolute; z-index: 4; top: 145px; left: 22px; width: min(440px, calc(100% - 44px)); display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 8px; padding: 12px 14px; background: #293f3aec; color: #f7e6c5; border: 1px solid #ddbd7c; box-shadow: 3px 3px #1c25253b; }
+.decision-journey-outward > span { font-size: 15px; text-align: center; padding: 6px 5px; border-top: 2px solid #ddbd7c; border-bottom: 2px solid #ddbd7c; }
 .decision-journey-outward small { display: block; font-size: 12px; }
 .decision-journey-outward i { font-size: 26px; font-style: normal; color: #ddbd7c; }
 .decision-journey-outward > p { flex: 0 0 100%; font-size: 14px; text-align: center; }
@@ -60,8 +61,8 @@
   .decision-journey-place { top: 10px; left: 10px; max-width: calc(100% - 106px); padding: 7px 10px; }
   .decision-journey-place strong { font-size: 17px; }
   .decision-journey-place small { display: block; }
-  .decision-journey-outward { padding: 90px 13px 30px; gap: 8px; }
-  .decision-journey-outward > span { font-size: 14px; padding: 12px 5px; }
+  .decision-journey-outward { top: 145px; left: 10px; width: calc(100% - 20px); padding: 8px 10px; gap: 6px; }
+  .decision-journey-outward > span { font-size: 13px; padding: 5px; }
   .decision-journey-outward small { max-width: 75px; }
   .decision-journey-outward i { font-size: 20px; }
   .decision-journey-scene.has-sheet .decision-journey-frame { bottom: auto; height: var(--city-height); }

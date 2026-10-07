@@ -4,7 +4,7 @@ import { expectProjectedObjectTarget, expectAllDisplayedObjectTargets, expectPhy
 import { mkdir } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { action, auditNoPrivateStorage, beginTimePreview, changeDeadline, chooseBaseline, clockControl, applyTimeChange, expectNoOverflow, openDisclosure, closeDisclosure, expectKeyboardFocusVisible, readInputFacts, reason, commitShortWalk, startFresh } from './decision-helpers';
+import { action, auditNoPrivateStorage, beginTimePreview, changeDeadline, chooseBaseline, clockControl, applyTimeChange, expectNoOverflow, openDisclosure, closeDisclosure, expectKeyboardFocusVisible, readInputFacts, reason, replay, commitShortWalk, startFresh } from './decision-helpers';
 
 async function selectEvening(page: Page, city: 'Hong Kong' | 'Shenzhen', departure?: number) {
   await chooseBaseline(page, city, 'An explicit starting reason.');
@@ -109,12 +109,12 @@ for (const width of [390, 1440]) test(`Shenzhen node journey keeps the chosen co
   const activate: Activate = width === 390 ? async (name, kind = 'button') => { if (kind === 'button') await expectPhysicalInputIfPresent(page, name); await control(page, name, kind).tap(); } : (name, kind) => keyboardActivate(page, name, kind);
   const audit = await auditNoPrivateStorage(context);
   try {
-    await startFresh(page);
+    await startFresh(page, undefined, async locator => activate(await locator.getAttribute('aria-label') ?? (await locator.innerText()).trim()));
     // Every interactive step through arrival uses actual touch events at 390 px
     // or Tab/Enter traversal at 1440 px. No click(), focus(), or seeded state.
     await selectShenzhenWith(page, activate);
     const before = await inspectExactBillWith(page, activate);
-    await activate('Explore the chosen evening');
+    await activate('Put down phone');
     const journey = page.getByTestId('decision-journey');
     await expect(journey).toHaveAttribute('data-phase', 'exploring');
     await expect(page.getByTestId('decision-journey-clock')).toHaveAttribute('data-minute', '1020');
@@ -140,16 +140,10 @@ for (const width of [390, 1440]) test(`Shenzhen node journey keeps the chosen co
     await expectSeriousAxeClear(page);
     await activate('Open comparison and replay');
     expect(await inspectExactBillWith(page, activate)).toEqual(before);
-    await activate('Put down phone');
-    await activate('Board for Lo Wu');
-    await expect(journey).toHaveAttribute('data-phase', 'outward');
-    await expect(journey).toHaveAttribute('data-committed-arrival', '1125');
-    await expect(page.getByRole('group', { name: 'Schematic outward journey to Shenzhen' })).toContainText('Lo Wu');
-    await captureMovement(page, info, 'outward');
-    await expectSeriousAxeClear(page);
-    await expect(action(page, 'Continue to arrival')).toBeEnabled();
+    await activate('Put down map');
     await observeFirstArrivalFrame(page);
-    await activate('Continue to arrival');
+    await activate('Board for Lo Wu');
+    await expect(journey).toHaveAttribute('data-committed-arrival', '1125');
     await expectFirstArrivalFrame(page);
     await expect(journey).toHaveAttribute('data-phase', 'arrived');
     await expect(page.getByTestId('decision-journey-place')).toContainText('Luohu dinner · Shenzhen');
@@ -185,7 +179,7 @@ test('local departure works from the counter and reduced motion arrives without 
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await startFresh(page);
   await selectEvening(page, 'Hong Kong', 990);
-  await action(page, 'Explore the chosen evening').click();
+  await action(page, 'Put down phone').click();
   await expect(page.getByTestId('decision-journey')).toHaveAttribute('data-node', 'counter');
   await expect(action(page, 'Head to local dinner')).toBeVisible();
   await expect(page.getByTestId('decision-departure-consequence')).toContainText('Arrival 16:45');
@@ -219,17 +213,28 @@ test('slow incoming art keeps the route truthful and a failed image gives a usab
   try {
   await startFresh(page);
   await selectEvening(page, 'Shenzhen', 900);
-  await action(page, 'Explore the chosen evening').click();
+  await action(page, 'Put down phone').click();
   await action(page, 'Station entrance').click();
   await action(page, 'Board for Lo Wu').click();
   await expect(page.getByTestId('decision-journey')).toHaveAttribute('data-art-status', 'pending');
   await expect(page.getByTestId('decision-journey-place')).toContainText('Outward journey');
-  await expect(action(page, 'Preparing the arrival…')).toBeDisabled();
+  await expect(action(page, 'Continue to arrival')).toHaveCount(0);
+  await expect(page.getByRole('group', { name: 'Schematic outward journey to Shenzhen' })).toContainText('Lo Wu');
+  await expect(page.getByTestId('decision-player')).toBeVisible();
   await captureMovement(page, info, 'slow-arrival');
+  await action(page, 'Inspect the route').click();
+  await expect(page.getByRole('heading', { name: 'The trip out and home', exact: true })).toBeVisible();
+  await expect(page.getByRole('group', { name: 'Kowloon through Lo Wu to Luohu, then back through Lo Wu to Kowloon', exact: true })).toContainText('Lo Wu');
+  await expect(page.getByTestId('decision-crossing-detail')).toContainText('Entry and actual service remain unverified.');
+  await expect(action(page, 'Change departure')).toHaveCount(0);
+  await expect(action(page, 'Change home-by')).toHaveCount(0);
   expect(release).toBeDefined();
   release!();
   await expect(page.getByTestId('decision-journey')).toHaveAttribute('data-art-status', 'fallback');
-  await action(page, 'Continue to arrival').click();
+  await expect(page.getByTestId('decision-journey')).toHaveAttribute('data-phase', 'outward');
+  await expect(page.getByRole('heading', { name: 'The trip out and home', exact: true })).toBeVisible();
+  await action(page, 'Back to evening').click();
+  await expect(page.getByTestId('decision-journey')).toHaveAttribute('data-phase', 'arrived');
   await expect(page.getByTestId('decision-journey-place')).toContainText('Luohu dinner · Shenzhen');
   await expect(page.getByTestId('decision-journey-clock')).toHaveAttribute('data-minute', '1005');
   await expect(page.locator('.decision-journey-fallback')).toBeVisible();
@@ -242,6 +247,40 @@ test('slow incoming art keeps the route truthful and a failed image gives a usab
   } finally { release?.(); }
 });
 
+test('ready destination art waits for an explicitly opened route inspection to close', async ({ page }) => {
+  let release!: () => void;
+  const incoming = new Promise<void>(resolve => { release = resolve; });
+  await page.route('**/art/decision-sz-*.webp', async route => { await incoming; await route.continue(); });
+  try {
+    await startFresh(page);
+    await chooseBaseline(page, 'Shenzhen');
+    await action(page, 'Put down phone').click();
+    await action(page, 'Station entrance').click();
+    await action(page, 'Board for Lo Wu').click();
+    const journey = page.getByTestId('decision-journey');
+    await expect(journey).toHaveAttribute('data-art-status', 'pending');
+    await action(page, 'Inspect the route').click();
+    await page.keyboard.press('Escape');
+    await expect(page.getByTestId('decision-sheet')).toHaveCount(0);
+    await expect(journey).toHaveAttribute('data-phase', 'outward');
+    await expect(page.getByRole('heading', { name: 'Via Lo Wu, toward Luohu.', exact: true })).toBeFocused();
+    await action(page, 'Inspect the route').click();
+    await expect(page.getByRole('heading', { name: 'The trip out and home', exact: true })).toBeVisible();
+    release();
+    await expect(journey).toHaveAttribute('data-art-status', 'ready');
+    await expect(journey).toHaveAttribute('data-phase', 'outward');
+    await expect(page.getByRole('heading', { name: 'The trip out and home', exact: true })).toBeVisible();
+    await expect(action(page, 'Continue to arrival')).toHaveCount(0);
+    await observeFirstArrivalFrame(page);
+    await action(page, 'Back to evening').click();
+    await expect(journey).toHaveAttribute('data-phase', 'arrived');
+    await expectFirstArrivalFrame(page);
+    await expect(page.getByTestId('decision-sheet')).toHaveCount(0);
+    await expect(page.getByTestId('decision-journey-clock')).toHaveAttribute('data-minute', '1125');
+    await expect(action(page, 'Inspect the full outing bill')).toBeFocused();
+  } finally { release(); }
+});
+
 test('portable movement embeds all four approved images and arrives with the network disabled', async ({ browser }, info) => {
   const context = await browser.newContext({ viewport: { width: 390, height: 844 }, offline: true, reducedMotion: 'reduce' });
   const attempted: string[] = [];
@@ -250,7 +289,7 @@ test('portable movement embeds all four approved images and arrives with the net
   try {
     await startFresh(page, pathToFileURL(resolve('artifacts/crossing-lives-decision-prototype.html')).href);
     await selectEvening(page, 'Shenzhen', 900);
-    await action(page, 'Explore the chosen evening').click();
+    await action(page, 'Put down phone').click();
     await action(page, 'Station entrance').click();
     await action(page, 'Board for Lo Wu').click();
     await expect(page.getByTestId('decision-journey')).toHaveAttribute('data-phase', 'arrived');
@@ -278,7 +317,7 @@ for (const revision of ['earlier-departure', 'short-walk'] as const) test(`arriv
   await reason(page).fill('My own revised reason.');
   await closeDisclosure(page, 'What matters to you?');
   const capturedInputs = await readInputFacts(page);
-  await action(page, 'Explore the chosen evening').click();
+  await action(page, 'Put down phone').click();
   await action(page, 'Station entrance').click();
   await action(page, 'Board for Lo Wu').click();
   await expect(page.getByTestId('decision-journey')).toHaveAttribute('data-phase', 'arrived');
@@ -324,5 +363,49 @@ for (const revision of ['earlier-departure', 'short-walk'] as const) test(`arriv
     await action(page, `Put down ${activeObject}`).click();
     await expect(page.getByTestId('decision-journey')).toHaveAttribute('data-committed-arrival', expectedArrival);
     await expect(action(page, 'Board for Lo Wu')).toHaveCount(0);
+  }
+});
+
+test('direct arrival objects restore the captured 16:30 outing while deliberate historical details remain historical', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await startFresh(page);
+  const originalInputs = await readInputFacts(page);
+  await selectEvening(page, 'Shenzhen', 990);
+  const capturedInputs = await readInputFacts(page);
+  await action(page, 'Put down phone').click();
+  await action(page, 'Station entrance').click();
+  await action(page, 'Board for Lo Wu').click();
+  const journey = page.getByTestId('decision-journey');
+  await expect(journey).toHaveAttribute('data-phase', 'arrived');
+  await expect(journey).toHaveAttribute('data-committed-arrival', '1095');
+  await action(page, 'Open comparison and replay').click();
+  for (const object of ['menu', 'map', 'phone'] as const) {
+    await replay(page, 'baseline');
+    await expect(page.getByTestId('decision-experience')).toHaveAttribute('data-displayed-snapshot', 'baseline');
+    // Deliberately following the historical sheet's own detail link inspects
+    // that historical bill. A world object is a fresh captured-plan opening.
+    await action(page, 'Inspect the details').click();
+    await action(page, 'Open the bill and assumptions').click();
+    await openDisclosure(page, 'Inputs used in this comparison');
+    const rows = page.locator('[data-input-key][data-input-value]');
+    expect(await rows.count()).toBeGreaterThanOrEqual(15);
+    for (const row of await rows.all()) {
+      const value = row.locator('dd');
+      await expect(value, 'Historical inputs remain readable in the deliberately opened bill.').toBeVisible();
+      expect(await value.innerText()).toBe(await row.getAttribute('data-input-value'));
+    }
+    const historicalInputs = await rows.evaluateAll(items => Object.fromEntries(items.map(row => [row.getAttribute('data-input-key')!, row.getAttribute('data-input-value')!])));
+    expect(historicalInputs).toEqual(originalInputs);
+    await action(page, 'Back to evening').click();
+    await expect(page.getByTestId('decision-experience')).toHaveAttribute('data-displayed-snapshot', 'baseline');
+    // Do not close Before first: the directly opened object must restore the
+    // actual captured plan even with a historical sheet already on screen.
+    await action(page, 'Choose an object').click();
+    await action(page, `Open ${object}`).click();
+    await expect(page.getByTestId('decision-experience')).toHaveAttribute('data-active-object', object);
+    await expect(page.getByTestId('decision-experience')).toHaveAttribute('data-displayed-snapshot', 'revised');
+    expect(await readInputFacts(page)).toEqual(capturedInputs);
+    await expect(journey).toHaveAttribute('data-committed-arrival', '1095');
+    await expect(action(page, 'Change departure')).toHaveCount(0);
   }
 });

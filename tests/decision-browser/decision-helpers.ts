@@ -13,7 +13,8 @@ export async function expectStage(page: Page, stage: 'baseline' | 'changed' | 'r
 }
 
 export const sheet = (page: Page) => page.getByTestId('decision-sheet');
-export const world = (page: Page) => page.getByTestId('decision-world-visible');
+export const world = (page: Page) => page.getByTestId('decision-journey-frame');
+export const worldArtwork = (page: Page) => experience(page).locator('.decision-journey-background:visible, .decision-journey-fallback:visible');
 export const contextStrip = (page: Page) => page.getByTestId('decision-context');
 export const activeObject = (page: Page) => experience(page).getAttribute('data-active-object');
 
@@ -28,13 +29,16 @@ export async function returnToCore(page: Page) {
   if (active === 'map' || active === 'phone') return;
   const back = action(page, 'Back to evening');
   if (await back.isVisible()) await back.click();
-  else await action(page, 'Map Unfold both routes').click();
+  else await openObject(page, 'map');
   await expectCore(page);
 }
 
 export async function openObject(page: Page, object: 'map' | 'phone' | 'menu') {
   if (await activeObject(page) === object) return;
-  await action(page, { map: 'Map Unfold both routes', phone: 'Phone Adjust one time', menu: 'Menu See both bills' }[object]).click();
+  // The world camera may legitimately crop a physical object. Named controls
+  // are an ordinary visible path; never scroll an offscreen hotspot into view.
+  await action(page, 'Choose an object').click();
+  await action(page, `Open ${object}`).click();
   await expect(sheet(page)).toHaveCount(1);
   await expect(sheet(page)).toBeVisible();
 }
@@ -76,9 +80,26 @@ export async function closeDisclosure(page: Page, label: string) {
   await returnToCore(page);
 }
 
-export async function startFresh(page: Page, url = '/decision.html') {
+export async function startAtWorld(page: Page, url = '/decision.html') {
   await page.goto(url);
   await expectStage(page, 'baseline');
+  await expect(experience(page)).toHaveAttribute('data-active-object', 'closed');
+  await expect(sheet(page)).toHaveCount(0);
+  await expect(page.getByTestId('decision-journey')).toHaveAttribute('data-phase', 'exploring');
+  await expect(page.getByTestId('decision-journey')).toHaveAttribute('data-node', 'counter');
+  await expect(page.getByTestId('decision-journey')).toHaveAttribute('data-city', 'none');
+  await expect(page.getByTestId('decision-journey')).toHaveAttribute('data-committed-arrival', 'none');
+  await expect(page.getByTestId('decision-player')).toBeVisible();
+  await expect(action(page, 'Counter')).toBeVisible();
+  await expect(action(page, 'Station entrance')).toBeVisible();
+  await expect(action(page, 'Board for Lo Wu')).toHaveCount(0);
+  await expect(action(page, 'Head to local dinner')).toHaveCount(0);
+}
+
+export async function startFresh(page: Page, url = '/decision.html', activate: (locator: Locator) => Promise<void> = locator => locator.click()) {
+  await startAtWorld(page, url);
+  await activate(action(page, 'Choose an object'));
+  await activate(action(page, 'Open map'));
   await expect(experience(page)).toHaveAttribute('data-active-object', 'map');
   await expect(sheet(page)).toHaveCount(1);
   for (const city of ['Hong Kong', 'Shenzhen']) {
@@ -410,24 +431,18 @@ export async function expectWorldAndCore(page: Page) {
   await expect(sheet(page)).toBeInViewport({ ratio: 1 });
   const worldBox = (await world(page).boundingBox())!;
   const sheetBox = (await sheet(page).boundingBox())!;
-  const artwork = page.locator('img.decision-world-image, .decision-world-fallback svg');
+  const artwork = worldArtwork(page);
   await expect(artwork).toHaveCount(1);
   await expect(artwork).toBeVisible();
   // Observe the browser's natural loading only; do not predecode or substitute
   // artwork in the canonical recording. Pixel sampling is a separate QA case.
   await expect.poll(() => artwork.evaluate(element => element instanceof HTMLImageElement
     ? element.complete && element.naturalWidth > 0 && element.naturalHeight > 0
-    : element instanceof SVGSVGElement)).toBe(true);
+    : element.classList.contains('decision-journey-fallback'))).toBe(true);
   const picture = await artwork.evaluate(element => {
     const box = element.getBoundingClientRect();
-    if (element instanceof SVGSVGElement) {
-      const bounds = element.getBBox(), matrix = element.getScreenCTM()!;
-      const corners = [[bounds.x, bounds.y], [bounds.x + bounds.width, bounds.y], [bounds.x, bounds.y + bounds.height], [bounds.x + bounds.width, bounds.y + bounds.height]]
-        .map(([x, y]) => new DOMPoint(x, y).matrixTransform(matrix));
-      return { kind: 'functional-fallback', left: Math.max(box.left, Math.min(...corners.map(point => point.x))),
-        top: Math.max(box.top, Math.min(...corners.map(point => point.y))),
-        right: Math.min(box.right, Math.max(...corners.map(point => point.x))),
-        bottom: Math.min(box.bottom, Math.max(...corners.map(point => point.y))) };
+    if (!(element instanceof HTMLImageElement)) {
+      return { kind: 'functional-fallback', left: box.left, top: box.top, right: box.right, bottom: box.bottom };
     }
     const css = getComputedStyle(element);
     let width = box.width, height = box.height;
@@ -448,18 +463,28 @@ export async function expectWorldAndCore(page: Page) {
     return { kind: 'raster', left: Math.max(box.x, left), top: Math.max(box.y, top),
       right: Math.min(box.right, left + width), bottom: Math.min(box.bottom, top + height) };
   });
-  const visibleArt = {
+  const clippedArt = {
     left: Math.max(0, worldBox.x, picture.left), top: Math.max(0, worldBox.y, picture.top),
     right: Math.min(page.viewportSize()!.width, worldBox.x + worldBox.width, picture.right),
     bottom: Math.min(page.viewportSize()!.height, worldBox.y + worldBox.height, picture.bottom),
   };
+  // The journey camera fills the desktop world behind the sheet. Count only
+  // the largest genuinely exposed rectangle, never the covered image plane.
+  const intersects = clippedArt.left < sheetBox.x + sheetBox.width && clippedArt.right > sheetBox.x
+    && clippedArt.top < sheetBox.y + sheetBox.height && clippedArt.bottom > sheetBox.y;
+  const visibleArt = !intersects ? clippedArt : [
+    { ...clippedArt, right: Math.min(clippedArt.right, sheetBox.x) },
+    { ...clippedArt, left: Math.max(clippedArt.left, sheetBox.x + sheetBox.width) },
+    { ...clippedArt, bottom: Math.min(clippedArt.bottom, sheetBox.y) },
+    { ...clippedArt, top: Math.max(clippedArt.top, sheetBox.y + sheetBox.height) },
+  ].sort((a, b) => Math.max(0, b.right - b.left) * Math.max(0, b.bottom - b.top) - Math.max(0, a.right - a.left) * Math.max(0, a.bottom - a.top))[0];
   if (picture.kind === 'raster') {
     expect(visibleArt.right - visibleArt.left, 'The actual raster picture plane intersects the exposed region, not merely its wrapper.').toBeGreaterThanOrEqual(280);
     expect(visibleArt.bottom - visibleArt.top, 'At least 280px of successful raster artwork remains above or beside the sheet.').toBeGreaterThanOrEqual(280);
   } else {
     // The intentional failed-image case checks a working, visible fallback;
     // it does not claim the full raster-world experience survived the failure.
-    expect(visibleArt.right - visibleArt.left, 'The actual SVG fallback drawing remains visible.').toBeGreaterThanOrEqual(100);
+    expect(visibleArt.right - visibleArt.left, 'The functional schematic fallback remains visible.').toBeGreaterThanOrEqual(100);
     expect(visibleArt.bottom - visibleArt.top).toBeGreaterThanOrEqual(100);
   }
   const coveredBySheet = Math.max(0, Math.min(visibleArt.right, sheetBox.x + sheetBox.width) - Math.max(visibleArt.left, sheetBox.x))

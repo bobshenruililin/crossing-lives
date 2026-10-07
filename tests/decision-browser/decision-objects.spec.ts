@@ -11,13 +11,23 @@ async function expectHeadingFocus(page: import('@playwright/test').Page) {
   await expect(sheet(page)).toHaveCount(1);
 }
 
+async function openNamed(page: import('@playwright/test').Page, object: 'map' | 'menu' | 'phone', touch = false) {
+  if (touch) {
+    await action(page, 'Choose an object').tap();
+    await action(page, `Open ${object}`).tap();
+  } else {
+    await action(page, 'Choose an object').press('Enter');
+    await action(page, `Open ${object}`).press('Enter');
+  }
+}
+
 test('scene objects replace one sheet, return keyboard focus and preserve the exact decision', async ({ page, context }) => {
   const audit = await auditNoPrivateStorage(context);
   await startFresh(page);
   const before = await readInputFacts(page);
   await chooseBaseline(page, 'Hong Kong', 'I want the complete local walk.');
   for (let pass = 0; pass < 2; pass += 1) {
-    await action(page, 'Menu See both bills').press('Enter');
+    await openNamed(page, 'menu');
     await expect(experience(page)).toHaveAttribute('data-active-object', 'menu');
     await expectHeadingFocus(page);
     await expect(page.locator('.decision-bill-pair')).toBeVisible();
@@ -26,7 +36,7 @@ test('scene objects replace one sheet, return keyboard focus and preserve the ex
     await action(page, 'Back to evening').press('Enter');
     await expect(experience(page)).toHaveAttribute('data-active-object', 'phone');
     await expectHeadingFocus(page);
-    await action(page, 'Map Unfold both routes').press('Enter');
+    await openNamed(page, 'map');
     await expect(experience(page)).toHaveAttribute('data-active-object', 'map');
     await expectHeadingFocus(page);
     await expectWorldAndCore(page);
@@ -41,7 +51,7 @@ test('scene objects replace one sheet, return keyboard focus and preserve the ex
     await page.keyboard.press('Enter');
     await expect(experience(page)).toHaveAttribute('data-active-object', 'map');
     await expectHeadingFocus(page);
-    await action(page, 'Phone Adjust one time').press('Enter');
+    await openNamed(page, 'phone');
     await expect(experience(page)).toHaveAttribute('data-active-object', 'phone');
     await expectHeadingFocus(page);
     await action(page, 'Put down phone').press('Enter');
@@ -72,10 +82,10 @@ test('failed artwork still leaves the complete fresh decision and replay usable 
   await page.route('**/decision-hk-pixel.webp', route => route.abort('failed'));
   const audit = await auditNoPrivateStorage(context);
   await startFresh(page);
-  await expect(page.locator('.decision-world-fallback')).toBeVisible();
-  await expect(page.locator('.decision-world-fallback')).toContainText('The comparison and every object still work');
-  await expect(page.locator('img.decision-world-image')).toHaveCount(0);
-  await expect(page.locator('.decision-world-fallback svg')).toBeVisible();
+  await expect(page.locator('.decision-journey-fallback')).toBeVisible();
+  await expect(page.locator('.decision-journey-fallback-note')).toContainText('Named places and comparison still work');
+  await expect(page.locator('img.decision-journey-background:visible')).toHaveCount(0);
+  await expect(page.getByRole('img', { name: 'Schematic Kowloon · departure street', exact: true })).toBeVisible();
   await expectWorldAndCore(page);
   await action(page, 'Choose an object').click();
   await expect(page.getByRole('group', { name: 'Named object controls', exact: true })).toBeVisible();
@@ -104,20 +114,20 @@ test('ordinary mobile taps complete the world-to-phone decision without scrollin
   const audit = await auditNoPrivateStorage(context);
   const page = await context.newPage();
   try {
-    await startFresh(page);
+    await startFresh(page, undefined, locator => locator.tap());
     await expectWorldAndCore(page);
     await action(page, 'Put down map').tap();
     await expect(sheet(page)).toHaveCount(0);
-    await action(page, 'Map Unfold both routes').tap();
+    await openNamed(page, 'map', true);
     await expectWorldAndCore(page);
     await action(page, 'What matters to you?').tap();
     await expect(reason(page)).toHaveCount(0);
     await action(page, 'Food').tap();
     await expect(action(page, 'Food')).toHaveAttribute('aria-pressed', 'true');
     await action(page, 'Back to evening').tap();
-    await action(page, 'Phone Adjust one time').tap();
+    await openNamed(page, 'phone', true);
     await expect(action(page, 'Change home-by')).toHaveCount(0);
-    await action(page, 'Map Unfold both routes').tap();
+    await openNamed(page, 'map', true);
     await action(page, 'Start with Shenzhen').tap();
     await expect(experience(page)).toHaveAttribute('data-active-object', 'phone');
     await expectWorldAndCore(page);

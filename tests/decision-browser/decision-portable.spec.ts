@@ -5,7 +5,7 @@ import { pathToFileURL } from 'node:url';
 import {
   action, auditNoPrivateStorage, capture, changeDeadline, chooseBaseline, commitShortWalk,
   expectAcceptedFacts, expectNoOverflow, expectStage, expectWorldAndCore, inspectCommonTimeline, openDisclosure, openObject,
-  readInputFacts, replay, startFresh,
+  readInputFacts, replay, startFresh, worldArtwork,
 } from './decision-helpers';
 
 test('production portable runs the full decision loop under file:// with network disabled', async ({ browser }, info) => {
@@ -24,8 +24,8 @@ test('production portable runs the full decision loop under file:// with network
     await expect(page).toHaveURL(/^file:/);
     await expectAcceptedFacts(page, 'baseline');
     await expectWorldAndCore(page);
-    await expect(page.locator('img.decision-world-image')).toHaveAttribute('src', /^data:image\//);
-    expect(await page.locator('img.decision-world-image').evaluate(async (image: HTMLImageElement) => { await image.decode(); return image.naturalWidth; })).toBeGreaterThanOrEqual(1000);
+    await expect(worldArtwork(page)).toHaveAttribute('src', /^data:image\//);
+    expect(await worldArtwork(page).evaluate(async (image: HTMLImageElement) => { await image.decode(); return image.naturalWidth; })).toBeGreaterThanOrEqual(1000);
     const baseline = await readInputFacts(page);
     await chooseBaseline(page, 'Shenzhen', 'I am comparing the complete evening.');
     await changeDeadline(page);

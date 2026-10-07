@@ -3,7 +3,7 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import {
   action, applyTimeChange, auditNoPrivateStorage, beginTimePreview, chooseBaseline, clockControl, closeDisclosure, expectAcceptedFacts,
-  expectStage, expectTimeFacts, expectWorldAndCore, experience, openDisclosure, readOutcomeFacts, reason, replay, startFresh,
+  expectStage, expectTimeFacts, expectWorldAndCore, experience, openDisclosure, openObject, readOutcomeFacts, reason, replay, startFresh,
 } from './decision-helpers';
 
 /** One real production interaction, with reading time, no state injection,
@@ -40,7 +40,7 @@ test('record a real selected clock, priorities, full-plan choice and replay at 1
     await expectWorldAndCore(page);
     await action(page, 'Put down map').click();
     await read('Put down the map and see the pixel world with its physical objects.', 3_000);
-    await action(page, 'Map Unfold both routes').click();
+    await openObject(page, 'map');
     await expectWorldAndCore(page);
     await read('Open the map: read both complete evenings and the shared real time scale.', 9_000);
     const beforePriorities = [await readOutcomeFacts(page, 'HK'), await readOutcomeFacts(page, 'SZ')];

@@ -42,7 +42,7 @@ test('record the real paced friend invitation, explicit three-adult choice and u
       friendSurface: hasFriend ? await friend(page).getAttribute('data-active-object') : null });
   };
   try {
-    await startFresh(page);
+    await startFresh(page, undefined, activate);
     await read('The cold opening comparison shows two authored full evenings.', 2_000);
     await activate(action(page, 'Start with Shenzhen'));
     await activate(action(page, 'What matters to you?'));
@@ -59,14 +59,11 @@ test('record the real paced friend invitation, explicit three-adult choice and u
     await typeReason(page, page.getByRole('textbox', { name: 'Your reason (optional)', exact: true }), sourceReason, 'touch');
     await activate(action(page, 'Back to evening'));
     await read('The chosen source outing leaves at 16:30 and keeps its full walk.', 2_000);
-    await activate(action(page, 'Explore the chosen evening'));
+    await activate(action(page, 'Put down phone'));
     await activate(action(page, 'Station entrance'));
     await read('At the station, the earlier chosen comparison remains intact.', 2_000);
     await activate(action(page, 'Board for Lo Wu'));
-    await expect(page.getByTestId('decision-journey')).toHaveAttribute('data-phase', 'outward');
-    await read('The original outward journey is a schematic, not a live service.', 2_000);
     await expect(page.getByTestId('decision-journey')).toHaveAttribute('data-art-status', 'ready');
-    await activate(action(page, 'Continue to arrival'));
     await expect(page.getByTestId('decision-journey')).toHaveAttribute('data-phase', 'arrived');
     const source = await readSourceState(page);
     await read('The source arrives in Luohu at 18:15. The next-time message is a separate entry.', 3_000);

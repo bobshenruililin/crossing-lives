@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
-import { action, auditNoPrivateStorage, clockControl, expectNoOverflow, experience, startFresh } from './decision-helpers';
+import { action, auditNoPrivateStorage, clockControl, expectNoOverflow, experience, openObject, startFresh } from './decision-helpers';
 import {
   arriveFromSource, captureFriend, confirmFriendChoice, currentFriend, expectFriendGeometry, expectInvitation,
   expectPartyFacts, expectPayoff, friend, friendAction, friendDetail, inspectFriendBill, inspectFriendComparison, inspectFriendSprite, interaction, newReason, openInvitation, ownReason,
@@ -96,7 +96,7 @@ for (const revision of ['earlier-departure', 'short-walk'] as const) {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     const activate = interaction(page, 'pointer');
     await prepareSource(page, activate, { revision });
-    await action(page, 'Menu See both bills').click();
+    await openObject(page, 'menu');
     const sourceBill = await experience(page).locator('.decision-bill-pair').innerText();
     await experience(page).locator('summary').filter({ hasText: 'Inputs used in this comparison' }).click();
     const sourceInputs = await experience(page).locator('[data-input-key]').evaluateAll(rows => Object.fromEntries(rows.map(row => [row.getAttribute('data-input-key'), row.getAttribute('data-input-value')])));
@@ -313,6 +313,36 @@ test('friend preview keeps an inherited late return and failed crossing buffer v
   await activate(friendAction(page, 'Choose Shenzhen for three'));
   await expect(friend(page).getByTestId('friend-choice-status')).toContainText('75 min past home-by.');
   await expect(friend(page).getByTestId('friend-choice-status')).toContainText('Modeled crossing window or closing buffer not met.');
+  await returnToArrival(page, activate);
+  expect(await readSourceState(page)).toEqual(original);
+});
+
+
+test('the friend invitation also captures an unchanged baseline after immediate departure', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  const activate = interaction(page, 'pointer');
+  await prepareSource(page, activate, { revision: 'baseline' });
+  await arriveFromSource(page, activate);
+  await expect(experience(page)).toHaveAttribute('data-stage', 'baseline');
+  await expect(page.getByTestId('decision-journey-clock')).toHaveAttribute('data-minute', '1125');
+  const original = await readSourceState(page);
+  await openInvitation(page, activate);
+  await expectInvitation(page);
+  await activate(friendAction(page, 'Map Compare this evening'));
+  await expectPartyFacts(page, 2, { departure: 1020, deadline: 1410 });
+  await currentFriend(page, activate);
+  await friendDetail(page, activate, 'Earlier choice and priorities');
+  await expect(friend(page)).toContainText('My starting reason belongs to the earlier outing.');
+  await currentFriend(page, activate);
+  await activate(friendAction(page, 'Preview three adults'));
+  await expectPayoff(page, true);
+  await activate(friendAction(page, 'Plan with three adults'));
+  await activate(friendAction(page, 'Map Compare this evening'));
+  await expectPartyFacts(page, 3, { departure: 1020, deadline: 1410 });
+  await currentFriend(page, activate);
+  await activate(friendAction(page, 'Choose Hong Kong for three'));
+  await expect(friend(page).getByTestId('friend-choice-status')).toContainText('No reason stated.');
+  await expect(friend(page).getByTestId('friend-choice-status')).toContainText('Priorities: not reconfirmed.');
   await returnToArrival(page, activate);
   expect(await readSourceState(page)).toEqual(original);
 });

@@ -36,7 +36,7 @@ test('record the real tap journey from 16:30 choice through Luohu arrival at 390
       art: exists ? await journey.getAttribute('data-art-status') : null, committedArrival: exists ? await journey.getAttribute('data-committed-arrival') : null });
   };
   try {
-    await startFresh(page);
+    await startFresh(page, undefined, locator => locator.tap());
     await read('The original opening comparison, with two complete evenings.', 3_000);
     await action(page, 'What matters to you?').tap();
     await action(page, 'Exploration').tap();
@@ -53,7 +53,7 @@ test('record the real tap journey from 16:30 choice through Luohu arrival at 390
     await action(page, 'Keep full Shenzhen evening').tap();
     await expect(experience(page)).toHaveAttribute('data-stage', 'revised');
     await read('Choose the complete Shenzhen plan, retaining its 45-minute walk.', 3_000);
-    await action(page, 'Explore the chosen evening').tap();
+    await action(page, 'Put down phone').tap();
     const journey = page.getByTestId('decision-journey');
     await expect(journey).toHaveAttribute('data-node', 'counter');
     await expect(page.getByTestId('decision-journey-clock')).toHaveAttribute('data-minute', '990');
@@ -71,11 +71,9 @@ test('record the real tap journey from 16:30 choice through Luohu arrival at 390
     await expect(page.getByTestId('decision-station-thought')).toContainText('75 min modeled slack');
     await read('Read the chosen arrival, return constraint and explicit exploration priority.', 4_000);
     await action(page, 'Board for Lo Wu').tap();
-    await expect(journey).toHaveAttribute('data-phase', 'outward');
     await expect(journey).toHaveAttribute('data-committed-arrival', '1095');
-    await read('One explicit departure; the schematic follows Kowloon, Lo Wu and Luohu.', 3_000);
+    await read('One explicit departure captures the chosen outing and arrival follows automatically.', 3_000);
     await expect(journey).toHaveAttribute('data-art-status', 'ready');
-    await action(page, 'Continue to arrival').tap();
     await expect(journey).toHaveAttribute('data-phase', 'arrived');
     await expect(page.getByTestId('decision-journey-place')).toContainText('Luohu dinner · Shenzhen');
     await expect(page.getByTestId('decision-journey-clock')).toHaveAttribute('data-minute', '1095');

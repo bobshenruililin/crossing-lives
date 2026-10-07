@@ -67,7 +67,7 @@ async function expectVisibleControls(page: Page) {
 }
 
 async function inspectArtwork(page: Page) {
-  const worldImage = experience(page).locator('img.decision-world-image');
+  const worldImage = experience(page).locator('img.decision-journey-background:visible');
   await expect(worldImage).toHaveCount(1);
   await expect(worldImage).toBeVisible();
   const bitmap = await worldImage.evaluate(async (element: HTMLImageElement) => {
@@ -107,7 +107,10 @@ async function inspectArtwork(page: Page) {
   // pixels. Measure the cropped/contained bitmap, not the frame dimensions.
   for (const [name, x, y] of [['menu', .61, .62], ['map', .69, .65], ['phone', .76, .66]] as const) {
     const pin = experience(page).locator(`button[data-object-id="${name}"]`);
-    await expect(pin).toBeVisible();
+    if (!await pin.isVisible()) {
+      await expect(pin).toHaveAttribute('hidden', '');
+      continue; // Cropped physical objects remain reachable via named controls.
+    }
     const box = (await pin.boundingBox())!;
     expect(Math.abs(box.x + box.width / 2 - (bitmap.projectedX + bitmap.projectedWidth * x)), `${name} remains on its object when the image is cropped.`).toBeLessThanOrEqual(3);
     expect(Math.abs(box.y + box.height / 2 - (bitmap.projectedY + bitmap.projectedHeight * y)), `${name} remains on its object across viewport sizes.`).toBeLessThanOrEqual(3);
@@ -193,7 +196,7 @@ for (const width of [360, 390, 1440]) {
     await expectSeriousAxeClear(page);
     const motion = await page.evaluate(() => ({
       requested: matchMedia('(prefers-reduced-motion: reduce)').matches,
-      transitions: [...document.querySelectorAll('[data-testid="decision-sheet"], .decision-world-image, .decision-deadline-line, .decision-time-segment')]
+      transitions: [...document.querySelectorAll('[data-testid="decision-sheet"], .decision-journey-plane, .decision-journey-player, .decision-deadline-line, .decision-time-segment')]
         .flatMap(element => getComputedStyle(element).transitionDuration.split(',').map(value => Number.parseFloat(value))),
       running: document.getAnimations().filter(animation => animation.playState === 'running')
         .map(animation => Number(animation.effect?.getComputedTiming().duration ?? 0)),

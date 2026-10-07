@@ -17,7 +17,14 @@
     "preview:decision": "vite preview --config vite.decision.config.ts --host 127.0.0.1",
     "export:decision": "npm run build:decision && node scripts/export-decision-portable.mjs",
     "test:decision": "playwright test --config=playwright.decision.config.ts",
-    "dev:decision": "vite --config vite.decision.config.ts --host 127.0.0.1"
+    "dev:decision": "vite --config vite.decision.config.ts --host 127.0.0.1",
+    "dev:world": "vite --config vite.world.config.ts --host 127.0.0.1",
+    "typecheck:world": "tsc --noEmit -p tsconfig.world.json",
+    "build:world": "npm run typecheck:world && vite build --config vite.world.config.ts",
+    "preview:world": "vite preview --config vite.world.config.ts --host 127.0.0.1",
+    "test:world": "node --import tsx --test tests/world/*.test.ts tests/world-interactions.test.ts tests/world-regional-map.test.ts",
+    "export:world": "npm run build:world && node scripts/export-world-portable.mjs",
+    "check:world": "npm run typecheck:world && npm run test:world && npm run build:world"
   },
   "dependencies": {
     "@fontsource-variable/fraunces": "^5.3.0",

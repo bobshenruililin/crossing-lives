@@ -17,6 +17,9 @@ jobs:
       - run: npm ci
       - id: source_checks
         run: npm run check
+      - name: Verify connected world source
+        id: world_source_checks
+        run: npm run check:world
       - name: Verify installed Chrome stable
         id: chrome_check
         run: google-chrome --version
@@ -27,11 +30,34 @@ jobs:
         run: npx playwright install ffmpeg
       - id: legacy_export
         run: npm run export:portable
+      - name: Build the connected world
+        id: world_export
+        run: npm run export:world
       - name: Build the decision-led prototype
         id: decision_export
         run: npm run export:decision
+      - name: Verify and record the connected world
+        id: world_tests
+        if: ${{ always() && steps.source_checks.outcome == 'success' && steps.world_source_checks.outcome == 'success' && steps.chrome_check.outcome == 'success' && steps.browser_deps.outcome == 'success' && steps.video_recorder.outcome == 'success' && steps.world_export.outcome == 'success' }}
+        run: npx playwright test --config=playwright.world.config.ts
+        env:
+          CROSSING_BROWSER_CHANNEL: chrome
+      - name: Upload world evidence for first visual review
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: crossing-lives-world-preview
+          retention-days: 7
+          if-no-files-found: ignore
+          path: |
+            artifacts/crossing-lives-world.html
+            artifacts/world/
+            playwright-report/world/
+            test-results/world/
+            !test-results/world/**/recording/*.webm
       - name: Verify the decision-led production entry
         id: decision_tests
+        if: ${{ always() && steps.source_checks.outcome == 'success' && steps.chrome_check.outcome == 'success' && steps.browser_deps.outcome == 'success' && steps.video_recorder.outcome == 'success' && steps.decision_export.outcome == 'success' }}
         run: npm run test:decision
         env:
           CROSSING_BROWSER_CHANNEL: chrome
@@ -48,7 +74,7 @@ jobs:
             playwright-report/decision/
             test-results/decision/
             !test-results/decision/**/recording/*.webm
-      # A decision failure must not skip the independent retained checks.
+      # A world or decision failure must not skip independent retained checks.
       # The early artifact is partial evidence; the job must finish to pass.
       - name: Verify the retained original experience
         if: ${{ always() && steps.source_checks.outcome == 'success' && steps.chrome_check.outcome == 'success' && steps.browser_deps.outcome == 'success' && steps.video_recorder.outcome == 'success' && steps.legacy_export.outcome == 'success' }}
@@ -69,6 +95,9 @@ jobs:
             artifacts/
             playwright-report/
             test-results/
+            !artifacts/world/
+            !artifacts/crossing-lives-world.html
+            !test-results/world/**/recording/*.webm
             !artifacts/decision/
             !artifacts/crossing-lives-decision-prototype.html
             !test-results/walkthrough-*/recording/*.webm

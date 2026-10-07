@@ -2,7 +2,24 @@
 
 **Crossing Lives** explores everyday cross-border decisions through an original pixel world, complete outing comparisons and visible changes in circumstances. The current flagship asks how an evening changes when departure or home-by time changes. Neither city is assigned an inherently better outcome.
 
-## Current direction: the decision-led prototype
+## Connected pixel world: first browser candidate
+
+The new main experience opens at **`/world.html`**. One click on Play starts a fictional two-friend field trip. People, day and scenario are optional; scenario choices change the starting place or route focus, while every location stays open. Walk with the keyboard, touch controls or ground taps; marked doors connect twelve distinct original places.
+
+The twelve scenes span a Hong Kong departure home, metro carriage, illustrative Futian arrival, parcel counter, food court, neighbourhood, fictional urban-village lane, rental flat, housing showroom, office, learning centre and planning museum. Each has a different controlled visual question. Short thoughts and one or two key numbers complement the place; longer evidence is optional. The museum includes separately grounded Hong Kong–Shenzhen and Greater Bay Area geography, with visible attribution and explicit limits. Its decorative background painting is not geographic evidence.
+
+Amounts and schedules marked as examples are authored, not current prices, forecasts or a party's real bill. Old personal saves are not read or written. The world keeps its own choices for the current tab. There is no collection score, inferred preference or relationship meter.
+
+```sh
+npm run dev:world
+npm run check              # Existing app plus shared/source interaction checks
+npm run check:world        # World shell, all world interactions/maps, types and build
+npm run export:world       # Standalone artifacts/crossing-lives-world.html
+```
+
+**Verification status:** the first complete source/build/export checks pass. Actual world browser execution, narrow-screen composition, coherent indoor character scale and the untrimmed walkthrough are still pending for this candidate. Passing source checks is not a human user study or a claim that the full experience is ready. The existing decision and original entries remain tested fallbacks.
+
+## Earlier decision-led episode
 
 The active prototype is a **separate entry at `/decision.html`**. A map, phone and menu open one compact view over the street. Both complete city outings use the same immutable input snapshot and time scale. The phone lets the person preview one departure or home-by change, apply or cancel it, then keep either full plan or explicitly try a shorter Shenzhen walk. Qualitative priorities and optional reasons are stated by the person; no city score or hidden repair is inferred.
 

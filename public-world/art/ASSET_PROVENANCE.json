@@ -1,0 +1,137 @@
+{
+  "notice": "Original generated illustrative places. All twelve reviewed before integration. World source plane is1672\u00d7941; urban-village source is1672\u00d7940 and uses normalized anchors. No image is a geographic map; museum wall is fictional decoration.",
+  "assets": [
+    {
+      "id": "hk-home",
+      "path": "art/hk-home.webp",
+      "width": 1672,
+      "height": 941,
+      "bytes": 1393812,
+      "sha256": "43be92d5a5793d4f750920810018a7131917dffa0130a03adaa6ba549e9ed0fe",
+      "sourcePngSha256": "cdc722a3840059d9c900da816ae93267fed43a6991756b3a1bfee0e05eba7323",
+      "approvedByParent": true,
+      "provenance": "Original generated fictional setting, independently visually reviewed. No exact geography, venue, household or price claim. Lossless WebP preserves decoded source pixels."
+    },
+    {
+      "id": "metro-carriage",
+      "path": "art/metro-carriage.webp",
+      "width": 1672,
+      "height": 941,
+      "bytes": 1506792,
+      "sha256": "32f5c66daaeeeeabacdf3c206836fefdc33a7e80a0b5d9f25fc82ad7c01886bf",
+      "sourcePngSha256": "2861d2718fc1e84efc66802eced6b04df9510d35a71ef167193576153394aed6",
+      "approvedByParent": true,
+      "provenance": "Original generated fictional setting, independently visually reviewed. No exact geography, venue, household or price claim. Lossless WebP preserves decoded source pixels."
+    },
+    {
+      "id": "border-arrival",
+      "path": "art/border-arrival.webp",
+      "width": 1672,
+      "height": 941,
+      "bytes": 1550946,
+      "sha256": "d35c3f89643c1660cf031536e793b48222cc46c66f8afc074a614f8fb465fcb4",
+      "sourcePngSha256": "94530d6c84aa33c04dc9bc98847d1e2e4dc0d5a4b3f51c24c4b606056b2b7283",
+      "approvedByParent": true,
+      "provenance": "Original generated fictional setting, independently visually reviewed. No exact geography, venue, household or price claim. Lossless WebP preserves decoded source pixels."
+    },
+    {
+      "id": "parcel-counter",
+      "path": "art/parcel-counter.webp",
+      "width": 1672,
+      "height": 941,
+      "bytes": 1485594,
+      "sha256": "e5ccbb3b2b3ae359dab93efb418240c63ed9eb90fc5e9236eedfde2c426afc9e",
+      "sourcePngSha256": "88807195842cbb37e8025b6cf7acff2f58a471d461d797876d8be36aa83aa671",
+      "approvedByParent": true,
+      "provenance": "Original generated fictional setting, independently visually reviewed. No exact geography, venue, household or price claim. Lossless WebP preserves decoded source pixels."
+    },
+    {
+      "id": "mall-foodcourt",
+      "path": "art/mall-foodcourt.webp",
+      "width": 1672,
+      "height": 941,
+      "bytes": 1631428,
+      "sha256": "0732397483c658210f35ad954360e67c49a86ed29a3fee8729578f2f6da6d018",
+      "sourcePngSha256": "e3f23365fe4cbf86532e1909158798e64bb5292197005b0641acac949fc94090",
+      "approvedByParent": true,
+      "provenance": "Original generated fictional setting, independently visually reviewed. No exact geography, venue, household or price claim. Lossless WebP preserves decoded source pixels."
+    },
+    {
+      "id": "neighborhood-lane",
+      "path": "art/neighborhood-lane.webp",
+      "width": 1672,
+      "height": 941,
+      "bytes": 2052994,
+      "sha256": "bbf76f047da2bc7337d7474bace0c29fe387bfeedfbf9a5bfe35d5ba79cd813d",
+      "sourcePngSha256": "2039d5f30a7d6171789b293fe591e077dfd1a6c3ba993f2fac222196adbac4d0",
+      "approvedByParent": true,
+      "provenance": "Original generated fictional setting, independently visually reviewed. No exact geography, venue, household or price claim. Lossless WebP preserves decoded source pixels."
+    },
+    {
+      "id": "urban-village",
+      "path": "art/urban-village.webp",
+      "width": 1672,
+      "height": 940,
+      "bytes": 2071508,
+      "sha256": "6e4648800758dac8af52dfdd159982e9e692c97b1a6248c5524df425f57e7820",
+      "sourcePngSha256": "a4255914d93942c43b83c2040db53320cc85af4fb2a9f40a23a86bed80c4d3b9",
+      "approvedByParent": true,
+      "provenance": "Original generated fictional setting, independently visually reviewed. No exact geography, venue, household or price claim. Lossless WebP preserves decoded source pixels."
+    },
+    {
+      "id": "rental-home",
+      "path": "art/rental-home.webp",
+      "width": 1672,
+      "height": 941,
+      "bytes": 1451120,
+      "sha256": "730b9497c794f1ce6d78ef6479d3d9539f131a8b70dc89f1df470133cf74e924",
+      "sourcePngSha256": "40b4ad66d4f1c56ce5bc438e63495bccf3cc8674a8a0bb5c0aa1473e5571b59d",
+      "approvedByParent": true,
+      "provenance": "Original generated fictional setting, independently visually reviewed. No exact geography, venue, household or price claim. Lossless WebP preserves decoded source pixels."
+    },
+    {
+      "id": "luxury-home",
+      "path": "art/luxury-home.webp",
+      "width": 1672,
+      "height": 941,
+      "bytes": 1550606,
+      "sha256": "313d0ce1f0a8b2d49c6ef94e944047080c9d9c3915d6a37bed1aa24b1caec713",
+      "sourcePngSha256": "10b8f0dd3fe26e7b72790d7b5eba1c847c52cbbabfec1677fbe4d8a0a9cc22d1",
+      "approvedByParent": true,
+      "provenance": "Original generated fictional setting, independently visually reviewed. No exact geography, venue, household or price claim. Lossless WebP preserves decoded source pixels."
+    },
+    {
+      "id": "office-floor",
+      "path": "art/office-floor.webp",
+      "width": 1672,
+      "height": 941,
+      "bytes": 1508828,
+      "sha256": "1cf906cb57b90bcb773fc7d8c5b51fd8490dd8475d1f33d4f17000cff75ca84c",
+      "sourcePngSha256": "ecf8f004fcfe5ef9f70a661bc7dbb97b4bbbabf0b7c780ff702e47ca1ff181fe",
+      "approvedByParent": true,
+      "provenance": "Original generated fictional setting, independently visually reviewed. No exact geography, venue, household or price claim. Lossless WebP preserves decoded source pixels."
+    },
+    {
+      "id": "learning-center",
+      "path": "art/learning-center.webp",
+      "width": 1672,
+      "height": 941,
+      "bytes": 1315378,
+      "sha256": "cddda0a5b7fbd56286d617c73ea88e07aa8bf76fec8ee45e8c6a3e4bb251053b",
+      "sourcePngSha256": "9511d42f1cee3f92e6fd2af7f2c03f5001be3d07c9fda378a4862ef3d69c0efb",
+      "approvedByParent": true,
+      "provenance": "Original generated fictional setting, independently visually reviewed. No exact geography, venue, household or price claim. Lossless WebP preserves decoded source pixels."
+    },
+    {
+      "id": "planning-museum",
+      "path": "art/planning-museum.webp",
+      "width": 1672,
+      "height": 941,
+      "bytes": 1625986,
+      "sha256": "956610b775750ac45f21ebac35a92c9505296fdedf8cb311cff9183663b55772",
+      "sourcePngSha256": "e576055b3e4da6a3d0a095b4753d3b2186493fd18fa813dc21dd1793b2a1bc0e",
+      "approvedByParent": true,
+      "provenance": "Original generated fictional setting, independently visually reviewed. No exact geography, venue, household or price claim. Lossless WebP preserves decoded source pixels."
+    }
+  ]
+}

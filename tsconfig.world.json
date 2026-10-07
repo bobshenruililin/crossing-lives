@@ -1,0 +1,5 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": { "typeRoots": ["./node_modules/@types", "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/node_modules/@types"] },
+  "include": ["src/world-main.tsx", "src/world", "src/vite-env.d.ts"]
+}

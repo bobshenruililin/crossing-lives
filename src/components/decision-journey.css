@@ -1,15 +1,17 @@
 /* A quiet scene layer. These rules do not change the initial comparison layout. */
 .decision-journey-scene { position: absolute; inset: 0; background: #454c49; }
-.decision-journey-frame { position: absolute; inset: 0; overflow: hidden; }
+.decision-journey-frame { position: absolute; inset: 0; overflow: clip; }
 .decision-journey-plane { position: absolute; transition: left 500ms ease, top 500ms ease; }
 .decision-journey-background { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; object-fit: fill; }
 .decision-journey-background[hidden] { display: none; }
 .decision-journey-player { position: absolute; z-index: 3; overflow: hidden; pointer-events: none; transform: translate(calc(-1 * var(--anchor-x)), calc(-1 * var(--anchor-y))); transition: left 500ms ease, top 500ms ease; image-rendering: pixelated; }
+.decision-journey-scene[data-phase=arrived] .decision-journey-player { transition: none; }
 .decision-journey-player > img { position: absolute; width: 200%; height: 200%; max-width: none; }
 .decision-journey-player > svg { height: 84%; width: 27%; margin: 10% 37%; }
 .decision-journey-node-targets, .decision-journey-object-targets { position: absolute; inset: 0; pointer-events: none; }
 .decision-journey-node-targets { z-index: 2; }
 .decision-journey-object-targets { z-index: 4; }
+.decision-journey-object-targets button[hidden] { display: none; }
 .decision-journey-node-targets button, .decision-journey-object-targets button { pointer-events: auto; }
 .decision-journey-node { position: absolute; width: 60px; height: 44px; transform: translate(-50%, -50%); border: 0; border-radius: 50%; background: #fff3c525; color: #fff4cd; box-shadow: inset 0 -2px #ffe7a39c; text-shadow: 1px 1px #303d37; font-size: 30px; }
 .decision-journey-node.is-here { background: #ffedb547; }

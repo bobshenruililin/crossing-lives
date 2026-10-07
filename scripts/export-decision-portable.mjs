@@ -35,7 +35,9 @@ const safeScript = text => text.replace(/<\/script/gi, '<\\/script');
 // Explicit approved decision-world assets only; keep legacy export separate.
 const artworkNames = ['decision-hk-pixel.webp', 'decision-player.webp', 'decision-sz-day.webp', 'decision-sz-evening.webp'];
 const artwork = Object.fromEntries(await Promise.all(artworkNames.map(async name => [name, `data:image/webp;base64,${(await readFile(path.join(dist, 'art', name))).toString('base64')}`])));
-html = html.replace(scripts[0][0], () => `<script>globalThis.__BETWEEN_ART__=${JSON.stringify(artwork)};</script><script type="module">${safeScript(moduleSource)}</script>`);
+// Keep the established scene map stable; episode-only artwork has its own namespace.
+const friendArtwork = { 'decision-joining-friend.webp': `data:image/webp;base64,${(await readFile(path.join(dist, 'art', 'decision-joining-friend.webp'))).toString('base64')}` };
+html = html.replace(scripts[0][0], () => `<script>globalThis.__BETWEEN_ART__=${JSON.stringify(artwork)};globalThis.__FRIEND_EPISODE_ART__=${JSON.stringify(friendArtwork)};</script><script type="module">${safeScript(moduleSource)}</script>`);
 html = html.replace(styles[0][0], () => `<style>${css}</style>`);
 if (/href="\.\/favicon\.svg"/.test(html)) {
   const favicon = await readFile(path.join(dist, 'favicon.svg'));

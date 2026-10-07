@@ -68,5 +68,22 @@
       }
     },
     "note": "Original imagined project artwork. Lighting is illustrative; no geographic or sunset claim. See JOURNEY-ASSETS.md."
+  },
+  "joiningFriend": {
+    "src": "/art/decision-joining-friend.webp",
+    "width": 1254,
+    "height": 1254,
+    "footAnchor": [
+      670,
+      1170
+    ],
+    "bodyBoundsAlpha128": [
+      459,
+      105,
+      360,
+      1066
+    ],
+    "sha256": "8b28abc184876ea3e12acd613abdad1bf66dfe747d7bbefa593d7da1eb587bb2",
+    "note": "Original generated small side/back adult NPC. Same source-image transform; displayed only in the three-adult planning view. No real person or biographical claim. See FRIEND-ASSET.md."
   }
 }

@@ -1,0 +1,83 @@
+/* This optional episode has its own surface and ID namespace. */
+.decision-experience[hidden] { display: none !important; }
+.friend-context { display: block; }
+.friend-context .friend-context-when { color: #f2d59b; font-size: 12px; font-weight: 700; margin-bottom: 2px; }
+.friend-sheet { height: 650px; }
+.friend-sheet-body { padding: 16px 18px; }
+.friend-sheet-footer .decision-action-area > button { width: 100%; }
+.friend-sheet-footer .decision-action-pair { margin-top: 0; }
+.friend-sheet-footer .decision-choice { justify-content: center; text-align: center; }
+.friend-preview-state { font-size: 12px; margin-bottom: 7px; }
+.friend-party-presence { display: flex; align-items: center; gap: 14px; padding-bottom: 13px; border-bottom: 1px solid #cebea2; margin-bottom: 15px; }
+.friend-party-presence svg { width: 144px; height: 68px; flex: 0 0 144px; shape-rendering: crispEdges; }
+.friend-party-presence > span { max-width: 130px; font-size: 12px; color: #685b49; line-height: 1.5; }
+.friend-message { display: flex; align-items: flex-start; gap: 12px; padding: 13px 14px; margin-bottom: 18px; background: #e6e8d4; border: 1px solid #b8b8a0; box-shadow: 3px 3px #85765e26; }
+.friend-message p { font-size: 18px; font-weight: 700; line-height: 1.5; }
+.friend-message-icon { background: #536961; border: 2px solid #e1dbb9; color: #fff0c7; width: 24px; height: 34px; flex: 0 0 24px; display: grid; place-items: center; font-size: 20px; }
+.friend-invitation > p { line-height: 1.55; }
+.friend-invitation > p + p { margin-top: 11px; }
+.friend-payoff-thought { font-size: 13px; line-height: 1.4; margin-bottom: 10px; }
+.friend-cost-pair { display: grid; gap: 13px; }
+.friend-cost-pair article { border: 1px solid #c5b496; padding: 10px 12px 9px; background: #f3e8d0; }
+.friend-cost-pair h3 { font-size: 15px; display: flex; align-items: baseline; justify-content: space-between; gap: 7px; }
+.friend-cost-pair h3 small { font-size: 12px; font-weight: 500; white-space: nowrap; }
+.friend-cost-pair dl { margin: 7px 0 0; line-height: 1.35; }
+.friend-cost-pair dl > div { display: flex; justify-content: space-between; align-items: baseline; gap: 7px; margin-top: 3px; }
+.friend-cost-pair dt { font-size: 12px; }
+.friend-cost-pair dd { margin: 0; font-variant-numeric: tabular-nums; white-space: nowrap; font-size: 15px; }
+.friend-cost-pair dd i { font-style: normal; color: #685b4c; }
+.friend-cost-pair dd span { font-size: 14px; color: #6b604e; }
+.friend-cost-pair dd strong { font-size: 17px; font-weight: 800; }
+.friend-same-clock { font-size: 13px; margin-top: 14px; }
+.friend-inspection-intro, .friend-replay-note { font-size: 13px; margin: 0 0 16px; }
+.friend-replay-note { margin-top: 14px; }
+.friend-replay-totals { border-top: 1px solid #c4b291; padding-top: 12px; margin-top: 15px; font-size: 14px; }
+.friend-bills .decision-bill-pair { margin-top: 16px; }
+.friend-priorities .decision-priority-buttons { margin: 16px 0 8px; }
+.friend-priorities label.friend-reconfirm { display: flex; gap: 10px; align-items: center; cursor: pointer; font-weight: 500; margin: 18px 0; min-height: 44px; }
+.friend-reconfirm input { width: 21px; height: 21px; flex: 0 0 21px; accent-color: #625346; }
+.friend-reconfirm input:focus-visible { outline: 3px solid #ad5338; outline-offset: 4px; }
+.friend-priorities label[for=friend-reason] { margin-top: 15px; }
+.friend-history dl { border-block: 1px solid #cdbca0; padding: 12px 0; margin: 17px 0; }
+.friend-history dl > div + div { margin-top: 11px; }
+.friend-history dt { font-size: 12px; color: #6b5c48; }
+.friend-history dd { margin: 3px 0 0; }
+.friend-finished h3 { font-size: 18px; }
+.friend-stated-reason { font-size: 17px; line-height: 1.55; margin-top: 10px; overflow-wrap: anywhere; }
+.friend-details { position: relative; border-top: 1px solid #cdbca0; background: #f4e8cd; }
+.friend-details summary { min-height: 44px; padding: 11px 17px; cursor: pointer; font-size: 13px; text-decoration: underline; text-underline-offset: 3px; }
+.friend-details > div { display: grid; position: absolute; left: 10px; right: 10px; bottom: 100%; padding: 5px 10px; border: 1px solid #8d7757; box-shadow: 3px -3px #65553d22; background: #faf1dd; z-index: 8; }
+.friend-details button { text-align: left; padding: 9px 3px; border: 0; background: transparent; font-size: 13px; }
+.friend-return { display: block; width: 100%; text-align: left; padding: 10px 17px; background: #efe4cc; border: 0; border-top: 1px solid #cdbca0; font-size: 13px; }
+.friend-return:hover { background: #e4d5b6; }
+.decision-next-invitation { display: block; width: 100%; border: 0; border-top: 1px solid #cdbca0; background: transparent; padding: 9px 0; text-align: left; font-size: 13px; color: #5c5848; }
+.decision-next-invitation span { margin-right: 7px; }
+@media (max-width: 899px) {
+  .friend-context { font-size: 12px; line-height: 1.5; }
+  .friend-sheet { height: auto; }
+  .friend-sheet-body { padding: 14px 16px 20px; }
+  .friend-party-presence { margin-bottom: 12px; padding-bottom: 10px; }
+  .friend-party-presence svg { width: 120px; height: 57px; flex-basis: 120px; }
+  .friend-message { padding: 10px 11px; margin-bottom: 14px; }
+  .friend-message p { font-size: 16px; }
+  .friend-cost-pair { gap: 10px; }
+  .friend-cost-pair article { padding: 9px 10px; }
+  .friend-details summary, .friend-return { padding-inline: 16px; }
+}
+@media (max-width: 370px) {
+  .friend-sheet-body { padding-inline: 13px; }
+  .friend-cost-pair h3 { font-size: 14px; }
+  .friend-cost-pair dd strong { font-size: 16px; }
+}
+
+.friend-world-npc { position: absolute; z-index: 1; transform: translate(-53.429027%, -93.301435%); pointer-events: none; image-rendering: pixelated; }
+.friend-world-npc img { width: 100%; height: 100%; display: block; max-width: none; }
+.friend-world-npc svg { position: absolute; width: 29%; height: 85%; left: 37%; top: 8%; }
+
+.friend-reflect { width: 100%; display: block; min-height: 44px; border: 0; background: transparent; padding: 8px 0 3px; text-align: left; font-size: 13px; text-decoration: underline; text-underline-offset: 3px; }
+
+.friend-remaining-failures { margin: 0 0 8px; padding: 7px 9px; border-left: 3px solid #a14f35; background: #f5e4ce; color: #743b29; font-size: 13px; line-height: 1.35; }
+.friend-remaining-failures p + p { margin-top: 5px; }
+@media (max-width: 899px) {
+  .friend-experience[data-remaining-failure=true] { --city-height: 245px; }
+}

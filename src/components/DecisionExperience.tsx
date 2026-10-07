@@ -1,16 +1,15 @@
-import { useLayoutEffect, useMemo, useReducer, useRef, useState } from 'react';
-import { formatClock } from '../domain/engine';
+import { useMemo, useReducer, useRef, useState } from 'react';
 import { sources } from '../data/evidence';
-import { createDecisionSession, decisionReducer, previewRevision, previewTimeChange, selectDecisionView, DECISION_TIME_LIMITS, DECISION_TIMELINE_RANGE } from '../decision/session';
-import type { DecisionSnapshot, Priority, SnapshotId, RevisionId, TimeChange, TimeChangeField } from '../decision/session';
+import { createDecisionSession, decisionReducer, previewRevision, previewTimeChange, selectDecisionView, DECISION_TIME_LIMITS } from '../decision/session';
+import type { DecisionSession, DecisionSnapshot, Priority, SnapshotId, RevisionId, TimeChange, TimeChangeField } from '../decision/session';
 import './decision-experience.css';
 import { DecisionJourneyScene } from './DecisionJourneyScene';
 import { journeyReducer } from '../decision/journey';
+import { DecisionStreet, CompleteComparison, cityName, money, nativeMoney, shortClock, clockLabel, fieldName, fitSummary, inputLeaves, inputLabel, segmentsFor } from './DecisionPresentation';
+import type { SceneObject } from './DecisionPresentation';
+import { FriendJoiningEpisode } from './FriendJoiningEpisode';
 
-type DecisionOption = DecisionSnapshot['result']['options'][number];
-type Segment = { id: string; label: string; start: number; end: number; kind: 'travel' | 'clearance' | 'dinner' | 'walk' };
 type CoreObject = 'map' | 'phone';
-type SceneObject = CoreObject | 'menu';
 type Surface = SceneObject | 'priorities' | 'sources' | 'history' | 'route' | 'details' | 'about' | null;
 const stages: { id: SnapshotId; label: string; number: string }[] = [
   { id: 'baseline', label: 'Before', number: '01' },
@@ -19,133 +18,6 @@ const stages: { id: SnapshotId; label: string; number: string }[] = [
 ];
 const priorityLabels: Record<Priority, string> = { food: 'Food', company: 'Company', comfort: 'Comfort', exploration: 'Exploration' };
 const priorities: Priority[] = ['food', 'company', 'comfort', 'exploration'];
-const art = (name: string) => (globalThis as typeof globalThis & { __BETWEEN_ART__?: Record<string, string> }).__BETWEEN_ART__?.[name] ?? `${import.meta.env.BASE_URL}art/${name}`;
-const cityName = (id: 'hk' | 'sz') => id === 'hk' ? 'Hong Kong' : 'Shenzhen';
-const money = (amount: number | null) => amount === null ? 'Unknown' : `HK$${amount.toLocaleString('en-HK', { minimumFractionDigits: Number.isInteger(amount) ? 0 : 2, maximumFractionDigits: 2 })}`;
-const nativeMoney = (amount: number | null, currency: string) => amount === null ? 'Unknown' : `${currency} ${amount.toFixed(2)}`;
-const SCALE_START = DECISION_TIMELINE_RANGE.startMinutes;
-const SCALE_END = DECISION_TIMELINE_RANGE.endMinutes;
-const shortClock = (minutes: number) => formatClock(minutes % 1440);
-const clockLabel = (minutes: number) => `${shortClock(minutes)}${minutes >= 1440 ? ' next day' : ''}`;
-const fieldName = (field: TimeChangeField) => field === 'departureMinutes' ? 'Departure' : 'Home-by';
-const fitSummary = (option: DecisionOption) => `${option.homeFeasible ? `${option.spareMinutes} min modeled slack.` : `${-option.spareMinutes} min past home-by.`}${!option.crossingFeasible ? ' Modeled crossing window or closing buffer not met.' : ''}`;
-const position = (minute: number) => `${(minute - SCALE_START) / (SCALE_END - SCALE_START) * 100}%`;
-function inputLeaves(value: unknown, path = ''): { key: string; value: string }[] {
-  if (value !== null && typeof value === 'object') return Object.entries(value).flatMap(([key, child]) => inputLeaves(child, path ? `${path}.${key}` : key));
-  return [{ key: path, value: String(value) }];
-}
-
-const inputLabels: Record<string, string> = {
-  origin: 'Origin', departureMinutes: 'Departure (minute of day)', homeByMinutes: 'Home by (minute of day)',
-  budgetPerPersonHKD: 'Budget per person, HKD', partySize: 'Adults', mealMinutes: 'Base dinner, minutes', walkMinutes: 'Base walk, minutes',
-  'weights.price': 'Price scoring weight (off)', 'weights.ease': 'Ease scoring weight (off)', 'weights.discovery': 'Discovery scoring weight (off)',
-  szRoute: 'Shenzhen route', fxHKDPerCNY: 'HKD per CNY', borderBufferMinutes: 'Clearance allowance each way, minutes',
-  crossingClosingBufferMinutes: 'Before border closure, minutes', hkLocalMinutes: 'HK travel each way, minutes', szLocalMinutes: 'SZ transfer each way, minutes',
-  entryEligibility: 'Entry eligibility',
-};
-const inputLabel = (key: string) => {
-  if (inputLabels[key]) return inputLabels[key];
-  const [, city, field] = key.split('.');
-  const prefix = city === 'hk' ? 'Hong Kong' : 'Shenzhen';
-  if (key.startsWith('familiarity.')) return `${prefix} · ${field} familiarity`;
-  return `${prefix} · ${{ mealMinutes: 'dinner minutes', walkMinutes: 'walk minutes', includeSharedOrder: 'shared order included', storyDelayMinutes: 'added delay minutes' }[field] ?? field}`;
-};
-
-/** Presentation only: these boundaries come from a single matched engine option. */
-function segmentsFor(option: DecisionOption): Segment[] {
-  const crossing = option.crossingPlan;
-  const outward: Segment[] = crossing ? [
-    { id: 'outward-rail', label: 'Rail to Lo Wu', start: option.departureMinutes, end: crossing.outwardStartMinutes, kind: 'travel' },
-    { id: 'outward-clearance', label: 'Outward clearance allowance', start: crossing.outwardStartMinutes, end: crossing.outwardEndMinutes, kind: 'clearance' },
-    { id: 'outward-transfer', label: 'Transfer to Luohu dinner', start: crossing.outwardEndMinutes, end: option.arrivalMinutes, kind: 'travel' },
-  ] : [{ id: 'outward-local', label: 'Local trip out', start: option.departureMinutes, end: option.arrivalMinutes, kind: 'travel' }];
-  const inward: Segment[] = crossing ? [
-    { id: 'return-transfer', label: 'Transfer back to Lo Wu', start: option.experienceEndMinutes, end: crossing.inwardStartMinutes, kind: 'travel' },
-    { id: 'return-clearance', label: 'Return clearance allowance', start: crossing.inwardStartMinutes, end: crossing.inwardEndMinutes, kind: 'clearance' },
-    { id: 'return-rail', label: 'Rail back to Kowloon', start: crossing.inwardEndMinutes, end: option.returnMinutes, kind: 'travel' },
-  ] : [{ id: 'return-local', label: 'Local trip home', start: option.experienceEndMinutes, end: option.returnMinutes, kind: 'travel' }];
-  return [...outward,
-    { id: 'dinner', label: 'Dinner + shared order', start: option.arrivalMinutes, end: option.arrivalMinutes + option.mealMinutes, kind: 'dinner' },
-    { id: 'walk', label: 'Walk', start: option.arrivalMinutes + option.mealMinutes, end: option.experienceEndMinutes, kind: 'walk' },
-    ...inward];
-}
-
-const objects: { id: SceneObject; x: number; y: number; label: string; symbol: string }[] = [
-  { id: 'menu', x: .61, y: .62, label: 'Menu See both bills', symbol: '≡' },
-  { id: 'map', x: .69, y: .65, label: 'Map Unfold both routes', symbol: '↔' },
-  { id: 'phone', x: .76, y: .66, label: 'Phone Adjust one time', symbol: '◷' },
-];
-
-/** The bitmap and every physical target use this one measured transform. */
-function DecisionStreet({ attended, surface, onOpen, failed, onFailure }: {
-  attended: SceneObject; surface: Surface; onOpen: (object: SceneObject) => void; failed: boolean; onFailure: () => void;
-}) {
-  const frame = useRef<HTMLDivElement>(null);
-  const [geometry, setGeometry] = useState({ width: 1672, height: 941, left: 0, top: 0 });
-  const [fallbackOpen, setFallbackOpen] = useState(false);
-  useLayoutEffect(() => {
-    if (!frame.current) return;
-    const measure = () => {
-      const box = frame.current!.getBoundingClientRect();
-      const mobile = window.matchMedia('(max-width: 899px)').matches;
-      const scale = Math.max(box.width / 1672, box.height / 941, mobile ? 640 / 1672 : 0);
-      const width = 1672 * scale;
-      const height = 941 * scale;
-      const left = mobile ? Math.min(0, Math.max(box.width - width, box.width / 2 - width * .69)) : (box.width - width) / 2;
-      setGeometry({ width, height, left, top: (box.height - height) / 2 });
-    };
-    measure();
-    const observer = new ResizeObserver(measure);
-    observer.observe(frame.current);
-    return () => observer.disconnect();
-  }, []);
-  return <section className="decision-world" aria-label="An imagined Hong Kong street at dusk">
-    <div ref={frame} className="decision-world-image-frame" data-testid="decision-world-frame">
-      {!failed ? <img className="decision-world-image" src={art('decision-hk-pixel.webp')} width="1672" height="941"
-        style={geometry} alt="A Hong Kong-inspired street at dusk, with a rail entrance and a small dining counter. A menu, folded map and phone rest on the counter."
-        onError={onFailure}/> : <div className="decision-world-fallback"><svg className="decision-desk-art" viewBox="0 0 640 360" aria-hidden="true"><path fill="#807060" d="M0 0h640v360H0z"/><path fill="#3e514f" d="M0 195h640v165H0z"/><path fill="#b99b70" d="M90 35h440v270H90z"/><path fill="#69775e" d="M70 40h480v35H70z"/><path fill="#ead0a0" d="M115 90h175v118H115zM315 90h185v118H315z"/><path fill="#705146" d="M70 238h500v18H70zM100 256h15v90h-15zM525 256h15v90h-15z"/><path fill="#ead8ae" d="M330 201h38v34h-38zM395 210h55v25h-55z"/><path fill="#344f58" d="M470 207h21v28h-21z"/><path fill="#c6a162" d="M150 295h72v8h-72zM365 294h72v8h-72z"/><path fill="#35433f" d="M150 303h8v57h-8zM214 303h8v57h-8zM365 302h8v58h-8zM429 302h8v58h-8z"/></svg><p>The illustration couldn’t load. The comparison and every object still work.</p></div>}
-      <div className="decision-physical-objects" role="group" aria-label="Objects on the counter">
-        {objects.map(object => <button key={object.id} id={`decision-object-${object.id}`} type="button" className={`decision-hotspot ${attended === object.id ? 'is-attended' : ''}`}
-          data-object-id={object.id} data-source-x={object.x} data-source-y={object.y}
-          style={{ left: geometry.left + geometry.width * object.x, top: geometry.top + geometry.height * object.y }}
-          aria-label={object.label} aria-expanded={surface === object.id} aria-controls={surface ? 'decision-sheet' : undefined} onClick={() => onOpen(object.id)}>
-          <span className="decision-hotspot-mark" aria-hidden="true">{object.symbol}</span><span className="decision-hotspot-label" aria-hidden="true">{object.id === 'map' ? 'Map · compare' : object.id === 'phone' ? 'Phone · the clock' : 'Menu · the bill'}</span>
-        </button>)}
-      </div>
-    </div>
-    <div className="decision-world-visible" data-testid="decision-world-visible" aria-hidden="true"/>
-    <div className="decision-object-fallback" onKeyDown={event => { if (event.key === 'Escape' && fallbackOpen) { event.preventDefault(); event.stopPropagation(); setFallbackOpen(false); requestAnimationFrame(() => document.getElementById('decision-choose-object')?.focus({ preventScroll: true })); } }}><button id="decision-choose-object" type="button" aria-label="Choose an object" aria-expanded={fallbackOpen} onClick={() => setFallbackOpen(value => !value)}>Objects <span aria-hidden="true">⌄</span></button>{fallbackOpen && <div role="group" aria-label="Named object controls">{objects.map(object => <button key={object.id} type="button" onClick={() => { setFallbackOpen(false); onOpen(object.id); }}>{object.id === 'map' ? 'Open map' : object.id === 'phone' ? 'Open phone' : 'Open menu'}</button>)}</div>}</div>
-    <p className="decision-world-caption">Imagined setting · authored example</p>
-  </section>;
-}
-
-function CompleteComparison({ snapshot, selected }: { snapshot: DecisionSnapshot; selected?: 'hk' | 'sz' }) {
-  const deadline = snapshot.inputs.homeByMinutes;
-  return <section className="decision-comparison" aria-label="Two complete evenings on the same clock">
-    <div className="decision-comparison-brief"><span>90 min dinner + shared order</span><span>To 02:00 next day · UTC+8</span></div>
-    <div role="group" className="decision-time-axis" aria-label="Common absolute time scale, 15:00 to 02:00 the next day, UTC plus eight">{[15, 17, 19, 21, 23, 26].map(hour => <span key={hour} data-hour={hour} style={{ left: position(hour * 60) }}>{shortClock(hour * 60)}</span>)}</div>
-    <div className="decision-timeline-pair">
-      <div className="decision-deadline-line" data-testid="decision-deadline-marker" data-deadline-minute={deadline} style={{ left: position(deadline) }}><span>{shortClock(deadline)}<small>{deadline >= 1440 ? 'next day · home by' : 'home by'}</small></span></div>
-      {snapshot.result.options.map(option => <article key={option.id} className={`decision-option decision-option-${option.id}${selected === option.id ? ' is-selected' : ''}`}
-        aria-labelledby={`decision-title-${option.id}`} data-testid={`decision-outcome-${option.id.toUpperCase()}`}
-        data-option-id={option.id} data-snapshot-id={snapshot.id} data-home-minute={option.returnMinutes} data-cost-hkd={option.perPersonHKD ?? 'unknown'}
-        data-dinner-minutes={option.mealMinutes} data-walk-minutes={option.walkMinutes} data-deadline-minute={option.homeByMinutes} data-departure-minute={option.departureMinutes} data-home-fit={option.homeFeasible} data-crossing-fit={option.crossingFeasible} data-entry-fit={option.entryFeasible === null ? 'unknown' : option.entryFeasible}>
-        <div className="decision-lane-heading"><h3 id={`decision-title-${option.id}`}>{cityName(option.id)}<small className={!option.crossingFeasible ? 'decision-border-failure' : undefined} data-testid={`decision-border-${option.id.toUpperCase()}`} role="group" aria-label={option.id === 'sz' ? `Modeled border clearance ${option.crossingFeasible ? 'fits the modeled crossing window and closing buffer; entry and services remain unknown' : 'misses the modeled crossing window or closing buffer'}` : undefined}>{option.id === 'hk' ? 'local evening' : option.crossingFeasible ? 'rail via Lo Wu' : 'Crossing: no fit'}</small></h3><div className="decision-key-figures"><div><strong>{money(option.perPersonHKD)}</strong><small>/ person</small></div><div><strong>{shortClock(option.returnMinutes)}</strong><small>{option.returnMinutes >= 1440 ? <span className="decision-next-day" data-testid={`decision-next-day-${option.id.toUpperCase()}`}>next day · home</span> : 'modeled home'}</small></div></div></div>
-        <div role="group" className="decision-timeline-track" data-testid={`decision-timeline-${option.id.toUpperCase()}`} data-option-id={option.id}
-          data-scale-start-minute={SCALE_START} data-scale-end-minute={SCALE_END} aria-label={`${cityName(option.id)} complete evening on the 15:00 to 02:00 next-day scale`}>
-          {segmentsFor(option).map(segment => <span key={segment.id} className={`decision-time-segment ${segment.kind}`} data-segment-id={segment.id} data-start-minute={segment.start} data-end-minute={segment.end}
-            style={{ left: position(segment.start), width: `${(segment.end - segment.start) / (SCALE_END - SCALE_START) * 100}%` }}>
-            <span className="decision-sr-only">{segment.label}: {clockLabel(segment.start)}–{clockLabel(segment.end)}, {segment.end - segment.start} minutes.</span></span>)}
-          <span className={`decision-home-pin ${option.homeFeasible ? '' : 'is-late'}`} style={{ left: position(option.returnMinutes) }} aria-hidden="true"/>
-        </div>
-        <div className="decision-lane-facts"><span>Dinner {option.mealMinutes} min · walk {option.walkMinutes} min</span><span className={option.homeFeasible ? '' : 'is-late'}>{option.homeFeasible ? `${option.spareMinutes} min modeled slack` : `${-option.spareMinutes} min late`}</span></div>
-        <p className="decision-lane-route decision-sr-only">{option.outwardMinutes} min out + {option.inwardMinutes} min home · shared order included</p>
-      </article>)}
-    </div>
-    <div className="decision-time-key"><span><i className="travel"/>Travel</span><span><i className="clearance"/>Clearance</span><span><i className="dinner"/>Dinner</span><span><i className="walk"/>Walk</span><span>UTC+8</span></div>
-  </section>;
-}
-
 function RouteInspector({ snapshot }: { snapshot: DecisionSnapshot }) {
   const [route, setRoute] = useState<'hk' | 'sz'>('sz');
   const option = snapshot.result.options.find(item => item.id === route)!;
@@ -194,6 +66,8 @@ export function DecisionExperience() {
   const [session, dispatch] = useReducer(decisionReducer, undefined, createDecisionSession);
   const [surface, setSurface] = useState<Surface>('map');
   const [journey, journeyDispatch] = useReducer(journeyReducer, null);
+  const [friendSource, setFriendSource] = useState<DecisionSession | null>(null);
+  const [friendOpen, setFriendOpen] = useState(false);
   const [walkPreview, setWalkPreview] = useState(false);
   const [timeDraft, setTimeDraft] = useState<TimeChange | null>(null);
   const [artFailed, setArtFailed] = useState(false);
@@ -239,6 +113,8 @@ export function DecisionExperience() {
     dispatch({ type: 'view-snapshot', snapshotId: id }); returnCore.current = 'phone'; setSurface('phone'); focus();
     setAnnouncement(`Viewing ${stages.find(stage => stage.id === id)!.label.toLowerCase()}: the exact two options from that step.`);
   };
+  const openFriend = () => { if (journey?.phase !== 'arrived') return; setFriendSource(previous => previous ?? session); setFriendOpen(true); };
+  const returnFromFriend = () => { setFriendOpen(false); focus('decision-next-invitation'); };
   const beginJourney = () => { journeyDispatch({ type: 'begin', session }); setSurface(null); setAnnouncement('Walk between the counter and station. Your chosen comparison stays intact.'); };
   const openJourneyObject = (object: SceneObject) => { dispatch({ type: 'view-snapshot', snapshotId: 'revised' }); openObject(object); };
   const openJourneyComparison = () => { dispatch({ type: 'view-snapshot', snapshotId: 'revised' }); returnCore.current = 'phone'; setSurface('phone'); focus(); };
@@ -263,8 +139,8 @@ export function DecisionExperience() {
             : <><p data-testid="decision-choice-status"><strong>{view.reconsideration.summary}</strong> {session.snapshots.revised?.revision === 'shorten-sz' ? walkTradeoff : 'Full dinner and walk kept.'} {selectedOption && <span className={!selectedOption.homeFeasible || !selectedOption.crossingFeasible ? 'decision-remaining-failure' : undefined}>{fitSummary(selectedOption)}</span>}</p><button className="decision-primary" type="button" onClick={() => openDetail('history')}>Replay the comparison <span aria-hidden="true">↶</span></button></>}
           </section>
   );
-  return <main className="decision-experience" data-testid="decision-experience" data-stage={session.stage} data-displayed-snapshot={snapshot.id} data-preview={preview} data-preview-kind={timeDraft ? 'time' : walkPreview ? 'walk' : 'none'} data-active-object={surface ?? 'closed'} data-attended-object={attended} aria-label="Crossing Lives, one evening reconsidered" onKeyDown={event => { if (event.key === 'Escape' && surface) { event.preventDefault(); event.stopPropagation(); if (core) close(); else back(); } }}>
-    {journey ? <DecisionJourneyScene journey={journey} dispatch={journeyDispatch} surfaceOpen={surface !== null} onOpen={openJourneyObject} onCompare={openJourneyComparison} originFailed={artFailed}/> : <DecisionStreet attended={attended} surface={surface} onOpen={openObject} failed={artFailed} onFailure={() => setArtFailed(true)}/>}
+  return <><main hidden={friendOpen} inert={friendOpen || undefined} className="decision-experience" data-testid="decision-experience" data-stage={session.stage} data-displayed-snapshot={snapshot.id} data-preview={preview} data-preview-kind={timeDraft ? 'time' : walkPreview ? 'walk' : 'none'} data-active-object={surface ?? 'closed'} data-attended-object={attended} aria-label="Crossing Lives, one evening reconsidered" onKeyDown={event => { if (event.key === 'Escape' && surface) { event.preventDefault(); event.stopPropagation(); if (core) close(); else back(); } }}>
+    {journey ? <DecisionJourneyScene journey={journey} dispatch={journeyDispatch} surfaceOpen={surface !== null} onOpen={openJourneyObject} onCompare={openJourneyComparison} originFailed={artFailed} onNextInvitation={openFriend}/> : <DecisionStreet attended={attended} surface={surface} onOpen={openObject} failed={artFailed} onFailure={() => setArtFailed(true)}/>}
     {!journey && session.stage === 'revised' && !viewingPast && (core || surface === null) && <button className="decision-journey-invite" type="button" onClick={beginJourney}>Explore the chosen evening <span aria-hidden="true">→</span></button>}
     {!journey && <div className="decision-context" data-testid="decision-context" role="group" aria-label={`${preview ? 'Preview' : snapshot.id === 'baseline' ? 'Starting authored' : 'Changed authored'} context; prices, party and origin stay fixed`}><span>Leave <strong>{shortClock(snapshot.inputs.departureMinutes)}</strong> · {snapshot.inputs.origin === 'kowloon' ? 'Kowloon' : 'Hong Kong Island'} · {snapshot.inputs.partySize} adults {preview && <em>preview</em>}</span><span><strong>{money(snapshot.inputs.budgetPerPersonHKD)}</strong> / person <i aria-hidden="true">·</i> home by <strong>{shortClock(snapshot.inputs.homeByMinutes)}</strong>{snapshot.inputs.homeByMinutes >= 1440 && <b className="decision-context-day"> next day</b>}</span></div>}
     {surface && <section id="decision-sheet" data-testid="decision-sheet" data-active-object={surface} data-core={core} className={`decision-sheet ${core ? 'is-core' : 'is-detail'}`} aria-labelledby="decision-sheet-heading">
@@ -278,7 +154,7 @@ export function DecisionExperience() {
         : surface === 'priorities' ? <section className="decision-priorities"><p>Food, company, comfort, exploration: choose what matters to you. Neither city receives a score.</p><div className="decision-priority-buttons">{priorities.map(priority => <button key={priority} type="button" aria-pressed={session.priorities.includes(priority)} disabled={session.stage !== 'baseline' || viewingPast || preview} onClick={() => dispatch({ type: 'set-priorities', priorities: session.priorities.includes(priority) ? session.priorities.filter(value => value !== priority) : [...session.priorities, priority] })}>{priorityLabels[priority]}{session.priorities.includes(priority) && <span aria-hidden="true"> ✓</span>}</button>)}</div><p>You selected: {session.priorities.length ? session.priorities.map(priority => priorityLabels[priority]).join(', ') : 'no priorities yet'}.</p>{session.stage !== 'baseline' && <p className="decision-small">Priorities stay fixed after the time change.</p>}{currentChoice && <><label htmlFor="decision-reason">Your reason (optional)</label><textarea id="decision-reason" rows={3} maxLength={500} value={(!viewingPast && !preview ? reasonDrafts[snapshot.id] ?? currentChoice.reason : currentChoice.reason) ?? ''} disabled={viewingPast || preview} placeholder="What makes this choice right for you?" onChange={event => { setReasonDrafts(previous => ({ ...previous, [snapshot.id]: event.target.value })); dispatch({ type: 'set-reason', snapshotId: snapshot.id, reason: event.target.value }); }}/><p className="decision-small">Your words only. We don’t infer feelings, preferences or familiarity.</p></>}</section>
         : surface === 'history' ? <section className="decision-history"><p>Starting facts stay immutable. One selected time changes; the other time, prices and activity durations stay fixed until an explicit walk adjustment.</p>{preview && <p className="decision-small">A preview is open. Back returns to it; finish or cancel it before replaying.</p>}{stages.map(stage => { const choice = session.choices[stage.id]; const historical = session.snapshots[stage.id]; const historicalSz = historical?.result.options.find(option => option.id === 'sz'); return <button key={stage.id} type="button" disabled={preview || !historical} aria-label={stage.label} onClick={() => setStage(stage.id)}><span>{stage.number} · {stage.label}</span><strong>{stage.id === 'baseline' ? `Starting: leave ${clockLabel(baseline.inputs.departureMinutes)}, home by ${clockLabel(baseline.inputs.homeByMinutes)}` : stage.id === 'changed' ? changeText : historical?.revision === 'shorten-sz' ? `Shenzhen walk: ${baselineSz.walkMinutes} → ${historicalSz!.walkMinutes} min` : historical?.revision === 'keep-sz' ? 'Keep the full Shenzhen evening' : 'Keep the full Hong Kong evening'}</strong><small>{historical ? `Displayed departure ${clockLabel(historical.inputs.departureMinutes)} · home by ${clockLabel(historical.inputs.homeByMinutes)}` : 'Not chosen yet'}</small><small>{choice ? `You selected ${cityName(choice.optionId)}` : 'No choice selected'}{choice?.reason ? ` · “${choice.reason}”` : ''}</small></button>; })}<p className="decision-small">Qualitative priorities: {session.priorities.length ? session.priorities.map(priority => priorityLabels[priority]).join(', ') : 'none selected'}.</p></section>
         : surface === 'details' ? <nav className="decision-inspection-list" aria-label="Optional details"><button type="button" onClick={() => openDetail('menu')}>Open the bill and assumptions <span aria-hidden="true">→</span></button><button type="button" onClick={() => openDetail('route')}>Unfold the evening <span aria-hidden="true">→</span></button><button type="button" onClick={() => openDetail('sources')}>Sources and what is still unknown <span aria-hidden="true">→</span></button><button type="button" onClick={() => openDetail('history')}>Replay the comparison <span aria-hidden="true">→</span></button><button type="button" onClick={() => openDetail('priorities')}>Priorities and your reason <span aria-hidden="true">→</span></button><button type="button" onClick={() => openDetail('about')}>About this example <span aria-hidden="true">→</span></button></nav>
-        : <section className="decision-about"><p>A fresh authored example of Crossing Lives. You can change one time: departure 15:00–20:00, or home-by 20:00–01:00 the next day, in 15-minute steps. Other numeric inputs remain fixed. Start again to try a different circumstance.</p><p>Choices stay in this tab. No account, persistent saving, tracking, booking or AI advice. The larger questions of work, commuting, housing, business costs and ownership need separate research; this evening invents no company performance numbers.</p><button type="button" onClick={() => { dispatch({ type: 'reset' }); journeyDispatch({ type: 'reset' }); setWalkPreview(false); setTimeDraft(null); setReasonDrafts({}); returnCore.current = 'map'; setSurface('map'); focus(); setAnnouncement('A fresh authored example has started.'); }}>Start this example again</button></section>}
+        : <section className="decision-about"><p>A fresh authored example of Crossing Lives. You can change one time: departure 15:00–20:00, or home-by 20:00–01:00 the next day, in 15-minute steps. Other numeric inputs remain fixed. Start again to try a different circumstance.</p><p>Choices stay in this tab. No account, persistent saving, tracking, booking or AI advice. The larger questions of work, commuting, housing, business costs and ownership need separate research; this evening invents no company performance numbers.</p><button type="button" onClick={() => { dispatch({ type: 'reset' }); journeyDispatch({ type: 'reset' }); setFriendSource(null); setFriendOpen(false); setWalkPreview(false); setTimeDraft(null); setReasonDrafts({}); returnCore.current = 'map'; setSurface('map'); focus(); setAnnouncement('A fresh authored example has started.'); }}>Start this example again</button></section>}
       </div>
       {core && <footer className="decision-sheet-footer" data-testid="decision-sheet-footer">
         <div className="decision-action-area" data-testid="decision-action-area">{coreActions}</div>
@@ -287,5 +163,5 @@ export function DecisionExperience() {
       </footer>}
     </section>}
     <p className="decision-sr-only" role="status" aria-live="polite" aria-atomic="true">{announcement}</p>
-  </main>;
+  </main>{friendSource && <FriendJoiningEpisode source={friendSource} active={friendOpen} onReturn={returnFromFriend}/>}</>;
 }

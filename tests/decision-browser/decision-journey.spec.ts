@@ -1,5 +1,6 @@
 import { test, expect, type Page, type TestInfo } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
+import { expectProjectedObjectTarget, expectAllDisplayedObjectTargets, expectPhysicalInputIfPresent, observeFirstArrivalFrame, expectFirstArrivalFrame } from './decision-journey-projection';
 import { mkdir } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -23,6 +24,7 @@ async function captureMovement(page: Page, info: TestInfo, name: string) {
 type ControlKind = 'button' | 'summary';
 const control = (page: Page, name: string, kind: ControlKind = 'button') => kind === 'summary' ? page.locator('summary').filter({ hasText: name }) : action(page, name);
 async function keyboardActivate(page: Page, name: string, kind: ControlKind = 'button') {
+  if (kind === 'button') await expectPhysicalInputIfPresent(page, name);
   const button = control(page, name, kind);
   for (let step = 0; step < 40; step++) {
     if (await button.evaluate(element => element === document.activeElement)) { await expectKeyboardFocusVisible(page); await page.keyboard.press('Enter'); return; }
@@ -104,7 +106,7 @@ async function inspectExactBillWith(page: Page, activate: Activate) {
 for (const width of [390, 1440]) test(`Shenzhen node journey keeps the chosen comparison at ${width}px`, async ({ browser, baseURL }, info) => {
   const context = await browser.newContext({ baseURL, viewport: { width, height: width === 390 ? 844 : 900 }, hasTouch: width === 390, reducedMotion: 'no-preference' });
   const page = await context.newPage();
-  const activate: Activate = width === 390 ? (name, kind) => control(page, name, kind).tap() : (name, kind) => keyboardActivate(page, name, kind);
+  const activate: Activate = width === 390 ? async (name, kind = 'button') => { if (kind === 'button') await expectPhysicalInputIfPresent(page, name); await control(page, name, kind).tap(); } : (name, kind) => keyboardActivate(page, name, kind);
   const audit = await auditNoPrivateStorage(context);
   try {
     await startFresh(page);
@@ -119,6 +121,7 @@ for (const width of [390, 1440]) test(`Shenzhen node journey keeps the chosen co
     await expect(page.getByTestId('decision-journey-place')).toContainText('home by 22:30');
     await expectPlayerInsideFrame(page);
     await expectLoadedPlayer(page);
+    await expectAllDisplayedObjectTargets(page);
     await captureMovement(page, info, 'counter');
     await expectSeriousAxeClear(page);
     for (let turn = 0; turn < 2; turn++) {
@@ -126,7 +129,7 @@ for (const width of [390, 1440]) test(`Shenzhen node journey keeps the chosen co
       await expect(journey).toHaveAttribute('data-node', 'station');
       await expectPlayerInsideFrame(page);
       await expect(journey).toHaveAttribute('data-committed-arrival', 'none');
-      await expect(page.getByTestId('decision-station-thought')).toContainText('You marked exploration.');
+      await expect(page.getByTestId('decision-station-thought')).toContainText('Your priority: exploration.');
       await expect(page.getByTestId('decision-station-thought')).toContainText('15 min past home-by');
       await expect(page.getByTestId('decision-journey-clock')).toHaveAttribute('data-minute', '1020');
       await activate('Counter');
@@ -145,7 +148,9 @@ for (const width of [390, 1440]) test(`Shenzhen node journey keeps the chosen co
     await captureMovement(page, info, 'outward');
     await expectSeriousAxeClear(page);
     await expect(action(page, 'Continue to arrival')).toBeEnabled();
+    await observeFirstArrivalFrame(page);
     await activate('Continue to arrival');
+    await expectFirstArrivalFrame(page);
     await expect(journey).toHaveAttribute('data-phase', 'arrived');
     await expect(page.getByTestId('decision-journey-place')).toContainText('Luohu dinner · Shenzhen');
     await expect(page.getByTestId('decision-journey-clock')).toHaveAttribute('data-minute', '1125');
@@ -155,7 +160,12 @@ for (const width of [390, 1440]) test(`Shenzhen node journey keeps the chosen co
     await expectPlayerInsideFrame(page);
     await expectDestinationImage(page, 'decision-sz-evening.webp');
     await expectLoadedPlayer(page);
+    await expectProjectedObjectTarget(page, 'phone');
+    await expectAllDisplayedObjectTargets(page);
     await captureMovement(page, info, 'arrival');
+    await activate('Phone Adjust one time');
+    await expectProjectedObjectTarget(page, 'phone');
+    await activate('Put down phone');
     await expectSeriousAxeClear(page);
     await activate('Open comparison and replay');
     await activate('Replay the comparison');
@@ -197,6 +207,7 @@ test('local departure works from the counter and reduced motion arrives without 
   await expectPlayerInsideFrame(page);
   await expectDestinationImage(page, 'decision-hk-pixel.webp');
   await expectLoadedPlayer(page);
+  await expectAllDisplayedObjectTargets(page);
   await captureMovement(page, info, 'local-arrival');
   await expectNoOverflow(page);
 });
@@ -284,8 +295,27 @@ for (const revision of ['earlier-departure', 'short-walk'] as const) test(`arriv
     await action(page, 'Put down phone').click();
     await expect(page.getByTestId('decision-journey-clock')).toHaveAttribute('data-minute', expectedArrival);
     if (object === 'arrival-bill') await action(page, 'Inspect the full outing bill').click();
-    else await action(page, { menu: 'Menu See both bills', map: 'Map Unfold both routes', phone: 'Phone Adjust one time' }[object]).click();
+    else {
+      await expect(page.getByTestId('decision-journey')).toHaveAttribute('data-camera-moving', 'false');
+      const physical = page.locator(`#decision-object-${object}`);
+      if (object === 'menu' && !await physical.isVisible()) {
+        await expect(physical).toHaveAttribute('hidden', '');
+        await action(page, 'Choose an object').click();
+        await action(page, 'Open menu').click();
+        await expectProjectedObjectTarget(page, 'menu');
+      } else {
+        await expectProjectedObjectTarget(page, object);
+        await physical.click();
+      }
+    }
     await expect(page.getByTestId('decision-experience')).toHaveAttribute('data-displayed-snapshot', 'revised');
+    // Open the named Menu explicitly; a physical Menu outside the crop must
+    // never become reachable through locator-induced ancestor scrolling.
+    if (await page.getByTestId('decision-experience').getAttribute('data-active-object') !== 'menu') {
+      await action(page, 'Choose an object').click();
+      await action(page, 'Open menu').click();
+    }
+    await expectProjectedObjectTarget(page, 'menu');
     expect(await readInputFacts(page)).toEqual(capturedInputs);
     await openDisclosure(page, 'What matters to you?');
     await expect(reason(page)).toHaveValue('My own revised reason.');

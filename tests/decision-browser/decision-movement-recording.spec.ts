@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
+import { expectProjectedObjectTarget, expectAllDisplayedObjectTargets } from './decision-journey-projection';
 import { action, auditNoPrivateStorage, clockControl, experience, startFresh } from './decision-helpers';
 
 /** Real, cold production interaction. Never seeds journey state, prewarms art,
@@ -56,6 +57,7 @@ test('record the real tap journey from 16:30 choice through Luohu arrival at 390
     const journey = page.getByTestId('decision-journey');
     await expect(journey).toHaveAttribute('data-node', 'counter');
     await expect(page.getByTestId('decision-journey-clock')).toHaveAttribute('data-minute', '990');
+    await expectAllDisplayedObjectTargets(page);
     await read('Step beside the counter; walking inspection changes no time or bill.', 3_000);
     await action(page, 'Station entrance').tap();
     await expect(journey).toHaveAttribute('data-node', 'station');
@@ -79,9 +81,17 @@ test('record the real tap journey from 16:30 choice through Luohu arrival at 390
     await expect(page.getByTestId('decision-journey-clock')).toHaveAttribute('data-minute', '1095');
     await expect(page.locator('.decision-journey-background[src$="decision-sz-evening.webp"]')).toBeVisible();
     await read('Arrive at 18:15 with the destination image, objects, clock and line together.', 4_000);
-    await action(page, 'Menu See both bills').tap();
+    await expectProjectedObjectTarget(page, 'phone');
+    await expectAllDisplayedObjectTargets(page);
+    await action(page, 'Phone Adjust one time').tap();
+    await expectProjectedObjectTarget(page, 'phone');
+    await read('Tap the fully visible physical Phone to inspect the captured revision.', 2_000);
+    await action(page, 'Put down phone').tap();
+    await action(page, 'Choose an object').tap();
+    await action(page, 'Open menu').tap();
+    await expectProjectedObjectTarget(page, 'menu');
     await expect(experience(page)).toHaveAttribute('data-displayed-snapshot', 'revised');
-    await read('Tap the physical menu to inspect the complete planned bills.', 3_000);
+    await read('Use Objects → Open menu for the offscreen restaurant menu; the shared camera follows its source anchor during inspection.', 3_000);
     await action(page, 'Back to evening').tap();
     await action(page, 'Replay the comparison').tap();
     await action(page, 'Before').tap();

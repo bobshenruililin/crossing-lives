@@ -1,4 +1,4 @@
-export const PHONE_SCENES = ['hk-home', 'metro-carriage', 'border-arrival', 'mall-foodcourt', 'parcel-counter', 'neighborhood-lane', 'urban-village', 'rental-home', 'luxury-home', 'office-floor', 'learning-center', 'planning-museum'];
+export const PHONE_SCENES = ['hk-home', 'metro-carriage', 'border-arrival', 'parcel-counter', 'mall-foodcourt', 'neighborhood-lane', 'urban-village', 'rental-home', 'luxury-home', 'office-floor', 'learning-center', 'planning-museum'];
 export function geometryProblems(sample, minimum = 0) {
   const problems = [], r = sample.rect;
   if (![r.left, r.top, r.right, r.bottom].every(Number.isFinite) || r.right <= r.left || r.bottom <= r.top) problems.push('empty or invalid box');
@@ -9,6 +9,18 @@ export function geometryProblems(sample, minimum = 0) {
   }
   if (sample.hit !== undefined && !sample.hit) problems.push('covered hit point');
   return [...new Set(problems)];
+}
+/** Plan a real short touch swipe toward the target's vertical center. The
+ * 16px allowance matches the observed Chromium touch-start slop; the next DOM
+ * sample, never this estimate, decides whether the target is actually visible.
+ * @returns {{ direction: 'up' | 'down', distance: number }} */
+export function revealSwipe(sample) {
+  const vertical = sample.clips.filter(clip => clip.y);
+  const top = Math.max(...vertical.map(clip => clip.top)), bottom = Math.min(...vertical.map(clip => clip.bottom));
+  const height = sample.rect.bottom - sample.rect.top, available = bottom - top;
+  if (![top, bottom, height].every(Number.isFinite) || height <= 0 || available <= 0 || height > available + 1) throw new RangeError('The whole reading target must fit the real scroll viewport.');
+  const offset = (sample.rect.top + sample.rect.bottom - top - bottom) / 2;
+  return { direction: offset > 0 ? 'up' : 'down', distance: Math.min(available * .55, Math.max(20, Math.abs(offset) + 16)) };
 }
 export function inputProblems(events, nativeSelectExceptions) {
   const problems = [];

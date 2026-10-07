@@ -2,6 +2,7 @@ import { test, expect, type Locator } from '@playwright/test';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { resolve } from 'node:path';
+import { hashHttpExport } from './hash-http-export';
 
 // Standalone smoke is intentionally independent of Chromium's CDP touch-swipe helper.
 async function visibleTap(target: Locator) {
@@ -36,17 +37,32 @@ test('diagnostic exact served export supports WebKit touch movement, plan commit
   const sourceBytes = await readFile(resolve('artifacts/crossing-lives-world.html'));
   const sourceSha256 = createHash('sha256').update(sourceBytes).digest('hex');
   let responseSha256: string | null = null, servedBytes: number | null = null;
-  let completed = false, failure: string | null = null, stage = 'navigation';
+  let completed = false, failure: string | null = null, stage = 'independent-http-verification';
+  let httpVerification: Awaited<ReturnType<typeof hashHttpExport>> | null = null;
+  let browserResponseHeaders: Record<string, string> | null = null;
   let decodedArt: { complete: boolean; width: number; height: number } | null = null;
   type RenderedPosition = { x: number; width: number; height: number; planeWidth: number; planeHeight: number };
   let renderedMovement: { before: RenderedPosition; after: RenderedPosition } | null = null;
   try {
+    await expect(page).toHaveURL('about:blank');
+    httpVerification = await hashHttpExport('http://127.0.0.1:4183/crossing-lives-world.html', sourceBytes.length);
+    servedBytes = httpVerification.bytes; responseSha256 = httpVerification.sha256;
+    expect(httpVerification.status).toBe(200);
+    expect(servedBytes).toBe(sourceBytes.length); expect(responseSha256).toBe(sourceSha256);
+    expect(httpVerification.headers['content-length']).toBe(String(sourceBytes.length));
+    expect(httpVerification.headers['x-diagnostic-source-sha256']).toBe(sourceSha256);
+    expect(httpVerification.headers['content-encoding']).toBeUndefined();
+    await expect(page).toHaveURL('about:blank');
+    stage = 'browser-navigation';
     const response = await page.goto('/crossing-lives-world.html');
     expect(response).not.toBeNull(); expect(response!.status()).toBe(200);
     await expect(page).toHaveURL('http://127.0.0.1:4183/crossing-lives-world.html');
-    const received = await response!.body(); servedBytes = received.length;
-    responseSha256 = createHash('sha256').update(received).digest('hex');
-    expect(servedBytes).toBe(sourceBytes.length); expect(responseSha256).toBe(sourceSha256);
+    browserResponseHeaders = await response!.allHeaders();
+    expect(browserResponseHeaders['content-length']).toBe(String(sourceBytes.length));
+    expect(browserResponseHeaders['x-diagnostic-source-sha256']).toBe(sourceSha256);
+    expect(browserResponseHeaders['content-type']).toBe('text/html; charset=utf-8');
+    expect(browserResponseHeaders['cache-control']).toBe('no-store');
+    expect(browserResponseHeaders['content-encoding']).toBeUndefined();
     stage = 'touch-world-smoke';
     await visibleTap(page.getByRole('button', { name: 'Play', exact: true }));
     const app = page.getByTestId('world-app'), player = page.getByTestId('world-player');
@@ -86,6 +102,6 @@ test('diagnostic exact served export supports WebKit touch movement, plan commit
     expect(input.length).toBeGreaterThanOrEqual(8); expect(input.every(event => event.trusted && event.pointerType === 'touch')).toBe(true);
     stage = 'complete'; completed = true;
   } catch (error) { failure = String(error); throw error; } finally {
-    await writeFile(resolve(out, 'served-world.json'), JSON.stringify({ commit, completed, stage, failure, browser: browser.version(), scope: 'HTTP-served exact world export in Linux WebKit at 390x844; does not establish offline file support or physical iPhone/Safari validation', protocol: 'http:', standaloneExport: true, offline: false, sourceArtifact: 'artifacts/crossing-lives-world.html', sourceBytes: sourceBytes.length, sourceSha256, servedBytes, responseSha256, decodedArt, renderedMovement, input, errors, network }, null, 2));
+    await writeFile(resolve(out, 'served-world.json'), JSON.stringify({ commit, completed, stage, failure, browser: browser.version(), scope: 'HTTP-served exact world export in Linux WebKit at 390x844; does not establish offline file support or physical iPhone/Safari validation', protocol: 'http:', standaloneExport: true, offline: false, sourceArtifact: 'artifacts/crossing-lives-world.html', sourceBytes: sourceBytes.length, sourceSha256, servedBytes, responseSha256, byteVerification: 'Independent Node HTTP stream before fresh browser navigation; browser response body is not read through the inspector', httpVerification, browserResponseHeaders, decodedArt, renderedMovement, input, errors, network }, null, 2));
   }
 });

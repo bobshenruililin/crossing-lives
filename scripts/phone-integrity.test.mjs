@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { PHONE_SCENES, geometryProblems, inputProblems, completionProblems, finalRecordingComplete } from '../tests/world-phone/phone-contract.mjs';
+import { PHONE_SCENES, geometryProblems, revealSwipe, inputProblems, completionProblems, finalRecordingComplete } from '../tests/world-phone/phone-contract.mjs';
 const rect = { left: 10, top: 10, right: 70, bottom: 70 };
 const viewport = { left: 0, top: 0, right: 390, bottom: 844, x: true, y: true };
 test('touch geometry catches viewport, nested per-axis clipping, tiny controls and covered centers', () => {
@@ -20,7 +20,9 @@ test('trusted input contract rejects keyboard, mouse, hidden synthetic input and
   assert.notDeepEqual(inputProblems(goodInput, 2), []);
   assert.notDeepEqual(inputProblems(goodInput.slice(1), 1), []);
 });
-const complete = { commit: 'a'.repeat(40), scenes: PHONE_SCENES, durationMs: 350000, doors: Array.from({ length: 11 }, (_, i) => ({ kind: i ? 'visible-door' : 'nearby-enter' })), checkpoints: ['home-taken', 'parcel-delivery-taken', 'lease-b-taken', 'office-complete', 'museum-evidence', 'carried-home-plan'], mapNavigationCount: 0 };
+// Independently transcribed from the actual e897 twelve-room physical tour.
+const observedPhysicalRoute = ['hk-home', 'metro-carriage', 'border-arrival', 'parcel-counter', 'mall-foodcourt', 'neighborhood-lane', 'urban-village', 'rental-home', 'luxury-home', 'office-floor', 'learning-center', 'planning-museum'];
+const complete = { commit: 'a'.repeat(40), scenes: observedPhysicalRoute, durationMs: 350000, doors: Array.from({ length: 11 }, (_, i) => ({ kind: i ? 'visible-door' : 'nearby-enter' })), checkpoints: ['home-taken', 'parcel-delivery-taken', 'lease-b-taken', 'office-complete', 'museum-evidence', 'carried-home-plan'], mapNavigationCount: 0 };
 test('complete film needs all rooms, physical route, decisions, exact commit and duration', () => {
   assert.deepEqual(completionProblems(complete), []);
   for (const mutation of [{ commit: 'HEAD' }, { scenes: PHONE_SCENES.slice(0, 11) }, { durationMs: undefined }, { durationMs: null }, { durationMs: NaN }, { durationMs: Infinity }, { durationMs: -Infinity }, { durationMs: '350000' }, { durationMs: 299999 }, { durationMs: 480001 }, { doors: [] }, { checkpoints: complete.checkpoints.slice(1) }, { mapNavigationCount: 1 }]) assert.notDeepEqual(completionProblems({ ...complete, ...mutation }), []);
@@ -42,4 +44,33 @@ test('completion metadata requires saved nonempty video and successful trace/con
   const saved = { routeCompleted: true, videoSaved: true, videoBytes: 2048, cleanupErrors: [], activeStorage: {}, durableStorage: {} };
   assert.equal(finalRecordingComplete(saved), true);
   for (const bad of [{ routeCompleted: false }, { videoSaved: false }, { videoBytes: 0 }, { videoBytes: NaN }, { cleanupErrors: ['trace stop failed'] }, { cleanupErrors: ['context close failed'] }, { activeStorage: null }, { durableStorage: null }]) assert.equal(finalRecordingComplete({ ...saved, ...bad }), false);
+});
+
+test('adaptive native swipes resolve both observed museum overshoot positions without relaxing clipping', () => {
+  const clips = [{ left: 17, top: 344.640625, right: 373, bottom: 725.640625, x: true, y: true }];
+  for (const [top, bottom] of [[328.671875,545.5625],[522.671875,739.5625]]) {
+    const sample = { rect: { left:38,top,right:352,bottom }, clips };
+    assert.deepEqual(geometryProblems(sample), ['vertical clipping']);
+    const plan = revealSwipe(sample);
+    assert.ok(plan.distance < 150, 'A full194px scroll caused the observed oscillation.');
+    const actual = (plan.distance - 16) * (plan.direction === 'up' ? -1 : 1);
+    assert.deepEqual(geometryProblems({ ...sample, rect: { ...sample.rect, top:top+actual,bottom:bottom+actual } }), []);
+  }
+  const narrow = { rect: { left:20,top:-5,right:330,bottom:148.5 }, clips:[{left:0,top:0,right:390,bottom:164,x:true,y:true}] };
+  const move = revealSwipe(narrow), actual = (move.distance - 16) * (move.direction === 'up' ? -1 : 1);
+  assert.deepEqual(geometryProblems({ ...narrow, rect:{ ...narrow.rect,top:narrow.rect.top+actual,bottom:narrow.rect.bottom+actual } }), []);
+  assert.throws(() => revealSwipe({ ...narrow,rect:{...narrow.rect,bottom:300} }), RangeError);
+});
+
+test('phone completion route agrees with the actual physical route and rejects the former parcel/mall inversion', async () => {
+  assert.deepEqual(PHONE_SCENES, observedPhysicalRoute);
+  const types = await readFile(new URL('../src/world/types.ts', import.meta.url), 'utf8');
+  const declared = types.match(/export const SCENE_IDS = \[([^\]]+)\] as const;/);
+  assert.ok(declared, 'Production route declaration must remain inspectable.');
+  const production = [...declared[1].matchAll(/'([^']+)'/g)].map(match => match[1]);
+  assert.deepEqual(production, observedPhysicalRoute);
+  assert.deepEqual(completionProblems(complete), []);
+  const inverted = [...observedPhysicalRoute];
+  [inverted[3], inverted[4]] = [inverted[4], inverted[3]];
+  assert.ok(completionProblems({ ...complete, scenes: inverted }).includes('incomplete ordered world'));
 });

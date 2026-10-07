@@ -8,6 +8,7 @@ test('diagnostic HTTP transport preserves exact export bytes, including unicode 
   const bytes = Buffer.concat([Buffer.from('<!doctype html>香港\n<script>const x="data:image/webp;base64,AABC";</script>'), Buffer.from([0, 255, 13, 10])]);
   const served = diagnosticResponse('/crossing-lives-world.html', bytes);
   assert.equal(served.status, 200); assert.equal(served.type, 'text/html; charset=utf-8');
+  assert.equal(served.sha256, createHash('sha256').update(bytes).digest('hex'));
   assert.strictEqual(served.body, bytes); assert.deepEqual(served.body, bytes);
   const ready = JSON.parse(diagnosticResponse('/__diagnostic-ready', bytes).body);
   assert.equal(ready.bytes, bytes.length); assert.equal(ready.sha256, createHash('sha256').update(bytes).digest('hex'));
@@ -65,4 +66,37 @@ test('WebKit declarations install is isolated and strict tsc explicitly uses its
   assert.match(workflow, /--typeRoots "\$RUNNER_TEMP\/crossing-node-types\/node_modules\/@types,\.\/node_modules\/@types"/);
   assert.match(workflow, /declarations\.json "\$RUNNER_TEMP\/crossing-node-types"/);
   assert.doesNotMatch(workflow, /npm install --no-save --package-lock=false/);
+});
+
+
+test('independent Node HTTP stream hashes a 28 MiB response exactly without a browser inspector', async () => {
+  const { hashHttpExport } = await import('../tests/world-webkit-diagnostics/hash-http-export.ts');
+  const { createServer } = await import('node:http');
+  const bytes = Buffer.alloc(28 * 1024 * 1024, 83); Buffer.from('Unicode 香港 byte marker').copy(bytes, 1_048_577);
+  const expected = createHash('sha256').update(bytes).digest('hex');
+  let requests = 0;
+  const server = createServer((_request, response) => {
+    requests++;
+    const result = diagnosticResponse('/crossing-lives-world.html', bytes);
+    response.writeHead(result.status, { 'content-type': result.type, 'content-length': result.body.length, 'cache-control': 'no-store', 'x-diagnostic-source-sha256': result.sha256 });
+    response.end(result.body);
+  });
+  await new Promise((accept, reject) => { server.once('error', reject); server.listen(0, '127.0.0.1', accept); });
+  try {
+    const url = `http://127.0.0.1:${server.address().port}/crossing-lives-world.html`;
+    const proof = await hashHttpExport(url, bytes.length);
+    assert.equal(proof.status, 200); assert.equal(proof.bytes, bytes.length); assert.equal(proof.sha256, expected);
+    assert.equal(proof.headers['x-diagnostic-source-sha256'], expected);
+    assert.equal(proof.headers['content-length'], String(bytes.length)); assert.equal(requests, 1);
+    await assert.rejects(hashHttpExport(url, 1_024), /aborted|byte bound/);
+  } finally { await new Promise((accept, reject) => server.close(error => error ? reject(error) : accept())); }
+});
+
+test('served browser test verifies Node bytes first and never requests the inspector response body', async () => {
+  const source = await readFile(new URL('../tests/world-webkit-diagnostics/served-world.spec.ts', import.meta.url), 'utf8');
+  assert.doesNotMatch(source, /response!?(?:\?)?\.body\(/);
+  assert.ok(source.indexOf('await hashHttpExport(') < source.indexOf('await page.goto('));
+  assert.match(source, /browserResponseHeaders\['content-length'\]\)\.toBe\(String\(sourceBytes.length\)\)/);
+  assert.match(source, /browserResponseHeaders\['x-diagnostic-source-sha256'\]\)\.toBe\(sourceSha256\)/);
+  assert.equal((source.match(/toHaveURL\('about:blank'\)/g) ?? []).length, 2);
 });

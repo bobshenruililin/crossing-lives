@@ -130,11 +130,22 @@ test('record all twelve rooms using real phone touch and readable decisions', as
         await touch.reveal(boundary, 'Boundary limitation'); await read('Read the boundary distinction and what this map does not draw.', 6_000);
         checkpoints.push('museum-evidence'); await touch.close();
       } else {
-        await expectFacts(page, id, 0); await read(`${id}: ${CASES[id].choices[0].label}.`, 6_000);
+        await expectFacts(page, id, 0); await read(`${id}: ${CASES[id].choices[0].label}.`, 3_000);
+        const diagram = panel.locator('.wi-figure svg');
+        await touch.reveal(diagram, `${id}: complete starting diagram`);
+        await read(`${id}: inspect the complete starting diagram.`, 3_000);
         const choice = panel.getByRole('radio', { name: CASES[id].choices[1].label, exact: true });
+        await touch.reveal(choice.locator('..'), `${id}: return to the labelled alternative`);
         await touch.tap(choice.locator('..'), `${id}: ${CASES[id].choices[1].label}`);
         await expect(choice).toBeChecked(); await expectFacts(page, id, 1);
-        await read(`${id}: read the visible consequence of ${CASES[id].choices[1].label}.`, 7_000); await touch.close();
+        await touch.reveal(diagram, `${id}: complete changed diagram`);
+        await read(`${id}: inspect the changed diagram.`, 4_000); await capture(`diagram-${id}-changed`);
+        const caption = panel.locator('.wi-figure figcaption');
+        if (await caption.count()) { await touch.reveal(caption, `${id}: diagram scope`); await read(`${id}: read the diagram scope.`, 2_000); }
+        const numbers = panel.locator('.wi-numbers');
+        if (await numbers.count()) { await touch.reveal(numbers, `${id}: visible consequence numbers and units`); await read(`${id}: read the consequence numbers and units.`, 2_000); }
+        await touch.reveal(panel.locator('.wi-thought'), `${id}: consequence explanation`);
+        await read(`${id}: read the consequence in words.`, 3_000); await capture(`result-${id}-changed`); await touch.close();
       }
       await expect(page.getByRole('dialog')).toHaveCount(0);
     }

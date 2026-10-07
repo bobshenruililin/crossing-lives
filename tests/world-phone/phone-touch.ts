@@ -1,5 +1,5 @@
 import { expect, type CDPSession, type Locator, type Page } from '@playwright/test';
-import { geometryProblems } from './phone-contract.mjs';
+import { geometryProblems, revealSwipe } from './phone-contract.mjs';
 import { exitFor, pointFor } from '../world-browser/world-fixtures';
 import { expectScene, insight, player, position, world } from '../world-browser/world-helpers';
 import type { SceneId } from '../../src/world/types';
@@ -32,9 +32,10 @@ export function touchDriver(page: Page, geometry: Geometry[]) {
     await target.tap(position ? { position } : {});
   };
   // Chromium native touch dispatch is a physical touchscreen gesture, not DOM event injection.
-  const swipe = async (body: Locator, direction: 'up' | 'down') => {
+  const swipe = async (body: Locator, direction: 'up' | 'down', requestedDistance?: number) => {
     const r = await body.boundingBox(); expect(r).not.toBeNull();
-    const x = r!.x + r!.width * .85, start = r!.y + r!.height * (direction === 'up' ? .8 : .25), end = r!.y + r!.height * (direction === 'up' ? .25 : .8);
+    const distance = Math.min(requestedDistance ?? r!.height * .55, r!.height * .55);
+    const x = r!.x + r!.width * .85, start = r!.y + r!.height * (direction === 'up' ? .8 : .25), end = start + (direction === 'up' ? -distance : distance);
     const hit = await body.evaluate((el, point) => { const top = document.elementFromPoint(point.x, point.y); return !!top && el.contains(top); }, { x, y: start });
     expect(hit, 'Swipe starts inside the actual scroll surface').toBe(true);
     session ??= await page.context().newCDPSession(page);
@@ -50,8 +51,8 @@ export function touchDriver(page: Page, geometry: Geometry[]) {
     for (let i = 0; i < 14; i++) {
       const value = await sample(target, label, false); geometry.push(value);
       if (geometryProblems(value).length === 0) return;
-      const top = Math.max(...value.clips.filter(c => c.y).map(c => c.top));
-      await swipe(page.locator('.world-modal-scroll'), value.rect.top < top ? 'down' : 'up');
+      const plan = revealSwipe(value);
+      await swipe(page.locator('.world-modal-scroll'), plan.direction, plan.distance);
     }
     await visible(target, label);
   };

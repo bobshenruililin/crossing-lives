@@ -5,7 +5,7 @@ The b8d569c CI installed WebKit 26.6/build 2359 and produced the portable world 
 The original offline smoke spec and config remain byte-identical. Its existing JSON and PNG outcomes remain in their original paths. The workflow still fails when that test fails. The two added diagnostics run independently afterward, even when the original file test fails:
 
 1. Tiny offline file baseline: a minimal self-contained HTML document at a file URL must load and receive a trusted native touch. It writes tiny-file.json with its own outcome and error stage.
-2. Exact served export: a loopback HTTP server returns the existing `artifacts/crossing-lives-world.html` bytes without rewriting. The test hashes the actual navigation response body and requires matching SHA-256 and byte length against the source export. It then runs the same small movement/choice/commit/close smoke with native touches. served-world.json explicitly records HTTP and offline:false. Hosted success does not establish that file navigation works.
+2. Exact served export: a loopback HTTP server returns the existing `artifacts/crossing-lives-world.html` bytes without rewriting. Before browser navigation, a separate Node HTTP stream hashes the returned bytes and requires matching SHA-256 and byte length against the source export. The browser remains at about:blank throughout this independent request. Browser navigation then verifies Content-Length, the source-hash header, content type and no-store behavior without asking the WebKit inspector for its response body. It then runs the same small movement/choice/commit/close smoke with native touches. served-world.json explicitly records HTTP and offline:false. Hosted success does not establish that file navigation works.
 
 The server only exposes the export and one readiness response. No runtime code or generated export is modified. There are no security flags, alternate WebKit installation, route interception or future-image preload. The current rendered background alone is decoded by the existing smoke checks.
 
@@ -24,3 +24,6 @@ The isolated local package-only comparison did not complete. After its authoriza
 
 
 The actual produced HTML is also preserved in `crossing-lives-webkit-exact-export`, separately from the 32 MiB review. Its receipt verifies the file still matches the recorded portable SHA-256 and byte count, includes both dependency snapshots and their diff, and enforces a 384 MiB payload ceiling before upload. The original HTML stays outside the small-review roots, so its approximately 28.4 MB size cannot crowd out failure PNGs. No derived or re-exported replacement is substituted.
+
+
+The e897 diagnostic run failed both offline file navigation and the tiny-file baseline with an internal WebKit error. Its served navigation reached HTTP200, but retrieving the large response body through the inspector failed after cache eviction, before the touch smoke. The bounded repair replaces only that inspector-body proof with independent Node transport and matching browser response metadata. Neither failed-file result is reclassified, and served compatibility remains pending until actual touch assertions run.

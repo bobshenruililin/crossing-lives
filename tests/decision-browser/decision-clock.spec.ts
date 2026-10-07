@@ -158,7 +158,7 @@ test('late departure distinguishes home lateness from the border closing buffer 
   await chooseBaseline(page, 'Shenzhen');
   await previewTime(page, 'departure', 1140);
   await expectTimeFacts(page, { departure: 1140, deadline: 1410, hkHome: 1305, szHome: 1485 });
-  await expectTrailingBodyReachable(page); // Late/next-day clock preview must keep the full body and footer visible too.
+  await expectTrailingBodyReachable(page); // Late/next-day preview keeps initial lanes/footer visible and its trailing legend reachable.
   await applyTimeChange(page);
   await expect(outcome(page, 'SZ')).toHaveAttribute('data-home-fit', 'false');
   await expect(outcome(page, 'SZ')).toHaveAttribute('data-crossing-fit', 'false');

@@ -12,8 +12,8 @@ async function expectSeriousAxeClear(page: Page) {
     'Serious and critical findings remain visible failures; no exclusions or rule disabling.').toEqual([]);
 }
 
-async function tabTo(page: Page, label: string) {
-  const target = action(page, label);
+async function tabTo(page: Page, label: string, role: 'button' | 'region' = 'button') {
+  const target = page.getByRole(role, { name: label, exact: true });
   for (let press = 0; press < 60; press += 1) {
     if (await target.evaluate(element => element === document.activeElement)) {
       await expectKeyboardFocusVisible(page);
@@ -22,6 +22,42 @@ async function tabTo(page: Page, label: string) {
     await page.keyboard.press('Tab');
   }
   throw new Error(`Keyboard navigation never reached ${label}.`);
+}
+
+/** Real keyboard access to the now-independent comparison scroll region.
+ * No pointer, focus() call, wheel input or scrollTop assignment is used. */
+async function expectKeyboardComparisonScroll(page: Page) {
+  const body = page.getByRole('region', { name: 'Comparison timeline', exact: true });
+  await expect(body).toHaveCount(1);
+  await expect(body).toHaveAttribute('tabindex', '0');
+  const initial = await body.evaluate(element => ({ top: element.scrollTop, range: element.scrollHeight - element.clientHeight }));
+  expect(initial.top, 'The keyboard test starts from the untouched comparison position.').toBe(0);
+  const fixedFooter = await page.getByTestId('decision-sheet-footer').boundingBox();
+  await tabTo(page, 'Comparison timeline', 'region');
+  await expect(body).toBeFocused();
+  await expectKeyboardFocusVisible(page);
+  await page.keyboard.press('End');
+  await expect.poll(() => body.evaluate(element => Math.abs(element.scrollHeight - element.clientHeight - element.scrollTop))).toBeLessThanOrEqual(1);
+  if (initial.range > 0) expect(await body.evaluate(element => element.scrollTop), 'End must actually scroll an overflowing comparison.').toBeGreaterThan(initial.top);
+  const legend = body.locator('.decision-comparison > :last-child');
+  await expect(legend, 'Keyboard End reveals the complete last legend line.').toBeInViewport({ ratio: 1 });
+  const endBounds = await legend.evaluate(element => {
+    const range = document.createRange(); range.selectNodeContents(element);
+    const text = range.getBoundingClientRect();
+    const body = element.closest('.decision-core-body')!.getBoundingClientRect();
+    const footer = element.closest('[data-testid="decision-sheet"]')!.querySelector('.decision-sheet-footer')!.getBoundingClientRect();
+    return { textTop: text.top, textBottom: text.bottom, bodyTop: body.top, bodyBottom: body.bottom, footerTop: footer.top };
+  });
+  expect(endBounds.textTop).toBeGreaterThanOrEqual(endBounds.bodyTop);
+  expect(endBounds.textBottom).toBeLessThanOrEqual(Math.min(endBounds.bodyBottom, endBounds.footerTop));
+  await expect(body).toBeFocused();
+  expect(await page.getByTestId('decision-sheet-footer').boundingBox()).toEqual(fixedFooter);
+  expect(await page.evaluate(() => [scrollX, scrollY])).toEqual([0, 0]);
+  await page.keyboard.press('Home');
+  await expect.poll(() => body.evaluate(element => element.scrollTop)).toBe(initial.top);
+  await expect(body).toBeFocused();
+  await expectKeyboardFocusVisible(page);
+  await expectWorldAndCore(page); // Both initial figures/tracks and fixed caveat are visible again.
 }
 
 async function expectVisibleControls(page: Page) {
@@ -103,8 +139,12 @@ for (const width of [360, 390, 1440]) {
     await expect(action(page, 'Apply time change')).toBeDisabled();
     await expectWorldAndCore(page); // The longest unchanged-clock hint must not hide either lane or any control.
     await expectVisibleControls(page);
+    await expectKeyboardComparisonScroll(page);
+    await expect(clockControl(page, 'homeBy')).toHaveValue('1410');
+    await expectStage(page, 'baseline', 'baseline', true);
     await expectSeriousAxeClear(page);
-    for (let step = 0; step < 4; step += 1) await action(page, '15 minutes earlier').press('Enter');
+    await tabTo(page, '15 minutes earlier');
+    for (let step = 0; step < 4; step += 1) await page.keyboard.press('Enter');
     await expect(clockControl(page, 'homeBy')).toHaveValue('1350');
     await expectWorldAndCore(page);
     await expectVisibleControls(page); // Includes the active native time select.

@@ -4,6 +4,12 @@
 
 It begins inside an original illustrated place. Short conversations and ordinary objects let an evening unfold; an optional practical comparison exposes the whole-outing arithmetic when wanted. Neither city is assigned an inherently better outcome.
 
+## Current direction: the decision-led prototype
+
+The active prototype puts the whole-evening comparison and changed circumstances first. It is a **separate entry at `/decision.html`**, using matched immutable input snapshots rather than the original story's active-city selector. One fixed authored example changes only the home-by deadline, then lets the person keep the complete Hong Kong plan or shorten the Shenzhen walk and replay the difference. Qualitative priorities and reasons are explicit; no city preference score is inferred.
+
+Run `npm run dev:decision`, or `npm run export:decision` for the independent production/offline artifact. The original entry remains a verified fallback and its stored data is not read or overwritten by the new page. The new comparison, pixel scene and 14-case production suite are implemented but **await their own actual CI and visual review**. Source-only success is not a playability or audience-understanding claim. See [the first-slice scope](docs/DECISION_PROTOTYPE.md).
+
 ## What is here
 
 - A scene-led fictional Saturday with Jun, free observations, natural spoken choices and explicit travel/meal/walk commitments

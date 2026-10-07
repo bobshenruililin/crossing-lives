@@ -29,6 +29,12 @@ jobs:
         run: npx playwright test --config=playwright.production.config.ts
         env:
           CROSSING_BROWSER_CHANNEL: chrome
+      - name: Build the separate decision-led prototype
+        run: npm run export:decision
+      - name: Verify the decision-led production entry
+        run: npm run test:decision
+        env:
+          CROSSING_BROWSER_CHANNEL: chrome
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -40,3 +46,4 @@ jobs:
             test-results/
             !test-results/walkthrough-*/recording/*.webm
             !test-results/production-capture/**/recording/*.webm
+            !test-results/decision/**/recording/*.webm

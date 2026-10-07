@@ -12,7 +12,12 @@
     "preview": "vite preview --host 127.0.0.1",
     "test:browser": "playwright test",
     "export:portable": "npm run build && node scripts/export-portable.mjs",
-    "test:native": "node --import ./scripts/typescript-resolver.mjs --test tests/domain.test.ts"
+    "test:native": "node --import ./scripts/typescript-resolver.mjs --test tests/domain.test.ts",
+    "build:decision": "tsc --noEmit && vite build --config vite.decision.config.ts",
+    "preview:decision": "vite preview --config vite.decision.config.ts --host 127.0.0.1",
+    "export:decision": "npm run build:decision && node scripts/export-decision-portable.mjs",
+    "test:decision": "playwright test --config=playwright.decision.config.ts",
+    "dev:decision": "vite --config vite.decision.config.ts --host 127.0.0.1"
   },
   "dependencies": {
     "@fontsource-variable/fraunces": "^5.3.0",

@@ -51,6 +51,9 @@
 .dialogue-close{position:absolute;top:7px;right:7px;display:grid;place-items:center;padding:10px;color:#f2e8d7;z-index:2}
 .dialogue-close:hover{background:#e9dbc11c}
 .dialogue-portrait{width:84px;flex:none;padding-top:7px}
+/* A retained table already contains Jun. Keep the dialogue's layout stable,
+   but show its portrait only after the displayed painting no longer does. */
+.playable-evening:has(.play-world[data-scene-visible$="-table.webp"]) .dialogue-portrait{visibility:hidden}
 .jun-avatar{position:relative;width:84px;height:126px;overflow:hidden}
 .jun-avatar>span{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--serif);font-size:42px;color:#d8c4a8}
 .jun-avatar>img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;object-position:bottom center;mask-image:linear-gradient(#000 90%,transparent)}

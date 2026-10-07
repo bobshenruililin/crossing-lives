@@ -1,7 +1,8 @@
 import { test, expect, type ElementHandle, type Page } from '@playwright/test';
 import {
   chooseDinner, chooseWalk, cityPreview, closeDialogue, depart, dialogue,
-  expectPhase, openAction, readStorySave, showcase, startStory, storyClock,
+  expectNoClippedText, expectPhase, expectUnscrolledDialogueActions, openAction,
+  readStorySave, showcase, startStory, storyClock,
 } from './story-helpers';
 
 const world = (page: Page) => page.locator('.play-world');
@@ -186,6 +187,52 @@ for (const [motion, width] of [['no-preference', 390], ['reduce', 360]] as const
     } finally { openNetwork(); }
   });
 }
+
+test('desktop table-to-night readiness avoids a second Jun portrait until the retained table is replaced', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  const errors: string[] = []; page.on('pageerror', error => errors.push(error.message));
+  await controlDecode(page, ['hk-evening-night.webp']);
+  await page.goto('/'); await startStory(page);
+  await depart(page, 'Hong Kong'); await chooseDinner(page, 'simple');
+  await expect(storyClock(page)).toHaveText('18:15');
+  const outgoing = await expectReady(page, 'hong-kong-table.webp');
+  await chooseWalk(page, 'long');
+  await waitForHeldDecode(page, 'hk-evening-night.webp');
+  await expectRetained(page, outgoing, 'hk-evening-night.webp');
+  await expect(world(page)).toHaveAttribute('data-scene-visible', 'hong-kong-table.webp');
+  await expectPhase(page, 'walk'); await expect(storyClock(page)).toHaveText('19:00');
+  const committed = await readStorySave(page);
+  expect(committed.currentAttempt).toMatchObject({ city: 'hk', dinnerChoice: 'simple', walkChoice: 'long', phase: 'walk' });
+  const heading = dialogue(page).getByRole('heading', { name: 'By the water', exact: true });
+  await expect(heading).toBeFocused(); await expect(heading).toBeInViewport({ ratio: 1 });
+  const spoken = dialogue(page).locator('.spoken-line');
+  await expect(spoken).toHaveText(['I’d forgotten how the restaurant lights look from down here.', 'Shall we head back?']);
+  for (const line of await spoken.all()) {
+    await expect(line).toBeVisible(); await expect(line).toBeInViewport({ ratio: 1 });
+    await expectNoClippedText(line);
+  }
+  await expectUnscrolledDialogueActions(page, ['Look around', 'Return to the scene']);
+  const portrait = dialogue(page).locator('.dialogue-portrait');
+  await expect(portrait).toHaveCount(1);
+  await expect(portrait).toHaveCSS('visibility', 'hidden'); await expect(portrait).toBeHidden();
+  const incoming = await pendingImage(page).elementHandle() as ElementHandle<HTMLImageElement>;
+  await showcase(page, 'readiness-table-night-pending-1440');
+
+  await releaseDecode(page, 'hk-evening-night.webp');
+  await expectReady(page, 'hk-evening-night.webp');
+  expect(await incoming.evaluate(image => image === document.querySelector('.play-world img[data-scene-layer="visible"]'))).toBe(true);
+  expect(await outgoing.node.evaluate(image => image.isConnected)).toBe(false);
+  await expect(portrait).toHaveCSS('visibility', 'visible'); await expect(portrait).toBeVisible();
+  await expect(portrait).toBeInViewport({ ratio: 1 });
+  await expect(portrait.locator('img[data-art="jun-portrait.webp"]')).toBeVisible();
+  await expectPhase(page, 'walk'); await expect(storyClock(page)).toHaveText('19:00');
+  expect(await readStorySave(page)).toEqual(committed);
+  await expect(heading).toBeFocused();
+  await expectUnscrolledDialogueActions(page, ['Look around', 'Return to the scene']);
+  await showcase(page, 'readiness-table-night-settled-1440');
+  expect(errors).toEqual([]);
+});
 
 test('rapid free previews ignore an older completed decode and retain the latest requested city', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 }); await page.emulateMedia({ reducedMotion: 'reduce' });

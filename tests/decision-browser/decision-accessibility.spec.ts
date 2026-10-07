@@ -101,6 +101,9 @@ for (const width of [360, 390, 1440]) {
     await page.keyboard.press('Enter');
     await expect(clockControl(page, 'homeBy')).toHaveValue('1410');
     await expect(action(page, 'Apply time change')).toBeDisabled();
+    await expectWorldAndCore(page); // The longest unchanged-clock hint must not hide either lane or any control.
+    await expectVisibleControls(page);
+    await expectSeriousAxeClear(page);
     for (let step = 0; step < 4; step += 1) await action(page, '15 minutes earlier').press('Enter');
     await expect(clockControl(page, 'homeBy')).toHaveValue('1350');
     await expectWorldAndCore(page);

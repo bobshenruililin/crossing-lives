@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import {
   action, applyTimeChange, auditNoPrivateStorage, beginTimePreview, capture, changedKeys, chooseBaseline,
   clockControl, closeDisclosure, expectAcceptedFacts, expectKeyboardFocusVisible, expectNoOverflow,
-  expectStage, expectTimeFacts, expectWorldAndCore, experience, inspectCommonTimeline, openDisclosure,
+  expectStage, expectTimeFacts, expectTrailingBodyReachable, experience, inspectCommonTimeline, openDisclosure,
   outcome, previewTime, readBills, readCoreGeometry, readInputFacts, reason, replay, startFresh,
 } from './decision-helpers';
 
@@ -18,13 +18,13 @@ for (const width of [360, 390]) {
     await expect(clockControl(page, 'departure')).toHaveValue('1020');
     await expect(action(page, 'Apply time change')).toBeDisabled();
     await expectStage(page, 'baseline', 'baseline', true);
-    await expectWorldAndCore(page);
+    await expectTrailingBodyReachable(page);
     const before = await readCoreGeometry(page);
     await clockControl(page, 'departure').selectOption('990');
     await expectStage(page, 'baseline', 'changed', true);
     await expect(experience(page)).toHaveAttribute('data-preview-kind', 'time');
     await expectTimeFacts(page, { departure: 990, deadline: 1410, hkHome: 1155, szHome: 1335 });
-    await expectWorldAndCore(page);
+    await expectTrailingBodyReachable(page);
     const deltaPixels = before.tracks[0].width * -30 / 660;
     await expect.poll(async () => (await readCoreGeometry(page)).tracks[0].segments[0].x - before.tracks[0].segments[0].x).toBeCloseTo(deltaPixels, 0);
     const shifted = await readCoreGeometry(page);
@@ -50,7 +50,7 @@ for (const width of [360, 390]) {
     await expect(action(page, 'Change home-by')).toHaveCount(0);
     await expect(page.getByTestId('decision-time-editor')).toHaveCount(0);
     await expectTimeFacts(page, { departure: 990, deadline: 1410, hkHome: 1155, szHome: 1335 });
-    await expectWorldAndCore(page);
+    await expectTrailingBodyReachable(page);
     await capture(page, info, 'earlier-departure');
     await expect(action(page, 'Keep full Hong Kong evening')).toBeInViewport({ ratio: 1 });
     await expect(action(page, 'Keep full Shenzhen evening')).toBeInViewport({ ratio: 1 });
@@ -79,7 +79,7 @@ for (const width of [360, 390]) {
     await openDisclosure(page, 'What matters to you?');
     await expect(reason(page), 'The exact revised reason survives baseline replay and return.').toHaveValue('We started earlier so we could keep all 45 minutes of walking.');
     await closeDisclosure(page, 'What matters to you?');
-    await expectWorldAndCore(page);
+    await expectTrailingBodyReachable(page);
     await audit.expectZero(page);
   });
 }
@@ -97,12 +97,12 @@ test('clock boundaries, keyboard steps and changing fields never combine or comm
   await expect(action(page, '15 minutes earlier')).toBeDisabled();
   await expect(action(page, '15 minutes later')).toBeEnabled();
   await expectTimeFacts(page, { departure: 900, deadline: 1410, hkHome: 1065, szHome: 1245 });
-  await expectWorldAndCore(page);
+  await expectTrailingBodyReachable(page);
   await clockControl(page, 'departure').selectOption('1200');
   await expect(action(page, '15 minutes later')).toBeDisabled();
   await expectTimeFacts(page, { departure: 1200, deadline: 1410, hkHome: 1365, szHome: 1545 });
   await expect(outcome(page, 'SZ')).toHaveAttribute('data-crossing-fit', 'false');
-  await expectWorldAndCore(page);
+  await expectTrailingBodyReachable(page);
   await action(page, 'Choose another circumstance').click();
   await expectStage(page, 'baseline');
   expect(await readInputFacts(page)).toEqual(baseline);
@@ -118,12 +118,12 @@ test('clock boundaries, keyboard steps and changing fields never combine or comm
   await expect(outcome(page, 'HK')).toHaveAttribute('data-home-fit', 'true');
   await expect(outcome(page, 'SZ')).toHaveAttribute('data-home-fit', 'false');
   await expect(outcome(page, 'SZ')).toContainText('165 min late');
-  await expectWorldAndCore(page); // Includes the visible 20:00 home-by context.
+  await expectTrailingBodyReachable(page); // Includes the visible 20:00 home-by context.
   await clockControl(page, 'homeBy').selectOption('1500');
   await expect(action(page, '15 minutes later')).toBeDisabled();
   await expect(clockControl(page, 'homeBy').locator('option:checked')).toHaveText('01:00 next day');
   await expectTimeFacts(page, { departure: 1020, deadline: 1500, hkHome: 1185, szHome: 1365 });
-  await expectWorldAndCore(page);
+  await expectTrailingBodyReachable(page);
   const homeDraft = await readInputFacts(page);
   expect(changedKeys(baseline, homeDraft)).toEqual(['homeByMinutes']);
   expect(homeDraft.departureMinutes).toBe('1020');
@@ -142,7 +142,7 @@ test('clock boundaries, keyboard steps and changing fields never combine or comm
   await expect(action(page, 'Apply time change')).toBeDisabled();
   await action(page, '15 minutes later').press('Enter');
   await expect(clockControl(page, 'homeBy')).toHaveValue('1425');
-  await expectWorldAndCore(page);
+  await expectTrailingBodyReachable(page);
   await action(page, 'Cancel time preview').press('Enter');
   expect(await readInputFacts(page)).toEqual(baseline);
   await expectAcceptedFacts(page, 'baseline');
@@ -158,6 +158,7 @@ test('late departure distinguishes home lateness from the border closing buffer 
   await chooseBaseline(page, 'Shenzhen');
   await previewTime(page, 'departure', 1140);
   await expectTimeFacts(page, { departure: 1140, deadline: 1410, hkHome: 1305, szHome: 1485 });
+  await expectTrailingBodyReachable(page); // Late/next-day clock preview must keep the full body and footer visible too.
   await applyTimeChange(page);
   await expect(outcome(page, 'SZ')).toHaveAttribute('data-home-fit', 'false');
   await expect(outcome(page, 'SZ')).toHaveAttribute('data-crossing-fit', 'false');
@@ -167,7 +168,7 @@ test('late departure distinguishes home lateness from the border closing buffer 
   await expect(page.getByTestId('decision-border-SZ')).toContainText('Crossing: no fit');
   await expect(page.getByTestId('decision-border-SZ')).toHaveAttribute('aria-label', /window.*buffer/i);
   await expect(experience(page)).not.toContainText(/border (?:is )?closed/i);
-  await expectWorldAndCore(page);
+  await expectTrailingBodyReachable(page);
   await capture(page, info, 'late-departure');
   const changed = await readInputFacts(page);
   expect(changedKeys(baseline, changed)).toEqual(['departureMinutes']);
@@ -185,7 +186,7 @@ test('late departure distinguishes home lateness from the border closing buffer 
   await expect(outcome(page, 'SZ')).toHaveAttribute('data-crossing-fit', 'true');
   await expect(outcome(page, 'SZ')).toContainText('45 min late');
   await expect(page.getByTestId('decision-feedback')).toContainText('45 min past home-by');
-  await expectWorldAndCore(page);
+  await expectTrailingBodyReachable(page);
   await action(page, 'Cancel preview').click();
   expect(await readInputFacts(page)).toEqual(changed);
   await action(page, 'Keep full Shenzhen evening').click();
@@ -194,6 +195,6 @@ test('late departure distinguishes home lateness from the border closing buffer 
   await expect(outcome(page, 'SZ')).toHaveAttribute('data-crossing-fit', 'false');
   await expect(page.getByTestId('decision-choice-status')).toContainText('75 min past home-by');
   await expect(page.getByTestId('decision-choice-status')).toContainText('Modeled crossing window or closing buffer not met');
-  await expectWorldAndCore(page);
+  await expectTrailingBodyReachable(page);
   await audit.expectZero(page);
 });

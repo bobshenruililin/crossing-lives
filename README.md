@@ -8,7 +8,7 @@ The active prototype is a **separate entry at `/decision.html`**. A map, phone a
 
 The clock controls operate within one authored evening: departure 15:00–20:00, or home-by 20:00–01:00 next day, in 15-minute steps. Other inputs remain fixed for this episode. These are illustrative prices and journey assumptions, not a verified travel plan. A controllable character, new party sizes, work routines, housing and regional explainers are planned extensions, not completed features.
 
-Run `npm run dev:decision`, or `npm run export:decision` for the independent production/offline artifact. The earlier entry remains a verified fallback, and the new page does not read or replace its saved data. Revision `22d06c626f2333f091350cc94b0b3999f0550f54` verified the scene, fixed deadline change, priorities, replay and offline opening. **The newly adjustable Phone requires its own exact-commit browser and visual review.** Passing source tests does not establish audience understanding. See [the episode scope](docs/DECISION_PROTOTYPE.md).
+Run `npm run dev:decision`, or `npm run export:decision` for the independent production/offline artifact. The earlier entry remains a verified fallback, and the new page does not read or replace its saved data. Revision `22d06c626f2333f091350cc94b0b3999f0550f54` verified the scene, fixed deadline change, priorities, replay and offline opening. **The adjustable Phone’s first run passed its new clock interactions, but six older paths stopped at an outdated test label and mobile review found a clipped caveat. The narrow label/footer repair awaits its own complete browser and visual gate.** Passing source tests does not establish audience understanding. See [the episode scope](docs/DECISION_PROTOTYPE.md).
 
 ## Earlier complete prototype
 
@@ -103,7 +103,7 @@ Known-tested edition `553006a3f34a9916a0b5b3318c30d1e662f0238b` passed TypeScrip
 
 See the [verification record](docs/VERIFICATION.md), [temporary-session boundary](docs/TEMPORARY_DEMO.md) and [coverage rationale](docs/TEST_COVERAGE.md). Actual temporary-mode screenshots at 360/390px were reviewed. Review is model-assisted visual/code inspection, not a human user study, a timed human presentation or full accessibility certification. Browser coverage is Chrome stable on Ubuntu with resized viewports; physical phones and Safari remain unverified.
 
-A separate constrained production capture at `b26b11b` confirmed blank and progressively filled artwork during scene changes. The subsequent retained-artwork correction is implemented but awaits its own browser/frame review. Measured timings describe one instrumented, emulated profile, not real-phone performance; see the verification record.
+A separate constrained production capture at `b26b11b` confirmed blank and progressively filled artwork during scene changes. The retained-artwork correction and a narrow portrait-staging guard were then verified at `4ab69eee5dd9e2f94b3d34ffd16080a036c56cac`, with 96 browser cases and a separate production capture. The retained artwork and pending-state frames were visually reviewed. Measured timings describe one instrumented, emulated profile, not real-phone performance; see the verification record.
 
 ## Publication
 

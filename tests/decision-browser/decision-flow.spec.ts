@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import {
   action, auditNoPrivateStorage, capture, changeDeadline, changedKeys, chooseBaseline,
   closeDisclosure, commitShortWalk, expectAcceptedFacts, expectNoOverflow, expectStage,
-  experience, expectWorldAndCore, inspectCommonTimeline, openDisclosure, openObject, outcome, readInputFacts,
+  experience, expectTrailingBodyReachable, inspectCommonTimeline, openDisclosure, openObject, outcome, readInputFacts,
   readOutcomeFacts, readBills, reason, replay, startFresh,
 } from './decision-helpers';
 
@@ -14,7 +14,7 @@ for (const width of [360, 390, 1440]) {
     page.on('pageerror', error => errors.push(error.message));
     await startFresh(page);
     await expectAcceptedFacts(page, 'baseline');
-    await expectWorldAndCore(page);
+    await expectTrailingBodyReachable(page);
     await capture(page, info, 'baseline');
     await expect(experience(page)).toContainText(/authored|fictional|illustrative/i);
     const baselineInputs = await readInputFacts(page);
@@ -59,13 +59,13 @@ for (const width of [360, 390, 1440]) {
     await expect(reason(page)).toHaveValue('I want the full walk with our dinner.');
     await closeDisclosure(page, 'What matters to you?');
     expect([await readOutcomeFacts(page, 'HK'), await readOutcomeFacts(page, 'SZ')]).toEqual(baselineOutcomes);
-    await expectWorldAndCore(page);
+    await expectTrailingBodyReachable(page);
     await expectNoOverflow(page);
     await audit.expectZero(page);
 
     await changeDeadline(page);
     await expectAcceptedFacts(page, 'changed');
-    await expectWorldAndCore(page);
+    await expectTrailingBodyReachable(page);
     await capture(page, info, 'earlier-deadline');
     const changedInputs = await readInputFacts(page);
     expect(changedKeys(baselineInputs, changedInputs), 'Earlier deadline changes exactly one authored input.').toEqual(['homeByMinutes']);
@@ -100,7 +100,7 @@ for (const width of [360, 390, 1440]) {
 
     await commitShortWalk(page);
     await expectAcceptedFacts(page, 'revised', true);
-    await expectWorldAndCore(page);
+    await expectTrailingBodyReachable(page);
     await capture(page, info, 'revised');
     const revisedInputs = await readInputFacts(page);
     expect(revisedInputs).toEqual(previewInputs);
@@ -125,7 +125,7 @@ for (const width of [360, 390, 1440]) {
     for (let pass = 0; pass < 2; pass += 1) {
       await replay(page, 'baseline');
       await expectStage(page, 'revised', 'baseline');
-      await expectWorldAndCore(page);
+      await expectTrailingBodyReachable(page);
       if (!pass) await capture(page, info, 'replay');
       expect(await readInputFacts(page)).toEqual(baselineInputs);
       expect(await readBills(page)).toEqual(baselineBills);

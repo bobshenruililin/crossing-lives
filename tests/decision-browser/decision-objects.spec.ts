@@ -41,12 +41,12 @@ test('scene objects replace one sheet, return keyboard focus and preserve the ex
     await page.keyboard.press('Enter');
     await expect(experience(page)).toHaveAttribute('data-active-object', 'map');
     await expectHeadingFocus(page);
-    await action(page, 'Phone Inspect home-by time').press('Enter');
+    await action(page, 'Phone Adjust one time').press('Enter');
     await expect(experience(page)).toHaveAttribute('data-active-object', 'phone');
     await expectHeadingFocus(page);
     await action(page, 'Put down phone').press('Enter');
     await expect(sheet(page)).toHaveCount(0);
-    await expect(action(page, 'Phone Inspect home-by time')).toBeFocused();
+    await expect(action(page, 'Phone Adjust one time')).toBeFocused();
     await expectKeyboardFocusVisible(page);
     await page.keyboard.press('Enter');
     await expectHeadingFocus(page);
@@ -115,7 +115,7 @@ test('ordinary mobile taps complete the world-to-phone decision without scrollin
     await action(page, 'Food').tap();
     await expect(action(page, 'Food')).toHaveAttribute('aria-pressed', 'true');
     await action(page, 'Back to evening').tap();
-    await action(page, 'Phone Inspect home-by time').tap();
+    await action(page, 'Phone Adjust one time').tap();
     await expect(action(page, 'Change home-by')).toHaveCount(0);
     await action(page, 'Map Unfold both routes').tap();
     await action(page, 'Start with Shenzhen').tap();

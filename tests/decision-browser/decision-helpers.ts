@@ -34,7 +34,7 @@ export async function returnToCore(page: Page) {
 
 export async function openObject(page: Page, object: 'map' | 'phone' | 'menu') {
   if (await activeObject(page) === object) return;
-  await action(page, { map: 'Map Unfold both routes', phone: 'Phone Inspect home-by time', menu: 'Menu See both bills' }[object]).click();
+  await action(page, { map: 'Map Unfold both routes', phone: 'Phone Adjust one time', menu: 'Menu See both bills' }[object]).click();
   await expect(sheet(page)).toHaveCount(1);
   await expect(sheet(page)).toBeVisible();
 }
@@ -495,23 +495,48 @@ export async function expectWorldAndCore(page: Page) {
         `Rendered tick labels ${labels[index - 1].text} and ${labels[index].text} must not collide.`).toBeGreaterThanOrEqual(4);
     }
   }
-  if (await experience(page).getAttribute('data-displayed-snapshot') !== await experience(page).getAttribute('data-stage')) {
-    const caveat = sheet(page).locator('.decision-core-caveat');
-    await expect(caveat).toHaveText('Authored prices and times. Entry, queues and services unknown. Modeled slack is not a guarantee.');
-    await expect(caveat, 'The whole replay caveat must be visible without scrolling.').toBeInViewport({ ratio: 1 });
-    const rendered = await caveat.evaluate(element => {
-      const range = document.createRange(); range.selectNodeContents(element);
-      const text = range.getBoundingClientRect();
-      const body = element.closest('.decision-core-body')!.getBoundingClientRect();
-      const footer = element.closest('[data-testid="decision-sheet"]')!.querySelector('.decision-sheet-tools')!.getBoundingClientRect();
-      return { text: { left: text.left, right: text.right, top: text.top, bottom: text.bottom },
-        body: { left: body.left, right: body.right, top: body.top, bottom: body.bottom }, footerTop: footer.top };
-    });
-    expect(rendered.text.left).toBeGreaterThanOrEqual(rendered.body.left);
-    expect(rendered.text.right).toBeLessThanOrEqual(rendered.body.right);
-    expect(rendered.text.top).toBeGreaterThanOrEqual(rendered.body.top);
-    expect(rendered.text.bottom, 'Every rendered caveat line stays above the clipping edge and footer.').toBeLessThanOrEqual(Math.min(rendered.body.bottom, rendered.footerTop));
+  const caveat = sheet(page).getByTestId('decision-core-caveat');
+  const footer = sheet(page).getByTestId('decision-sheet-footer');
+  const actionArea = sheet(page).getByTestId('decision-action-area');
+  await expect(caveat).toHaveText('Authored prices and times. Entry, queues and services unknown. Modeled slack is not a guarantee.');
+  for (const [element, description] of [
+    [footer, 'The reserved core footer'], [actionArea, 'The whole main action area'],
+    [caveat, 'The complete caveat in every core state'],
+  ] as const) {
+    await expect(element).toHaveCount(1);
+    await expect(element, `${description} stays visible without scroll assistance.`).toBeInViewport({ ratio: 1 });
   }
+  // This common gate is observational: the real recording and keyboard path
+  // must not acquire hidden pointer or scrolling actions through assertions.
+  const layout = await sheet(page).evaluate(element => {
+    const rect = (node: Element) => {
+      const box = node.getBoundingClientRect();
+      return { left: box.left, right: box.right, top: box.top, bottom: box.bottom };
+    };
+    const caveatNode = element.querySelector('.decision-core-caveat')!;
+    const range = document.createRange(); range.selectNodeContents(caveatNode);
+    const text = range.getBoundingClientRect();
+    return { sheet: rect(element), body: rect(element.querySelector('.decision-core-body')!),
+      footer: rect(element.querySelector('.decision-sheet-footer')!), actions: rect(element.querySelector('.decision-action-area')!),
+      caveat: rect(caveatNode), tools: rect(element.querySelector('.decision-sheet-tools')!),
+      caveatText: { left: text.left, right: text.right, top: text.top, bottom: text.bottom } };
+  });
+  for (const [item, container, description] of [
+    [layout.footer, layout.sheet, 'reserved footer within sheet'],
+    [layout.actions, layout.footer, 'complete actions within footer'],
+    [layout.caveat, layout.footer, 'caveat block within footer'],
+    [layout.caveatText, layout.caveat, 'all rendered caveat lines within their block'],
+  ] as const) {
+    expect(item.right - item.left, description).toBeGreaterThan(0);
+    expect(item.bottom - item.top, description).toBeGreaterThan(0);
+    expect(item.left, description).toBeGreaterThanOrEqual(container.left);
+    expect(item.right, description).toBeLessThanOrEqual(container.right);
+    expect(item.top, description).toBeGreaterThanOrEqual(container.top);
+    expect(item.bottom, description).toBeLessThanOrEqual(container.bottom);
+  }
+  expect(layout.body.bottom, 'The scroll body does not extend behind the reserved footer.').toBeLessThanOrEqual(layout.footer.top);
+  expect(layout.actions.bottom, 'Main actions do not overlap the caveat.').toBeLessThanOrEqual(layout.caveat.top);
+  expect(layout.caveat.bottom, 'The full caveat stays above the optional tools.').toBeLessThanOrEqual(layout.tools.top);
   for (const button of await sheet(page).locator('button:visible, select:visible').all()) {
     await expect(button, 'Every main causal-path action is present without scrolling its sheet.').toBeInViewport({ ratio: 1 });
   }
@@ -545,4 +570,50 @@ export async function expectTimeFacts(page: Page, expected: {
     await expect(outcome(page, city)).toContainText(`walk ${cityWalk} min`);
     if (home >= 1440) await expect(outcome(page, city).locator('.decision-key-figures')).toContainText(/next day/i);
   }
+}
+
+
+/** Explicit optional legend inspection for mixed-interaction QA cases only.
+ * First-view comparison/control checks remain untouched; recording and keyboard
+ * coverage call the observational expectWorldAndCore instead. */
+export async function expectTrailingBodyReachable(page: Page) {
+  await expectWorldAndCore(page);
+  const body = sheet(page).locator('.decision-core-body');
+  const last = body.locator('.decision-comparison > :last-child');
+  const footer = sheet(page).getByTestId('decision-sheet-footer');
+  const fixedFooter = await footer.boundingBox();
+  const initial = await body.evaluate(element => ({ top: element.scrollTop, height: element.scrollHeight }));
+  const bodyBox = (await body.boundingBox())!;
+  // Ordinary wheel input is directed inside the body, never scrollIntoView on
+  // the document. The trailing legend may scroll; initial city lanes may not.
+  await page.mouse.move(bodyBox.x + bodyBox.width / 2, bodyBox.y + bodyBox.height / 2);
+  await page.mouse.wheel(0, initial.height + page.viewportSize()!.height);
+  await expect.poll(() => body.evaluate(element => Math.abs(element.scrollHeight - element.clientHeight - element.scrollTop))).toBeLessThanOrEqual(1);
+  await expect(last).toHaveCount(1);
+  await expect(last, 'Ordinary inner scrolling reaches the complete final comparison content.').toBeInViewport({ ratio: 1 });
+  const ending = await last.evaluate(element => {
+    const box = element.getBoundingClientRect();
+    const range = document.createRange(); range.selectNodeContents(element);
+    const text = range.getBoundingClientRect();
+    const body = element.closest('.decision-core-body')!.getBoundingClientRect();
+    const footer = element.closest('[data-testid="decision-sheet"]')!.querySelector('.decision-sheet-footer')!.getBoundingClientRect();
+    return { box: { left: box.left, right: box.right, top: box.top, bottom: box.bottom },
+      text: { left: text.left, right: text.right, top: text.top, bottom: text.bottom },
+      body: { left: body.left, right: body.right, top: body.top, bottom: body.bottom }, footerTop: footer.top };
+  });
+  for (const [item, description] of [[ending.box, 'last body content'], [ending.text, 'all final rendered text']] as const) {
+    expect(item.right - item.left, description).toBeGreaterThan(0);
+    expect(item.bottom - item.top, description).toBeGreaterThan(0);
+    expect(item.left, description).toBeGreaterThanOrEqual(ending.body.left);
+    expect(item.right, description).toBeLessThanOrEqual(ending.body.right);
+    expect(item.top, description).toBeGreaterThanOrEqual(ending.body.top);
+    expect(item.bottom, description).toBeLessThanOrEqual(Math.min(ending.body.bottom, ending.footerTop));
+  }
+  expect(await footer.boundingBox(), 'Inner-body scrolling cannot move the reserved caveat/action footer.').toEqual(fixedFooter);
+  expect(await page.evaluate(() => [scrollX, scrollY])).toEqual([0, 0]);
+  await page.mouse.wheel(0, -(initial.height + page.viewportSize()!.height));
+  await expect.poll(() => body.evaluate(element => element.scrollTop)).toBe(0);
+  if (initial.top > 0) await page.mouse.wheel(0, initial.top);
+  await expect.poll(() => body.evaluate(element => element.scrollTop)).toBe(initial.top);
+  await expectWorldAndCore(page); // Restore and recheck both lanes and every primary control.
 }

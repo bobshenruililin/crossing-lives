@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { SCENES, CASES, isDecisionScene } from './world-fixtures';
-import { capture, closePoint, expectFacts, expectScene, insight, openPoint, player, selectChoice, stage, startWorld, takeExit, walkToEntrance, world } from './world-helpers';
+import { capture, closePoint, expectFacts, expectScene, insight, openOfficeDiagram, openPoint, player, selectChoice, stage, startWorld, takeExit, walkToEntrance, world } from './world-helpers';
 import { expectMapPlan, expectPrimaryVisible, takeSceneDecision } from './world-decision-paths';
 import { auditWorldStorage } from './world-storage';
 
@@ -74,6 +74,16 @@ test('record the complete cold world walkthrough with twelve places and readable
         await expectPrimaryVisible(choice);
         await selectChoice(page, id, 1); await expectFacts(page, id, 1);
       });
+      if (id === 'office-floor') {
+        await chapter('Office: compare travel money for the same job, one adult and sixteen return days.', 5_000, async () => {
+          const measure = insight(page, id).getByRole('combobox', { name: 'Compare travel', exact: true });
+          await expectPrimaryVisible(measure); await measure.selectOption('money');
+          await expect(insight(page, id).locator('[data-world-number] strong')).toHaveText(['640', '1,600']);
+          await expect(insight(page, id).locator('[data-world-number] dd span')).toHaveText(['HKD', 'HKD']);
+          await expectPrimaryVisible(insight(page, id).getByRole('status'));
+        });
+        await chapter('Office: open the optional calendar and same-scale route bars.', 4_000, () => openOfficeDiagram(page));
+      }
       if (['parcel-counter', 'rental-home', 'luxury-home', 'office-floor', 'learning-center', 'planning-museum'].includes(id)) {
         await capture(page, info, `film-${id}-visible-consequence`);
       }

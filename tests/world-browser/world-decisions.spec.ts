@@ -30,7 +30,7 @@ async function expectCompactInitialView(page: Page, panel: Locator, commitName: 
   expect(initial.declaredLimit, 'The rental table projects lower than the parcel counter; both retain a compact prop sheet.').toBeLessThanOrEqual(rental ? 300 : 260);
   expect(initial.height).toBeLessThanOrEqual(initial.declaredLimit + 1);
   expect(initial.scrollTop, 'A compact-view check must start before automatic or manual scrolling.').toBe(0);
-  const targets = [panel.locator('.wd-caption'), panel.getByRole('status'), ...(rental ? [panel.locator('.wd-deposit-claim')] : []), panel.getByRole('button', { name: 'Back', exact: true }), panel.getByRole('button', { name: 'Cancel', exact: true }), panel.getByRole('button', { name: commitName, exact: true })];
+  const targets = [panel.locator('.wd-caption'), panel.getByRole('status'), ...(rental ? [panel.locator('.wd-deposit-claim'), panel.getByTestId('lease-comparison-delta')] : []), panel.getByRole('button', { name: rental ? 'Back' : 'Options', exact: true }), panel.getByRole('button', { name: 'Cancel', exact: true }), panel.getByRole('button', { name: commitName, exact: true })];
   for (const target of targets) {
     const result = await target.evaluate(el => {
       const rect = el.getBoundingClientRect();
@@ -46,7 +46,7 @@ async function expectCompactInitialView(page: Page, panel: Locator, commitName: 
   }
   await expect(panel.locator('.wd-caption')).toContainText(rental ? 'HKD' : 'CNY-equivalent');
   if (rental) await expect(panel.locator('.wd-deposit-claim')).toContainText('Return conditional; amount and timing unknown.');
-  for (const name of ['Back', 'Cancel', commitName]) await expectHitTarget(panel.getByRole('button', { name, exact: true }));
+  for (const name of [rental ? 'Back' : 'Options', 'Cancel', commitName]) await expectHitTarget(panel.getByRole('button', { name, exact: true }));
   expect(await modal.locator('.world-modal-scroll').evaluate(el => el.scrollTop)).toBe(0);
 }
 
@@ -103,7 +103,7 @@ test('parcel context changes price and time; destination is a separate choice an
   await panel.getByRole('button', { name: /^Collect it/ }).click();
   await number(panel, 'Extra money', '16'); await number(panel, 'Extra time', '20');
   await expect(panel.getByRole('status')).toBeFocused();
-  await panel.getByRole('button', { name: 'Back', exact: true }).click();
+  await panel.getByRole('button', { name: 'Options', exact: true }).click();
   await expect(panel.getByRole('button', { name: /^Collect it/ })).toHaveAttribute('aria-pressed', 'true');
   await panel.getByRole('button', { name: 'Back', exact: true }).click();
   await panel.getByRole('button', { name: /^Go just for it/ }).click();
@@ -112,14 +112,14 @@ test('parcel context changes price and time; destination is a separate choice an
   await panel.getByRole('button', { name: /^Collect it/ }).click();
   await number(panel, 'Extra money', '116'); await number(panel, 'Extra time', '160');
   const collectionX = await panel.locator('.wd-parcel-object').evaluate(el => el.getBoundingClientRect().x);
-  await panel.getByRole('button', { name: 'Back', exact: true }).click();
+  await panel.getByRole('button', { name: 'Options', exact: true }).click();
   await panel.getByRole('button', { name: /^Home delivery/ }).click();
   await number(panel, 'Extra money', '35'); await number(panel, 'Delivery time', 'Unknown');
   await expect.poll(() => panel.locator('.wd-parcel-object').evaluate(el => el.getBoundingClientRect().x)).toBeGreaterThan(collectionX + 15);
   await capture(page, info, 'dedicated-parcel-home-delivery');
   await panel.getByRole('button', { name: /Use delivery/ }).click();
   await openPoint(page, 'parcel-counter', 'key');
-  await panel.getByRole('button', { name: 'Back', exact: true }).click();
+  await panel.getByRole('button', { name: 'Options', exact: true }).click();
   await expect(panel.getByRole('button', { name: /^Home delivery/ })).toHaveAttribute('aria-pressed', 'true');
   await panel.getByRole('button', { name: 'Back', exact: true }).click();
   await expect(panel.getByRole('button', { name: /^Go just for it/ })).toHaveAttribute('aria-pressed', 'true');
@@ -128,7 +128,7 @@ test('parcel context changes price and time; destination is a separate choice an
   await panel.getByRole('button', { name: /^Collect it/ }).click();
   await closeAndReopen(page, 'parcel-counter', 'Cancel');
   await number(panel, 'Extra money', '35'); await number(panel, 'Delivery time', 'Unknown');
-  await panel.getByRole('button', { name: 'Back', exact: true }).click();
+  await panel.getByRole('button', { name: 'Options', exact: true }).click();
   await panel.getByRole('button', { name: 'Back', exact: true }).click();
   await expect(panel.getByRole('button', { name: /^Go just for it/ })).toHaveAttribute('aria-pressed', 'true');
 });
@@ -149,6 +149,7 @@ test('lease choice conserves cash, changes monthly rent and keeps the held depos
   await expect(panel.getByRole('button', { name: /^Lower monthly rent/ })).toHaveAttribute('aria-pressed', 'true');
   await panel.getByRole('button', { name: /^Less cash tied up/ }).click();
   await number(panel, 'Cash now', '9,000'); await number(panel, 'Monthly rent', '7,500');
+  await expect(panel.getByTestId('lease-comparison-delta')).toContainText('3,000 more cash now; 1,500 more rent/month.');
   const allocation = await panel.locator('[data-money-role]').evaluateAll(nodes => nodes.map(node => Number(node.getAttribute('data-amount'))));
   expect(allocation).toEqual([7500, 7500, 9000]); expect(allocation.reduce((sum, amount) => sum + amount, 0)).toBe(24000);
   const secondStackHeights = () => panel.locator('[data-money-role] .wd-stack-bills').evaluateAll(nodes => nodes.map(node => node.getBoundingClientRect().height));
@@ -163,6 +164,7 @@ test('lease choice conserves cash, changes monthly rent and keeps the held depos
   await panel.getByRole('button', { name: /^Lower monthly rent/ }).click();
   await closeAndReopen(page, 'rental-home', 'Escape');
   await number(panel, 'Cash now', '9,000'); await number(panel, 'Monthly rent', '7,500');
+  await expect(panel.getByTestId('lease-comparison-delta')).toContainText('3,000 more cash now; 1,500 more rent/month.');
 });
 
 test('touch and reduced motion preserve decisions, legacy storage canaries and accessible native controls', async ({ browser, baseURL }, info) => {

@@ -3,7 +3,7 @@ import { access } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { SCENES, isDecisionScene } from './world-fixtures';
-import { background, capture, closePoint, expectFacts, expectScene, expectUnknown, geometryFingerprint, openPoint, renderedArtHash, selectChoice, startWorld, takeExit } from './world-helpers';
+import { background, capture, closePoint, expectFacts, expectScene, expectUnknown, geometryFingerprint, insight, openPoint, renderedArtHash, selectChoice, startWorld, takeExit } from './world-helpers';
 import { checkRegionalDiscovery } from './world-regional';
 import { expectInitialDecision, expectMapPlan, expectTakenDecision, takeSceneDecision } from './world-decision-paths';
 import { auditWorldStorage } from './world-storage';
@@ -33,6 +33,13 @@ test('standalone HTML decodes and plays all twelve scenes offline, with no exter
       const before = await geometryFingerprint(page, id);
       await selectChoice(page, id, 1); await expectFacts(page, id, 1);
       expect(await geometryFingerprint(page, id)).not.toBe(before);
+      if (id === 'office-floor') {
+        await insight(page, id).getByRole('combobox', { name: 'Compare travel', exact: true }).selectOption('money');
+        await expect(insight(page, id).locator('[data-world-number] strong')).toHaveText(['640', '1,600']);
+        await expect(insight(page, id).locator('[data-world-number] dd span')).toHaveText(['HKD', 'HKD']);
+        await insight(page, id).getByRole('combobox', { name: 'Compare travel', exact: true }).selectOption('time');
+        await expectFacts(page, id, 1);
+      }
       await expectUnknown(page, id); await selectChoice(page, id, 0); await expectFacts(page, id, 0);
       if (id === 'planning-museum') await checkRegionalDiscovery(page);
       await closePoint(page);

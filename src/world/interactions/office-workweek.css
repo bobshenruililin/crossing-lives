@@ -1,0 +1,20 @@
+.office-workweek .ow-caption{margin:0 0 4px;font-size:12px;line-height:1.35;color:#5b594e}
+.world-interaction:has(.office-workweek) .world-modal-scroll>.world-kicker{display:none}
+.office-workweek .ow-scope{margin:0 0 8px;font-size:12px;line-height:1.35}
+.office-workweek .ow-controls{display:grid;grid-template-columns:minmax(0,1fr) 92px;gap:8px;margin-bottom:8px}
+.office-workweek .ow-days{gap:6px}
+.office-workweek .ow-days legend{font-size:13px;line-height:18px;margin-bottom:6px}
+.office-workweek .ow-days label{flex:1 1 0;padding:8px 6px;gap:5px}
+.office-workweek .ow-days span{white-space:nowrap}
+.office-workweek .ow-measure{display:flex;flex-direction:column;gap:6px;font-size:13px;line-height:18px;min-width:0}
+.office-workweek .ow-measure select{height:44px;width:100%;padding:7px 6px;border:1px solid #a7997c;background:#faf2dd;border-radius:5px;color:#302e29;font:14px system-ui,sans-serif}
+.office-workweek .ow-measure select:focus-visible{outline:3px solid #a8492c;outline-offset:2px}
+.office-workweek .ow-comparison{border-top:1px solid #c4b797;font-size:12px}
+.office-workweek .ow-comparison>summary{min-height:44px;padding:12px 0;cursor:pointer}
+.office-workweek .ow-comparison>summary:focus-visible{outline:3px solid #a8492c;outline-offset:2px}
+.office-workweek .ow-figure{margin-top:6px}
+.office-workweek .ow-visual{overflow:hidden}
+.office-workweek .ow-day{fill:#e7e1cd;stroke:#877d67;stroke-width:1}
+.office-workweek .ow-day.is-return{fill:#527668;stroke:#34594b}
+.office-workweek .ow-route-track{fill:#e4ddca}
+.office-workweek .ow-route{fill:#527668}

@@ -156,6 +156,7 @@ export async function approvedArtHash(id: SceneId) {
   return createHash('sha256').update(await readFile(resolve('public-world', artFor(id).src))).digest('hex');
 }
 export async function geometryFingerprint(page: Page, id: ComparisonSceneId) {
+  if (id === 'office-floor') await openOfficeDiagram(page);
   const svg = insight(page, id).locator(id === 'planning-museum' ? 'svg.rmd-map' : 'svg.wi-visual');
   // Observe final paint after finite authored transitions, without disabling them.
   await svg.evaluate(async el => {
@@ -167,6 +168,14 @@ export async function geometryFingerprint(page: Page, id: ComparisonSceneId) {
       paint: [style.fill, style.stroke, style.strokeWidth, style.strokeDasharray, style.opacity, style.fillOpacity, style.visibility, style.display] };
   }));
   return createHash('sha256').update(JSON.stringify(geometry)).digest('hex');
+}
+/** The office's geometry is secondary; open its real disclosure before inspecting it. */
+export async function openOfficeDiagram(page: Page) {
+  const disclosure = insight(page, 'office-floor').locator('.ow-comparison');
+  if (await disclosure.getAttribute('open') === null) await disclosure.locator(':scope > summary').click();
+  await disclosure.locator('svg').scrollIntoViewIfNeeded();
+  await expect(disclosure.locator('svg')).toBeVisible();
+  await expect(disclosure.locator('svg')).toHaveAccessibleName(/Bars share a fixed zero/);
 }
 export async function selectChoice(page: Page, id: ComparisonSceneId, index: 0 | 1) {
   const choice = CASES[id].choices[index];
@@ -198,7 +207,7 @@ export async function expectFacts(page: Page, id: ComparisonSceneId, index: 0 | 
     await expect(row.locator('dt')).toHaveText(label); await expect(row.locator('strong')).toHaveText(value); await expect(row.locator('dd span')).toHaveText(unit);
   }
   await expect(insight(page, id).locator('[data-mechanism]')).toHaveAttribute('data-mechanism', CASES[id].mechanism);
-  await expect(insight(page, id).locator('svg')).toHaveAccessibleName(/.{25}/);
+  if (id !== 'office-floor') await expect(insight(page, id).locator('svg')).toHaveAccessibleName(/.{25}/);
   if (id === 'metro-carriage') await expect(insight(page, id).locator('[data-journey-part][data-included=true]')).toHaveCount(index === 0 ? 1 : 7);
   if (id === 'border-arrival') { await expect(insight(page, id).locator('[data-gate]')).toHaveCount(index === 0 ? 1 : 4); await expect(insight(page, id).locator('[data-gate]:not([data-status=not-checked])')).toHaveCount(0); }
   if (id === 'luxury-home') {
@@ -207,8 +216,12 @@ export async function expectFacts(page: Page, id: ComparisonSceneId, index: 0 | 
     if (index === 1) await expect(insight(page, id).locator('svg')).toHaveAccessibleName(/unknown/i);
   }
   if (id === 'office-floor') {
-    await expect(insight(page, id).locator('[data-floor-part][data-observed=true]')).toHaveCount(index === 0 ? 2 : 0);
-    await expect(insight(page, id).locator('[data-lease-status=unknown]')).toHaveCount(8);
+    await expect(insight(page, id)).toHaveAttribute('data-measure', 'time');
+    await expect(insight(page, id).locator('[data-office-cell]')).toHaveCount(28);
+    await expect(insight(page, id).locator('[data-office-return=true]')).toHaveCount(index === 0 ? 8 : 16);
+    const widths = await insight(page, id).locator('[data-office-route]').evaluateAll(nodes => nodes.map(node => Number(node.getAttribute('width'))));
+    expect(widths).toEqual(index === 0 ? [72, 168] : [144, 336]);
+    await expect(insight(page, id).getByText('Fictional four weeks · one adult commuter', { exact: true })).toBeVisible();
   }
   if (id === 'learning-center') {
     await expect(insight(page, id).locator('[data-schedule-marker=arrival]')).toHaveAttribute('d', 'M144 62V138');

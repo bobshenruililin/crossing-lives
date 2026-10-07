@@ -7,6 +7,8 @@ import { getScene } from './scene-registry';
 import { PARTY_IDS, SCENE_IDS } from './types';
 import type { InteractionValues, Point, SceneRecord, WorldContext } from './types';
 import { WorldSprite } from './WorldSprite';
+import { WorldCastSprite } from './WorldCastSprite';
+import { castFramingPoints, castPartyGap, castPointApproach, PARTY_APPEARANCE } from './cast-art';
 import { WorldInteraction } from './interactions';
 import { PlanSummary } from './decisions';
 import './world.css';
@@ -68,12 +70,15 @@ export default function WorldApp() {
   const modalOpen = Boolean(state.overlay || activePoint);
   const entrance = nearbyEntrance(state);
   const cast = PARTY_CAST[state.context.party];
+  const appearance = PARTY_APPEARANCE[state.context.party];
   const focusedRoute = SCENARIO_ROUTES[state.context.scenario];
   const routeIndex = focusedRoute.indexOf(scene.id);
   const routeNext = state.context.scenario !== 'fieldtrip' && routeIndex >= 0 ? focusedRoute[routeIndex + 1] : undefined;
   const primaryExit = scene.exits.find(exit => exit.targetSceneId === routeNext) ?? scene.exits.find(exit => exit.id.endsWith('-next')) ?? scene.exits.at(-1)!;
   const routeCaption = (target: typeof primaryExit) => scene.id === 'hk-home' ? 'To the MTR' : `To ${sceneName(getScene(target.targetSceneId)).replace(/^Fictional /i, '')}`;
-  const partyGap = Math.max(60, scene.playerBodyHeight * .42);
+  const framingScale = Math.max(size.width / PLANE.width, size.height / PLANE.height);
+  const originalPartyGap = Math.max(60, scene.playerBodyHeight * .42);
+  const partyGap = appearance.player && appearance.friend ? castPartyGap(appearance.player, appearance.friend, scene.playerBodyHeight, scene.points, framingScale, originalPartyGap) : originalPartyGap;
   const preferredSide = state.facing === 'right' ? -1 : 1;
   const spaceNeeded = partyGap * (cast.children ? 1.8 : 1);
   const partySide = preferredSide === -1 && state.player.x - scene.walkArea.left < spaceNeeded ? 1 : preferredSide === 1 && scene.walkArea.right - state.player.x < spaceNeeded ? -1 : preferredSide;
@@ -84,8 +89,10 @@ export default function WorldApp() {
   const nearbyPoint = scene.points.find(point => Math.abs(point.x - state.player.x) < 260);
   const nearbyExit = scene.exits.find(exit => Math.abs(exit.x - state.player.x) < 260);
   const attention = activePoint ?? approachedPoint ?? (entrance ? entrance.doorAnchor ?? entrance : undefined) ?? nearbyPoint ?? (nearbyExit?.doorAnchor ?? nearbyExit);
-  const protectedPoints = [state.player, { x: state.player.x + scene.playerBodyHeight * .18, y: state.player.y }, { x: state.player.x - scene.playerBodyHeight * .18, y: state.player.y }, ...(cast.adults > 1 ? [{ x: friendPosition.x - scene.playerBodyHeight * .18, y: friendPosition.y }, { x: friendPosition.x + scene.playerBodyHeight * .18, y: friendPosition.y }] : []), ...(cast.children > 0 ? [{ x: childPosition.x - scene.playerBodyHeight * .67 * .165, y: childPosition.y }, { x: childPosition.x + scene.playerBodyHeight * .67 * .165, y: childPosition.y }] : []), ...(attention ? [attention] : [])];
-  const framingScale = Math.max(size.width / PLANE.width, size.height / PLANE.height);
+  const protectedPoints = [state.player,
+    ...(appearance.player ? castFramingPoints(appearance.player, scene.playerBodyHeight, state.facing, state.player) : [{ x: state.player.x + scene.playerBodyHeight * .18, y: state.player.y }, { x: state.player.x - scene.playerBodyHeight * .18, y: state.player.y }]),
+    ...(cast.adults > 1 ? appearance.friend ? castFramingPoints(appearance.friend, scene.playerBodyHeight * .98, state.facing, friendPosition) : [{ x: friendPosition.x - scene.playerBodyHeight * .18, y: friendPosition.y }, { x: friendPosition.x + scene.playerBodyHeight * .18, y: friendPosition.y }] : []),
+    ...(appearance.child ? castFramingPoints(appearance.child, scene.playerBodyHeight * .67, state.facing, childPosition) : []), ...(attention ? [attention] : [])];
   const cameraFocus = focusAnchor && Math.abs(focusAnchor.x - partyCenter.x) > size.width / framingScale * .55 ? focusAnchor : partyCenter;
   const camera = cameraFor(size.width, size.height, cameraFocus, focusAnchor ? [...protectedPoints, focusAnchor] : protectedPoints);
   const labelAlignment = (point: Point) => { const x = camera.left + point.x * camera.scale; return x < 125 ? 'left' : x > size.width - 125 ? 'right' : 'center'; };
@@ -94,7 +101,7 @@ export default function WorldApp() {
   const close = () => { dispatch({ type: 'close' }); focusElement(returnFocus.current); };
   const openOverlay = (overlay: 'map' | 'settings' | 'help', trigger: string) => { returnFocus.current = trigger; dispatch({ type: 'overlay', overlay }); };
   const navigate = (to: typeof state.sceneId, exitId?: string, back = false) => { setFocusAnchor(null); dispatch({ type: 'navigate', to, exitId, back }); focusElement('world-stage'); setShowHint(false); };
-  const inspect = (pointId: string) => { returnFocus.current = `world-point-${pointId}`; setFocusAnchor(null); dispatch({ type: 'point', pointId }); setShowHint(false); focusElement('world-stage'); };
+  const inspect = (pointId: string) => { const point = scene.points.find(item => item.id === pointId); const approach = appearance.player && point ? castPointApproach(appearance.player, scene.playerBodyHeight, point, framingScale, state.player, state.facing) : undefined; returnFocus.current = `world-point-${pointId}`; setFocusAnchor(null); dispatch({ type: 'point', pointId, ...(approach ? { approach } : {}) }); setShowHint(false); focusElement('world-stage'); };
 
   useLayoutEffect(() => {
     const node = frame.current; if (!node) return;
@@ -158,9 +165,9 @@ export default function WorldApp() {
           {state.artStatus === 'ready' && scene.art.approved ? <img className="world-background" src={worldAsset(scene.art.src)} alt={scene.art.alt} width={1672} height={941}/> : <Schematic scene={scene}/>}
           <div className="world-ground" data-ground="true" style={{ left: scene.walkArea.left, top: scene.walkArea.top, width: scene.walkArea.right - scene.walkArea.left, height: scene.walkArea.bottom - scene.walkArea.top }} aria-hidden="true"/>
           {state.started && <>
-            {cast.adults > 1 && <WorldSprite kind="friend" bodyHeight={scene.playerBodyHeight * .98} position={friendPosition} facing={state.facing} walking={Boolean(state.motion)}/>}
-            {cast.children > 0 && <WorldSprite kind="child" bodyHeight={scene.playerBodyHeight * .67} position={childPosition} facing={state.facing} walking={Boolean(state.motion)}/>}
-            <WorldSprite position={state.player} bodyHeight={scene.playerBodyHeight} facing={state.facing} walking={Boolean(state.motion)}/>
+            {cast.adults > 1 && (appearance.friend ? <WorldCastSprite artId={appearance.friend} role="friend" bodyHeight={scene.playerBodyHeight * .98} position={friendPosition} facing={state.facing} walking={Boolean(state.motion)}/> : <WorldSprite kind="friend" bodyHeight={scene.playerBodyHeight * .98} position={friendPosition} facing={state.facing} walking={Boolean(state.motion)}/>)}
+            {appearance.child && <WorldCastSprite artId={appearance.child} role="child" bodyHeight={scene.playerBodyHeight * .67} position={childPosition} facing={state.facing} walking={Boolean(state.motion)}/>}
+            {appearance.player ? <WorldCastSprite artId={appearance.player} role="player" position={state.player} bodyHeight={scene.playerBodyHeight} facing={state.facing} walking={Boolean(state.motion)}/> : <WorldSprite position={state.player} bodyHeight={scene.playerBodyHeight} facing={state.facing} walking={Boolean(state.motion)}/>}
             {scene.exits.map(exit => <button type="button" key={exit.id} id={`world-exit-${exit.id}`} className="world-target world-exit" data-nearby={entrance?.id === exit.id} data-primary={exit.id === primaryExit.id} data-label-align={labelAlignment(exit.doorAnchor ?? exit)} hidden={partiallyCropped(exit.doorAnchor ?? exit, camera, size)} style={{ left: (exit.doorAnchor ?? exit).x, top: (exit.doorAnchor ?? exit).y }} aria-label={`Walk to ${exit.label}`} data-testid={`exit-${exit.targetSceneId}`} onFocus={event => { if (event.currentTarget.matches(':focus-visible')) setFocusAnchor(exit.doorAnchor ?? exit); }} onClick={() => navigate(exit.targetSceneId, exit.id)}><span aria-hidden="true">{exit.x < PLANE.width / 2 ? '←' : '→'}</span><span className="world-target-label">{entrance?.id === exit.id ? 'Enter · ' : ''}{routeCaption(exit)}{entrance?.id === exit.id && <small>Press Enter or tap the arrow</small>}</span></button>)}
             {scene.points.map(point => <button type="button" key={point.id} id={`world-point-${point.id}`} className="world-target world-point" data-primary="true" data-label-align={labelAlignment(point)} data-label-below={camera.top + point.y * camera.scale < 180} hidden={partiallyCropped(point, camera, size)} style={{ left: point.x, top: point.y }} aria-label={`Explore ${point.label.toLowerCase()}`} data-testid={`point-${point.interactionId}`} onFocus={event => { if (event.currentTarget.matches(':focus-visible')) setFocusAnchor(point); }} onClick={() => inspect(point.id)}><span aria-hidden="true">{point.icon}</span><span className="world-target-label">{point.label}</span></button>)}
           </>}

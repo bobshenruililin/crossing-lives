@@ -1,0 +1,181 @@
+{
+  "schemaVersion": 1,
+  "title": "Crossing Lives original fictional cast cutouts",
+  "created": "2026-10-07",
+  "generator": "OpenAI built-in image generator with transparent backgrounds. Original PNG files retained byte-for-byte.",
+  "referenceAssets": [
+    "art/player.webp",
+    "art/friend.webp",
+    "art/neighborhood-lane.webp"
+  ],
+  "scope": "Original fictional appearance options only. No real people or real child are depicted. Appearance never determines movement speed, prices, eligibility, preferences, needs, or calculations.",
+  "pose": "Single idle cutouts facing right. Restrained existing movement bob only, not a walk-cycle animation.",
+  "geometryNotes": "Body height is the dominant alpha >192 body height. The crop contains every alpha >8 pixel across the whole image. Ground anchoring uses the measured mean of the two shoe contacts, mirrored around that same ground point.",
+  "assets": [
+    {
+      "id": "older-adult-a",
+      "file": "older-adult-a.png",
+      "width": 1254,
+      "height": 1254,
+      "sha256": "23a27967e8931b4d594f17aaced081d8292d3de290163e898807dd62a2873e87",
+      "facing": "right",
+      "alphaBoundsGt8": [
+        434,
+        56,
+        817,
+        1196
+      ],
+      "dominantBody": {
+        "threshold": 192,
+        "bounds": [
+          435,
+          57,
+          814,
+          1193
+        ],
+        "area": 259727,
+        "outsideComponentPixels": 0,
+        "componentCount": 1
+      },
+      "cleanBodyGt32": {
+        "threshold": 32,
+        "bounds": [
+          434,
+          56,
+          815,
+          1194
+        ],
+        "area": 263878,
+        "outsideComponentPixels": 0,
+        "componentCount": 1
+      },
+      "footAnchor": {
+        "x": 605.616,
+        "y": 1193,
+        "method": "Mean of two shoe-contact x centroids in the lowest 45 source pixels, alpha >192; ground y is lower shoe bounding edge. Far shoe is slightly higher due to oblique view.",
+        "shoeContacts": [
+          {
+            "footCenterX": 529.421,
+            "footGroundY": 1183
+          },
+          {
+            "footCenterX": 681.811,
+            "footGroundY": 1193
+          }
+        ]
+      },
+      "visibleBodyHeight": 1136,
+      "recommendedBodyHeightRatio": 1
+    },
+    {
+      "id": "older-adult-b",
+      "file": "older-adult-b.png",
+      "width": 1254,
+      "height": 1254,
+      "sha256": "34a9446d0c87d9058b95f92ca26882e416ad7b9cb84a69219b3aa49099d767db",
+      "facing": "right",
+      "alphaBoundsGt8": [
+        446,
+        42,
+        808,
+        1219
+      ],
+      "dominantBody": {
+        "threshold": 192,
+        "bounds": [
+          449,
+          42,
+          807,
+          1218
+        ],
+        "area": 283194,
+        "outsideComponentPixels": 0,
+        "componentCount": 1
+      },
+      "cleanBodyGt32": {
+        "threshold": 32,
+        "bounds": [
+          448,
+          42,
+          807,
+          1219
+        ],
+        "area": 287135,
+        "outsideComponentPixels": 0,
+        "componentCount": 1
+      },
+      "footAnchor": {
+        "x": 601.749,
+        "y": 1218,
+        "method": "Mean of two shoe-contact x centroids in the lowest 45 source pixels, alpha >192; ground y is lower shoe bounding edge. Far shoe is slightly higher due to oblique view.",
+        "shoeContacts": [
+          {
+            "footCenterX": 525.343,
+            "footGroundY": 1206
+          },
+          {
+            "footCenterX": 678.156,
+            "footGroundY": 1218
+          }
+        ]
+      },
+      "visibleBodyHeight": 1176,
+      "recommendedBodyHeightRatio": 1
+    },
+    {
+      "id": "child",
+      "file": "child.png",
+      "width": 1254,
+      "height": 1254,
+      "sha256": "5ef780288a6101448f2c9e880525b147da7a1b463be1000ce264a5cd4260aa1b",
+      "facing": "right",
+      "alphaBoundsGt8": [
+        454,
+        114,
+        808,
+        1176
+      ],
+      "dominantBody": {
+        "threshold": 192,
+        "bounds": [
+          455,
+          115,
+          805,
+          1175
+        ],
+        "area": 256739,
+        "outsideComponentPixels": 0,
+        "componentCount": 1
+      },
+      "cleanBodyGt32": {
+        "threshold": 32,
+        "bounds": [
+          454,
+          114,
+          806,
+          1176
+        ],
+        "area": 260907,
+        "outsideComponentPixels": 0,
+        "componentCount": 1
+      },
+      "footAnchor": {
+        "x": 606.085,
+        "y": 1175,
+        "method": "Mean of two shoe-contact x centroids in the lowest 45 source pixels, alpha >192; ground y is lower shoe bounding edge. Far shoe is slightly higher due to oblique view.",
+        "shoeContacts": [
+          {
+            "footCenterX": 527.437,
+            "footGroundY": 1166
+          },
+          {
+            "footCenterX": 684.733,
+            "footGroundY": 1175
+          }
+        ]
+      },
+      "visibleBodyHeight": 1060,
+      "recommendedBodyHeightRatio": 0.67
+    }
+  ]
+}

@@ -34,3 +34,6 @@
 
 /* The carried border allowance stays visible while only visits shorten. */
 .world-interaction:has(.world-decision) .world-modal-scroll>.world-kicker{display:none}.wd-home .wd-time-figure{margin:4px 0 6px}.wd-home .wd-time-strip{height:15px}.wd-home .wd-time-figure figcaption{margin:3px 0 0;font-size:10px;line-height:1.25}.wd-home .wd-activity-card{padding:7px}
+
+.wd-lease-delta{grid-column:1/-1;margin:0;font-size:11px;line-height:1.35;color:#344e48}
+.wd-lease-delta>span{display:block;color:#596363;font-size:10px}

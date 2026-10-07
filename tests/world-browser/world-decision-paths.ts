@@ -72,6 +72,8 @@ export async function expectLeaseResult(page: Page, choice: 'lower-rent' | 'less
     return Math.max(...heights.map((height, index) => Math.abs(height / heights[0] - amounts[index] / amounts[0])));
   }, { message: 'Actual visible stack heights preserve cash allocation proportions.' }).toBeLessThan(.01);
   await expect(panel.locator('.wd-caption')).toHaveText('Separate fictional lease · HKD');
+  await expect(panel.getByTestId('lease-comparison-delta')).toHaveText(`Compared with the other offer:3,000 ${choice === 'less-upfront' ? 'more' : 'less'} cash now; 1,500 ${choice === 'less-upfront' ? 'more' : 'less'} rent/month.`);
+  await expectPrimaryVisible(panel.getByTestId('lease-comparison-delta'));
 }
 export async function expectTakenDecision(page: Page, id: DecisionSceneId) {
   if (id === 'hk-home') {
@@ -127,16 +129,19 @@ export async function takeSceneDecision(page: Page, id: DecisionSceneId, observe
   } else if (id === 'parcel-counter') {
     await observe('Read both collection contexts, separate from the day plan.', 6_000);
     await pressVisible(panel.getByRole('button', { name: /^Already going/ }));
+    await observe('Read the labelled collection and home-delivery options before choosing.', 4_000);
     await pressVisible(panel.getByRole('button', { name: /^Collect it/ }));
     await expectParcelResult(page, 'collection', 'already-going');
     before = await decisionGeometry(page, id); await observe('Already-going collection adds 16 CNY-equivalent and 20 minutes.', 6_000);
-    await pressVisible(panel.getByRole('button', { name: 'Back', exact: true }));
+    await pressVisible(panel.getByRole('button', { name: 'Options', exact: true }));
     await pressVisible(panel.getByRole('button', { name: 'Back', exact: true }));
     await pressVisible(panel.getByRole('button', { name: /^Go just for it/ }));
+    await observe('Read the labelled collection and home-delivery options before choosing.', 4_000);
     await pressVisible(panel.getByRole('button', { name: /^Collect it/ }));
     await expectParcelResult(page, 'collection', 'dedicated-trip');
     await observe('Making a dedicated collection changes the same calculation to 116 CNY-equivalent and 160 minutes.', 6_000);
-    await pressVisible(panel.getByRole('button', { name: 'Back', exact: true }));
+    await pressVisible(panel.getByRole('button', { name: 'Options', exact: true }));
+    await observe('Options returns to the labelled destination choices; compare before switching.', 4_000);
     await pressVisible(panel.getByRole('button', { name: /^Home delivery/ }));
     await expectParcelResult(page, 'delivery', 'dedicated-trip');
     after = await decisionGeometry(page, id); expect(after).not.toBe(before);

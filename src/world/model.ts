@@ -22,7 +22,7 @@ export type WorldEvent =
   | { type: 'start' }
   | { type: 'context'; context: WorldContext }
   | { type: 'move'; to: Point }
-  | { type: 'point'; pointId: string }
+  | { type: 'point'; pointId: string; approach?: Point }
   | { type: 'navigate'; to: SceneId; exitId?: string; back?: boolean }
   | { type: 'frame'; id: number; position: Point }
   | { type: 'motion-done'; id: number }
@@ -75,7 +75,7 @@ export function worldReducer(state: WorldState, event: WorldEvent): WorldState {
     case 'point': {
       if (!state.started || state.travel) return state;
       const point = getScene(state.sceneId).points.find(item => item.id === event.pointId);
-      return point ? beginMotion(state, point.approach ?? { x: point.x - 55, y: point.y + 65 }, 'point', point.id) : state;
+      return point ? beginMotion(state, event.approach ?? point.approach ?? { x: point.x - 55, y: point.y + 65 }, 'point', point.id) : state;
     }
     case 'navigate': {
       if (!state.started || !isSceneId(event.to) || event.to === state.sceneId) return state;

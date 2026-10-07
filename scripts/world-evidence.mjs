@@ -115,6 +115,15 @@ export async function makeReview(root, out, stepOutcome = 'unknown') {
   for (const candidate of candidates.splice(8)) missing.push({ ...candidate, reason: 'eight failure-frame selection limit; original retained in full evidence' });
   const mobile = 'artifacts/world/gates/cold-one-click-play-visible-body-and-real-movement-at-390x844';
   for (const name of ['first-play', 'metro-carriage-body-and-controls', 'rental-home-body-and-controls']) add(`${mobile}/${name}.png`, '390px composition');
+  // Current decision close-ups are more useful than the retired generic radio diagrams.
+  for (const name of ['office-390-initial-no-scroll', 'office-360-initial-no-scroll', 'touch-parcel-initial-selected-consequence', 'touch-rental-initial-selected-consequence', 'home-earlier-explicitly-kept-late', 'taken-plan-remains-in-map']) {
+    const match = files.find(path => path.startsWith('artifacts/world/gates/') && path.endsWith(`/${name}.png`));
+    if (match) add(match, 'current decision and carried consequence');
+  }
+  for (const party of ['older-couple', 'family']) {
+    const match = files.find(path => path.startsWith('artifacts/world/gates/') && path.includes(party) && path.includes('390px') && path.endsWith('/selected-cast-first-play.png'));
+    if (match) add(match, '390px distinct cast');
+  }
   for (const scene of ['parcel-counter', 'rental-home', 'office-floor', 'planning-museum']) {
     const match = files.find(path => path.startsWith('artifacts/world/gates/') && path.endsWith(`-${scene}-changed-mechanism.png`));
     if (match) add(match, 'changed mechanism'); else missing.push({ requested: `${scene} changed mechanism`, reason: 'not captured' });

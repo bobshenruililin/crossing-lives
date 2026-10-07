@@ -154,6 +154,7 @@ test('all three scenes expose native choices, immediate facts, adjacent unknowns
   assert.match(parcel, /<strong>35<\/strong>/);
   assert.match(parcel, /<strong>Unknown<\/strong>/);
   assert.match(parcel, /data-destination="delivery"/);
+  assert.match(parcel, />Options<\/button>/);
   assert.match(parcel, /not fares or an exchange rate/);
   assert.match(parcel, /does not change your day plan or its allowances/);
   const rental = render('rental-home', { leaseChoice: 'less-upfront' });
@@ -163,6 +164,8 @@ test('all three scenes expose native choices, immediate facts, adjacent unknowns
   assert.match(rental.split('<details')[0], /held, not spendable/);
   assert.match(rental.split('<details')[0], /Return conditional; amount and timing unknown/);
   assert.match(rental, /Refund amount and timing are unknown/);
+  assert.match(rental, /3,000 more cash now; 1,500 more rent\/month\./);
+  assert.match(render('rental-home', { leaseChoice: 'lower-rent' }), /3,000 less cash now; 1,500 less rent\/month\./);
   for (const html of [home, parcel, rental]) {
     assert.equal((html.match(/role="status"/g) ?? []).length, 1);
     assert.ok((html.match(/data-world-number=/g) ?? []).length <= 2);

@@ -13,6 +13,8 @@ import type { InteractionValues, SceneId, WorldContext } from '../src/world/type
 
 const context: WorldContext = Object.freeze({ party: 'two-friends', day: 'weekend', scenario: 'fieldtrip' });
 const noop = () => {};
+// These tests retain the original generic authoring fixtures. Live office routing
+// and the replacement workweek are verified in world/office-workweek.test.ts.
 const render = (sceneId: SceneId, values: InteractionValues = {}, withContext = context) => renderToStaticMarkup(createElement(WorldInteraction, { sceneId, interactionId: sceneId, context: withContext, values, onChange: noop, onClose: noop }));
 const diagram = (scene: SceneId, choice: string) => renderToStaticMarkup(createElement(WorldDiagram, { scene, choice }));
 const tags = (html: string, element: string) => html.match(new RegExp(`<${element}\\b[^>]*>`, 'g')) ?? [];
@@ -74,7 +76,7 @@ for (const id of SCENE_IDS) {
   });
 }
 
-test('all twelve mechanisms remain distinct, short and publicly bounded', () => {
+test('the twelve preserved generic authoring mechanisms remain distinct, short and publicly bounded', () => {
   assert.deepEqual(Object.keys(WORLD_CONTENT.scenes), [...SCENE_IDS]);
   const kinds = new Set<string>();
   const publicHosts = new Set(['www.mtr.com.hk', 'www.immd.gov.hk', 'www.consumer.org.hk', 'www.sf-express.com', 'www.linkreit.com', 'www1.hkexnews.hk', 'pnr.sz.gov.cn', 'www.sz.gov.cn', 'www.ifec.org.hk', 'www.stats.gov.cn', 'app.www.gov.cn']);
@@ -178,7 +180,7 @@ test('one shared schedule scale fixes arrival while moving only the class and ga
   assert.throws(() => learningSchedule('invented'), RangeError);
 });
 
-test('unknown gates and leases are never promoted to known or permitted by a toggle', () => {
+test('preserved generic gates and lease fixtures never promote unknowns to known or permitted', () => {
   for (const choice of ['crossing', 'whole-trip']) {
     const gates = tags(diagram('border-arrival', choice), 'g').filter(t => attr(t, 'data-gate'));
     assert.equal(gates.length, choice === 'crossing' ? 1 : 4);

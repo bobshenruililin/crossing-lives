@@ -44,9 +44,10 @@ export const CASES: Record<ComparisonSceneId, SceneCase> = {
     { value: 'payment', label: 'Split the payment', numbers: [['Interest paid', '8,000', 'HKD'], ['Debt reduced', '4,000', 'HKD']] },
     { value: 'asset', label: 'Look at the asset', numbers: [['Debt reduced', '4,000', 'HKD']] },
   ], unknown: 'Future property value, resale timing, exit costs, financing eligibility and local taxes are unknown.' },
-  'office-floor': { mechanism: 'floor-coverage', choices: [
-    { value: 'visible', label: 'What is visible', numbers: [] }, { value: 'leases', label: 'What is leased', numbers: [] },
-  ], unknown: 'One holiday visit cannot establish a demand trend.' },
+  'office-floor': { mechanism: 'office-workweek', choices: [
+    { value: '2', label: '2 days / week', numbers: [['Hong Kong home', '12', 'hours'], ['Shenzhen home', '28', 'hours']] },
+    { value: '4', label: '4 days / week', numbers: [['Hong Kong home', '24', 'hours'], ['Shenzhen home', '56', 'hours']] },
+  ], unknown: 'Actual fares, routes, queues, rent, eligibility and building occupancy are unknown.' },
   'learning-center': { mechanism: 'schedule-overlap', choices: [
     { value: 'earlier', label: 'Earlier session', numbers: [['Arrival', '18:45', 'local clock'], ['Late by', '15', 'minutes']] },
     { value: 'later', label: 'Later session', numbers: [['Arrival', '18:45', 'local clock'], ['Time before class', '45', 'minutes']] },

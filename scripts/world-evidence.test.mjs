@@ -56,6 +56,18 @@ test('small review copies existing frames/route metadata exactly and never decla
   for (const frame of result.selection.selected) assert.equal(hash(await readFile(resolve(root, frame.path))), frame.sha256);
 });
 
+test('small review includes current parcel and rental consequences plus the carried day plan without changing image bytes', async () => {
+  const { base, root, put } = await fixture();
+  const names = ['office-390-initial-no-scroll', 'office-360-initial-no-scroll', 'touch-parcel-initial-selected-consequence', 'touch-rental-initial-selected-consequence', 'home-earlier-explicitly-kept-late', 'taken-plan-remains-in-map'];
+  for (const name of names) await put(`artifacts/world/gates/current/${name}.png`, Buffer.from(`actual ${name} fixture`));
+  for (const party of ['older-couple', 'family']) await put(`artifacts/world/gates/${party}-cast-at-390px/selected-cast-first-play.png`, Buffer.from(`actual ${party} cast fixture`));
+  const result = await makeReview(root, resolve(base, 'review'), 'success');
+  assert.deepEqual(result.selection.selected.map(item => item.path.split('/').at(-1)), [...names.map(name => `${name}.png`), 'selected-cast-first-play.png', 'selected-cast-first-play.png']);
+  for (const frame of result.selection.selected) assert.deepEqual(await readFile(resolve(base, 'review', frame.file)), await readFile(resolve(root, frame.path)));
+  assert.equal(result.selection.maxPngs, 16);
+  assert.ok(result.selection.pngBytes <= result.selection.maxPngBytes);
+});
+
 test('absent or malformed reports and recording metadata stay unknown, even when a video was reported', async () => {
   const { base, root, put } = await fixture();
   let result = await makeReview(root, resolve(base, 'missing'), 'skipped');

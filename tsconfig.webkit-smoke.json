@@ -1,5 +1,18 @@
 {
   "extends": "./tsconfig.json",
-  "compilerOptions": { "types": ["node"], "typeRoots": ["./node_modules/@types", "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/node_modules/@types"] },
-  "include": ["playwright.webkit-smoke.config.ts", "tests/world-webkit"]
+  "compilerOptions": {
+    "types": [
+      "node"
+    ],
+    "typeRoots": [
+      "./node_modules/@types",
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/node_modules/@types"
+    ]
+  },
+  "include": [
+    "playwright.webkit-smoke.config.ts",
+    "tests/world-webkit",
+    "playwright.webkit-diagnostics.config.ts",
+    "tests/world-webkit-diagnostics"
+  ]
 }

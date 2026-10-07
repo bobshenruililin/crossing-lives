@@ -7,6 +7,7 @@ jobs:
   # Independent jobs expose world logs promptly and preserve retained checks on world failure.
   world:
     name: Connected world evidence
+    timeout-minutes: 30
     runs-on: ubuntu-24.04
     permissions:
       contents: read
@@ -17,6 +18,7 @@ jobs:
           node-version: '24'
           cache: npm
       - run: npm ci
+        timeout-minutes: 5
       - name: Verify evidence packaging contracts
         run: node --test scripts/world-evidence.test.mjs
       - id: source_checks
@@ -27,10 +29,13 @@ jobs:
       - name: Verify installed Chrome stable
         id: chrome_check
         run: google-chrome --version
-      - id: browser_deps
-        run: npx playwright install-deps chromium
+      - name: Verify Chrome runtime with bounded dependency recovery
+        id: browser_deps
+        timeout-minutes: 8
+        run: bash scripts/prepare-installed-chrome.sh
       - name: Install Playwright's video recorder
         id: video_recorder
+        timeout-minutes: 3
         run: npx playwright install ffmpeg
       - name: Build the connected world
         id: world_export
@@ -81,6 +86,7 @@ jobs:
             await uploadBundle(out, client);
             if (filmError) throw filmError;
   verify:
+    timeout-minutes: 35
     name: Retained decision, original and production checks
     runs-on: ubuntu-24.04
     permissions:
@@ -92,15 +98,19 @@ jobs:
           node-version: '24'
           cache: npm
       - run: npm ci
+        timeout-minutes: 5
       - id: source_checks
         run: npm run check
       - name: Verify installed Chrome stable
         id: chrome_check
         run: google-chrome --version
-      - id: browser_deps
-        run: npx playwright install-deps chromium
+      - name: Verify Chrome runtime with bounded dependency recovery
+        id: browser_deps
+        timeout-minutes: 8
+        run: bash scripts/prepare-installed-chrome.sh
       - name: Install Playwright's video recorder
         id: video_recorder
+        timeout-minutes: 3
         run: npx playwright install ffmpeg
       - id: legacy_export
         run: npm run export:portable

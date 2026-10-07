@@ -77,6 +77,7 @@ export function DecisionExperience() {
   const [timeDraft, setTimeDraft] = useState<TimeChange | null>(null);
   const [announcement, setAnnouncement] = useState('');
   const [reasonDrafts, setReasonDrafts] = useState<Partial<Record<SnapshotId, string>>>({});
+  const [focusIntent, setFocusIntent] = useState<{ id: string } | null>(null);
   const returnCore = useRef<CoreObject>('map');
   const returnToWorld = useRef(false);
   // Opening a sheet can unmount the focused world button. Restore focus in
@@ -84,6 +85,11 @@ export function DecisionExperience() {
   useLayoutEffect(() => {
     if (surface && !friendOpen) document.getElementById('decision-sheet-heading')?.focus({ preventScroll: true });
   }, [surface, friendOpen]);
+  // Focus the committed view before another key event can target its controls.
+  // Each request has its own identity, even when consecutive targets are equal.
+  useLayoutEffect(() => {
+    if (focusIntent) document.getElementById(focusIntent.id)?.focus({ preventScroll: true });
+  }, [focusIntent]);
   const timeResult = useMemo(() => timeDraft ? previewTimeChange(session, timeDraft) : null, [session, timeDraft]);
   const walkSnapshot = useMemo(() => walkPreview ? previewRevision(session, 'shorten-sz') : null, [session, walkPreview]);
   const preview = walkPreview || timeDraft !== null;
@@ -98,7 +104,7 @@ export function DecisionExperience() {
   const baselineSz = baseline.result.options.find(option => option.id === 'sz')!;
   const selectedOption = currentChoice ? snapshot.result.options.find(option => option.id === currentChoice.optionId)! : null;
   const attended: SceneObject = surface === 'menu' ? 'menu' : core ? surface : baselineChoice ? 'phone' : 'map';
-  const focus = (id = 'decision-sheet-heading') => requestAnimationFrame(() => document.getElementById(id)?.focus({ preventScroll: true }));
+  const focus = (id = 'decision-sheet-heading') => setFocusIntent({ id });
   const openObject = (object: SceneObject) => { returnToWorld.current = false; if (object !== 'menu') returnCore.current = object; setSurface(object); focus(); };
   const openDetail = (next: Surface) => { if (core) returnCore.current = surface; setSurface(next); focus(); };
   const back = () => { if (returnToWorld.current) { returnToWorld.current = false; close(); return; } setSurface(returnCore.current); focus(); };

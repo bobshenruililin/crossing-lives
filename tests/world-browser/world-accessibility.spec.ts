@@ -34,6 +34,21 @@ test('real Tab, Enter, Space and Escape keep focus visible and reach evidence; a
   await page.keyboard.press('Escape');
   await expect(page.getByRole('dialog')).toHaveCount(0);
   await expect(page.locator(`#world-point-${pointFor('hk-home').id}`)).toBeFocused();
+  // Closing leaves the physical marker focused. The world shortcuts must work
+  // immediately from that natural target without injecting stage focus or waiting.
+  await page.keyboard.press('e');
+  await expect(page.getByRole('dialog', { name: pointFor('hk-home').label, exact: true })).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(page.locator(`#world-point-${pointFor('hk-home').id}`)).toBeFocused();
+  const beforeMarkerWalk = await position(page);
+  await page.keyboard.press('ArrowLeft');
+  await expect(page.getByTestId('world-stage')).toBeFocused();
+  await expect(player(page)).toHaveAttribute('data-walking', 'false');
+  expect((await position(page)).x).toBeLessThan(beforeMarkerWalk.x);
+  await page.keyboard.press('e');
+  await expect(page.getByRole('dialog', { name: pointFor('hk-home').label, exact: true })).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(page.locator(`#world-point-${pointFor('hk-home').id}`)).toBeFocused();
   const mapButton = page.getByRole('button', { name: 'Open world map', exact: true });
   await tabTo(page, mapButton); await page.keyboard.press('Space');
   await expect(page.getByRole('dialog', { name: 'World map', exact: true })).toBeVisible();

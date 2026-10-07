@@ -2,7 +2,7 @@ import { test, expect, type Page } from '@playwright/test';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { capture, closePoint, expectNoOverflow, expectScene, mapTo, openPoint, player, position, stage, world } from './world-helpers';
-import { expectVisibleCast } from './world-cast-geometry';
+import { expectVisibleCast, expectVisibleFamilyBodies } from './world-cast-geometry';
 import { expectVisibleSprite } from './world-geometry';
 
 async function selectParty(page: Page, party: string) {
@@ -31,6 +31,7 @@ for (const viewport of [{ width:360,height:844 },{ width:390,height:844 },{ widt
           await expect(page.getByTestId('world-friend').locator('img')).toHaveAttribute('src', /\/art\/friend\.webp$/);
           const child = await expectVisibleCast(page, page.getByTestId('world-child'), 'child');
           const ratio = (child.alpha.bottom - child.alpha.top) / adult.height; expect(ratio).toBeGreaterThan(.66); expect(ratio).toBeLessThan(.68);
+          await expectVisibleFamilyBodies(page);
         }
         await expectNoOverflow(page);
       };
@@ -83,6 +84,6 @@ test('all three original cutouts decode from the standalone export with no netwo
   try {
     await page.goto(pathToFileURL(resolve('artifacts/crossing-lives-world.html')).href); await page.getByRole('button', { name:'Play',exact:true }).click(); await expectScene(page,'hk-home',true);
     await selectParty(page,'older-couple'); await expectVisibleCast(page,player(page),'older-adult-a'); await expectVisibleCast(page,page.getByTestId('world-friend'),'older-adult-b'); await capture(page,info,'offline-older-couple');
-    await selectParty(page,'family'); await expectVisibleCast(page,page.getByTestId('world-child'),'child'); await capture(page,info,'offline-family'); expect(requests).toEqual([]);
+    await selectParty(page,'family'); await expectVisibleCast(page,page.getByTestId('world-child'),'child'); await expectVisibleFamilyBodies(page); await capture(page,info,'offline-family'); expect(requests).toEqual([]);
   } finally { await context.close(); }
 });

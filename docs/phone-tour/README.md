@@ -7,8 +7,8 @@ This adds a cold Chromium touch recording at 390×844. It does not modify or rep
 - Integrate the lead's parcel `Options` consequence label. The destination picker still uses `Back`.
 - Integrate `lease-comparison-delta` with the visible prefix `Compared with the other offer:` (no textContent space after the colon) followed by exact A text `3,000 less cash now; 1,500 less rent/month.` and B text `3,000 more cash now; 1,500 more rent/month.`.
 - Integrate the office replacement: default `data-choice=2` / `data-measure=time`; day radios `2 days / week` and `4 days / week`; `Compare travel` combobox; headline `data-world-number` rows `Hong Kong home` and `Shenzhen home` read 12/28 then 24/56; `Calendar & route comparison` opens `[data-mechanism=office-workweek]`, with 28 calendar cells and sixteen return marks after four days. The phone tour covers time, without pretending to select Money.
-- Keep the existing desktop and retained workflow unchanged. The proposed separate workflow is `docs/phone-tour/phone-ci.yml`; copy it to `.github/workflows/phone.yml` when ready to run authorized CI.
-- Source checks: `npx tsc --noEmit -p tsconfig.phone.json` and `node --test scripts/phone-integrity.test.mjs scripts/phone-evidence.test.mjs`. CI supplies exact `@types/node@25.9.5` in an ephemeral install; local verification used those same runtime declarations.
+- Keep the existing desktop and retained test commands and coverage intact. The proposed separate workflow is `docs/phone-tour/phone-ci.yml`; copy it to `.github/workflows/phone.yml` when ready to run authorized CI.
+- Source checks: `npx tsc --noEmit -p tsconfig.phone.json` and `node --test scripts/phone-integrity.test.mjs scripts/phone-evidence.test.mjs`. CI supplies pinned `@types/node@25.9.5` in a separate runner-temporary directory and passes that type root to TypeScript. It does not modify the game dependency tree created by npm ci. Local verification used the same declaration version.
 
 ## What the recording proves when it passes
 

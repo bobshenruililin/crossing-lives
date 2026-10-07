@@ -9,6 +9,7 @@ import type { InteractionValues, Point, SceneRecord, WorldContext } from './type
 import { WorldSprite } from './WorldSprite';
 import { WorldCastSprite } from './WorldCastSprite';
 import { castFramingPoints, castPartyGap, castPointApproach, PARTY_APPEARANCE } from './cast-art';
+import { familyFraming, familyGap, familyMarkerTabIndex } from './family-framing';
 import { WorldInteraction } from './interactions';
 import { PlanSummary } from './decisions';
 import './world.css';
@@ -65,6 +66,7 @@ export default function WorldApp() {
   const [settingsOnStart, setSettingsOnStart] = useState(false);
   const [showHint, setShowHint] = useState(true);
   const returnFocus = useRef('world-stage');
+  const pendingReturnFocus = useRef<string | null>(null);
   const reduced = useReducedMotion();
   const activePoint = scene.points.find(point => point.id === state.activePointId);
   const modalOpen = Boolean(state.overlay || activePoint);
@@ -78,30 +80,42 @@ export default function WorldApp() {
   const routeCaption = (target: typeof primaryExit) => scene.id === 'hk-home' ? 'To the MTR' : `To ${sceneName(getScene(target.targetSceneId)).replace(/^Fictional /i, '')}`;
   const framingScale = Math.max(size.width / PLANE.width, size.height / PLANE.height);
   const originalPartyGap = Math.max(60, scene.playerBodyHeight * .42);
-  const partyGap = appearance.player && appearance.friend ? castPartyGap(appearance.player, appearance.friend, scene.playerBodyHeight, scene.points, framingScale, originalPartyGap) : originalPartyGap;
+  const partyGap = cast.children ? familyGap(scene.playerBodyHeight, originalPartyGap, size.width, framingScale) : appearance.player && appearance.friend ? castPartyGap(appearance.player, appearance.friend, scene.playerBodyHeight, scene.points, framingScale, originalPartyGap) : originalPartyGap;
   const preferredSide = state.facing === 'right' ? -1 : 1;
   const spaceNeeded = partyGap * (cast.children ? 1.8 : 1);
   const partySide = preferredSide === -1 && state.player.x - scene.walkArea.left < spaceNeeded ? 1 : preferredSide === 1 && scene.walkArea.right - state.player.x < spaceNeeded ? -1 : preferredSide;
   const friendPosition = clampPoint({ x: state.player.x + partySide * partyGap, y: state.player.y - 6 }, scene.id);
   const childPosition = clampPoint({ x: state.player.x + partySide * partyGap * 1.8, y: state.player.y + 4 }, scene.id);
-  const partyCenter = cast.adults > 1 ? { x: (state.player.x + (cast.children ? childPosition.x : friendPosition.x)) / 2, y: state.player.y } : state.player;
+  const familyFrame = cast.children ? familyFraming(scene.playerBodyHeight, state.facing, state.player, friendPosition, childPosition) : null;
+  const partyCenter = familyFrame?.center ?? (cast.adults > 1 ? { x: (state.player.x + friendPosition.x) / 2, y: state.player.y } : state.player);
   const approachedPoint = scene.points.find(point => point.id === state.motion?.pointId);
   const nearbyPoint = scene.points.find(point => Math.abs(point.x - state.player.x) < 260);
   const nearbyExit = scene.exits.find(exit => Math.abs(exit.x - state.player.x) < 260);
   const attention = activePoint ?? approachedPoint ?? (entrance ? entrance.doorAnchor ?? entrance : undefined) ?? nearbyPoint ?? (nearbyExit?.doorAnchor ?? nearbyExit);
-  const protectedPoints = [state.player,
+  const protectedPoints = familyFrame ? [...familyFrame.points, ...(attention ? [attention] : [])] : [state.player,
     ...(appearance.player ? castFramingPoints(appearance.player, scene.playerBodyHeight, state.facing, state.player) : [{ x: state.player.x + scene.playerBodyHeight * .18, y: state.player.y }, { x: state.player.x - scene.playerBodyHeight * .18, y: state.player.y }]),
     ...(cast.adults > 1 ? appearance.friend ? castFramingPoints(appearance.friend, scene.playerBodyHeight * .98, state.facing, friendPosition) : [{ x: friendPosition.x - scene.playerBodyHeight * .18, y: friendPosition.y }, { x: friendPosition.x + scene.playerBodyHeight * .18, y: friendPosition.y }] : []),
     ...(appearance.child ? castFramingPoints(appearance.child, scene.playerBodyHeight * .67, state.facing, childPosition) : []), ...(attention ? [attention] : [])];
-  const cameraFocus = focusAnchor && Math.abs(focusAnchor.x - partyCenter.x) > size.width / framingScale * .55 ? focusAnchor : partyCenter;
+  const cameraFocus = !familyFrame && focusAnchor && Math.abs(focusAnchor.x - partyCenter.x) > size.width / framingScale * .55 ? focusAnchor : partyCenter;
   const camera = cameraFor(size.width, size.height, cameraFocus, focusAnchor ? [...protectedPoints, focusAnchor] : protectedPoints);
   const labelAlignment = (point: Point) => { const x = camera.left + point.x * camera.scale; return x < 125 ? 'left' : x > size.width - 125 ? 'right' : 'center'; };
   const pointScreenY = activePoint ? camera.top + activePoint.y * camera.scale : 0;
   const inspectionLimit = activePoint && size.width <= 650 ? Math.max(210, Math.min(size.height * .54, size.height - 117 - pointScreenY - 38)) : undefined;
-  const close = () => { dispatch({ type: 'close' }); focusElement(returnFocus.current); };
+  const close = () => { pendingReturnFocus.current = returnFocus.current; dispatch({ type: 'close' }); };
   const openOverlay = (overlay: 'map' | 'settings' | 'help', trigger: string) => { returnFocus.current = trigger; dispatch({ type: 'overlay', overlay }); };
   const navigate = (to: typeof state.sceneId, exitId?: string, back = false) => { setFocusAnchor(null); dispatch({ type: 'navigate', to, exitId, back }); focusElement('world-stage'); setShowHint(false); };
   const inspect = (pointId: string) => { const point = scene.points.find(item => item.id === pointId); const approach = appearance.player && point ? castPointApproach(appearance.player, scene.playerBodyHeight, point, framingScale, state.player, state.facing) : undefined; returnFocus.current = `world-point-${pointId}`; setFocusAnchor(null); dispatch({ type: 'point', pointId, ...(approach ? { approach } : {}) }); setShowHint(false); focusElement('world-stage'); };
+
+  // Restore only after React has removed the dialog/inert state, before paint.
+  // A later animation-frame callback must not steal a newer keyboard target.
+  useLayoutEffect(() => {
+    if (modalOpen || pendingReturnFocus.current === null) return;
+    const id = pendingReturnFocus.current;
+    pendingReturnFocus.current = null;
+    const target = document.getElementById(id);
+    if (target && target.getClientRects().length > 0 && !target.closest('[inert],[hidden]')) target.focus({ preventScroll: true });
+    else document.getElementById('world-stage')?.focus({ preventScroll: true });
+  }, [modalOpen]);
 
   useLayoutEffect(() => {
     const node = frame.current; if (!node) return;
@@ -142,11 +156,16 @@ export default function WorldApp() {
   }, [state.travel, modalOpen]);
 
   const keyMove = (event: KeyboardEvent<HTMLDivElement>) => {
-    if (!state.started || modalOpen || event.target !== event.currentTarget) return;
+    if (!state.started || modalOpen) return;
+    const marker = event.target instanceof Element ? event.target.closest('button.world-target') : null;
+    if (event.target !== event.currentTarget && !marker) return;
+    // Focus returns to the actual object. Walking/E still work there; Enter and
+    // Space retain the focused marker's ordinary button activation exactly once.
+    if (marker && (event.key === 'Enter' || event.key === ' ')) return;
     if (event.key === 'Escape' && state.travel) { event.preventDefault(); dispatch({ type: 'cancel-travel' }); return; }
     const key = event.key.toLowerCase();
     const offsets: Record<string, Point> = { arrowleft: { x: -95, y: 0 }, a: { x: -95, y: 0 }, arrowright: { x: 95, y: 0 }, d: { x: 95, y: 0 }, arrowup: { x: 0, y: -45 }, w: { x: 0, y: -45 }, arrowdown: { x: 0, y: 45 }, s: { x: 0, y: 45 } };
-    if (offsets[key]) { event.preventDefault(); setFocusAnchor(null); setShowHint(false); const base = state.motion?.to ?? state.player; dispatch({ type: 'move', to: { x: base.x + offsets[key].x, y: base.y + offsets[key].y } }); }
+    if (offsets[key]) { event.preventDefault(); if (marker) event.currentTarget.focus({ preventScroll: true }); setFocusAnchor(null); setShowHint(false); const base = state.motion?.to ?? state.player; dispatch({ type: 'move', to: { x: base.x + offsets[key].x, y: base.y + offsets[key].y } }); }
     if (key === 'enter' && entrance) { event.preventDefault(); navigate(entrance.targetSceneId, entrance.id); }
     else if (key === 'e' || key === 'enter' || key === ' ') { event.preventDefault(); inspect(scene.points[0].id); }
     if (key === 'm') { event.preventDefault(); openOverlay('map', 'world-map-button'); }
@@ -168,8 +187,8 @@ export default function WorldApp() {
             {cast.adults > 1 && (appearance.friend ? <WorldCastSprite artId={appearance.friend} role="friend" bodyHeight={scene.playerBodyHeight * .98} position={friendPosition} facing={state.facing} walking={Boolean(state.motion)}/> : <WorldSprite kind="friend" bodyHeight={scene.playerBodyHeight * .98} position={friendPosition} facing={state.facing} walking={Boolean(state.motion)}/>)}
             {appearance.child && <WorldCastSprite artId={appearance.child} role="child" bodyHeight={scene.playerBodyHeight * .67} position={childPosition} facing={state.facing} walking={Boolean(state.motion)}/>}
             {appearance.player ? <WorldCastSprite artId={appearance.player} role="player" position={state.player} bodyHeight={scene.playerBodyHeight} facing={state.facing} walking={Boolean(state.motion)}/> : <WorldSprite position={state.player} bodyHeight={scene.playerBodyHeight} facing={state.facing} walking={Boolean(state.motion)}/>}
-            {scene.exits.map(exit => <button type="button" key={exit.id} id={`world-exit-${exit.id}`} className="world-target world-exit" data-nearby={entrance?.id === exit.id} data-primary={exit.id === primaryExit.id} data-label-align={labelAlignment(exit.doorAnchor ?? exit)} hidden={partiallyCropped(exit.doorAnchor ?? exit, camera, size)} style={{ left: (exit.doorAnchor ?? exit).x, top: (exit.doorAnchor ?? exit).y }} aria-label={`Walk to ${exit.label}`} data-testid={`exit-${exit.targetSceneId}`} onFocus={event => { if (event.currentTarget.matches(':focus-visible')) setFocusAnchor(exit.doorAnchor ?? exit); }} onClick={() => navigate(exit.targetSceneId, exit.id)}><span aria-hidden="true">{exit.x < PLANE.width / 2 ? '←' : '→'}</span><span className="world-target-label">{entrance?.id === exit.id ? 'Enter · ' : ''}{routeCaption(exit)}{entrance?.id === exit.id && <small>Press Enter or tap the arrow</small>}</span></button>)}
-            {scene.points.map(point => <button type="button" key={point.id} id={`world-point-${point.id}`} className="world-target world-point" data-primary="true" data-label-align={labelAlignment(point)} data-label-below={camera.top + point.y * camera.scale < 180} hidden={partiallyCropped(point, camera, size)} style={{ left: point.x, top: point.y }} aria-label={`Explore ${point.label.toLowerCase()}`} data-testid={`point-${point.interactionId}`} onFocus={event => { if (event.currentTarget.matches(':focus-visible')) setFocusAnchor(point); }} onClick={() => inspect(point.id)}><span aria-hidden="true">{point.icon}</span><span className="world-target-label">{point.label}</span></button>)}
+            {scene.exits.map(exit => <button type="button" key={exit.id} id={`world-exit-${exit.id}`} className="world-target world-exit" tabIndex={familyFrame ? familyMarkerTabIndex(exit.doorAnchor ?? exit, camera, size) : undefined} data-nearby={entrance?.id === exit.id} data-primary={exit.id === primaryExit.id} data-label-align={labelAlignment(exit.doorAnchor ?? exit)} hidden={partiallyCropped(exit.doorAnchor ?? exit, camera, size)} style={{ left: (exit.doorAnchor ?? exit).x, top: (exit.doorAnchor ?? exit).y }} aria-label={`Walk to ${exit.label}`} data-testid={`exit-${exit.targetSceneId}`} onFocus={event => { if (event.currentTarget.matches(':focus-visible')) setFocusAnchor(exit.doorAnchor ?? exit); }} onClick={() => navigate(exit.targetSceneId, exit.id)}><span aria-hidden="true">{exit.x < PLANE.width / 2 ? '←' : '→'}</span><span className="world-target-label">{entrance?.id === exit.id ? 'Enter · ' : ''}{routeCaption(exit)}{entrance?.id === exit.id && <small>Press Enter or tap the arrow</small>}</span></button>)}
+            {scene.points.map(point => <button type="button" key={point.id} id={`world-point-${point.id}`} className="world-target world-point" tabIndex={familyFrame ? familyMarkerTabIndex(point, camera, size) : undefined} data-primary="true" data-label-align={labelAlignment(point)} data-label-below={camera.top + point.y * camera.scale < 180} hidden={partiallyCropped(point, camera, size)} style={{ left: point.x, top: point.y }} aria-label={`Explore ${point.label.toLowerCase()}`} data-testid={`point-${point.interactionId}`} onFocus={event => { if (event.currentTarget.matches(':focus-visible')) setFocusAnchor(point); }} onClick={() => inspect(point.id)}><span aria-hidden="true">{point.icon}</span><span className="world-target-label">{point.label}</span></button>)}
           </>}
         </div>
       </div>

@@ -20,11 +20,33 @@ jobs:
           node-version: '24'
           cache: npm
       - run: npm ci
-      - run: npm install --no-save --package-lock=false --ignore-scripts --no-audit --no-fund @types/node@25.9.5
-      - run: npx tsc --noEmit -p tsconfig.webkit-smoke.json
-      - run: npx playwright install --with-deps webkit
-      - run: npm run export:world
-      - run: npx playwright test --config=playwright.webkit-smoke.config.ts
+        timeout-minutes: 5
+      - name: Record project dependencies before the isolated types install
+        run: node scripts/webkit-build-evidence.mjs dependencies artifacts/world-webkit/build/dependencies-before.json
+      - name: Install pinned declarations outside the project tree
+        run: npm install --prefix "$RUNNER_TEMP/crossing-node-types" --save-exact --ignore-scripts --no-audit --no-fund @types/node@25.9.5
+      - name: Record unchanged project dependencies and isolated declarations
+        run: |
+          node scripts/webkit-build-evidence.mjs dependencies artifacts/world-webkit/build/dependencies-after.json
+          node scripts/webkit-build-evidence.mjs dependencies artifacts/world-webkit/build/declarations.json "$RUNNER_TEMP/crossing-node-types"
+          node scripts/webkit-build-evidence.mjs compare artifacts/world-webkit/build/dependency-changes.json artifacts/world-webkit/build/dependencies-before.json artifacts/world-webkit/build/dependencies-after.json
+      - id: webkit_source
+        run: |
+          npx tsc --noEmit -p tsconfig.webkit-smoke.json --typeRoots "$RUNNER_TEMP/crossing-node-types/node_modules/@types,./node_modules/@types"
+          node --test scripts/webkit-diagnostics.test.mjs
+      - id: webkit_install
+        timeout-minutes: 5
+        run: npx playwright install --with-deps webkit
+      - id: world_export
+        run: |
+          npm run export:world
+          node scripts/webkit-build-evidence.mjs portable artifacts/world-webkit/build/portable.json
+      - name: Preserve original offline-file smoke result
+        id: offline_file_smoke
+        run: npx playwright test --config=playwright.webkit-smoke.config.ts
+      - name: Diagnose tiny file and exact served export independently
+        if: ${{ always() && steps.webkit_source.outcome == 'success' && steps.webkit_install.outcome == 'success' && steps.world_export.outcome == 'success' }}
+        run: npx playwright test --config=playwright.webkit-diagnostics.config.ts
       - name: Enforce small smoke evidence bound
         id: evidence_bound
         if: always()
@@ -44,3 +66,23 @@ jobs:
           path: |
             artifacts/world-webkit/
             test-results/world-webkit/
+      - name: Verify separate exact-export artifact bytes and size
+        id: exact_export_bound
+        if: always()
+        run: node scripts/webkit-build-evidence.mjs export-artifact artifacts/world-webkit-export/receipt.json
+      - name: Preserve the actual standalone HTML separately
+        if: ${{ always() && steps.exact_export_bound.outcome == 'success' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: crossing-lives-webkit-exact-export
+          retention-days: 7
+          compression-level: 0
+          if-no-files-found: error
+          path: |
+            artifacts/crossing-lives-world.html
+            artifacts/world-webkit/build/dependencies-before.json
+            artifacts/world-webkit/build/dependencies-after.json
+            artifacts/world-webkit/build/declarations.json
+            artifacts/world-webkit/build/dependency-changes.json
+            artifacts/world-webkit/build/portable.json
+            artifacts/world-webkit-export/receipt.json

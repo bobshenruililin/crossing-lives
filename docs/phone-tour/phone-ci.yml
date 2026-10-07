@@ -1,5 +1,4 @@
-# Proposal: install as .github/workflows/phone.yml after integrating the required UI contracts.
-# Existing .github/workflows/verify.yml is byte-for-byte unchanged.
+# Separate touch recording; retained browser coverage stays intact.
 name: Verify phone world tour
 on:
   workflow_dispatch:
@@ -10,7 +9,7 @@ jobs:
   phone:
     name: Full Chromium touch phone tour
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 25
     permissions:
       contents: read
     steps:
@@ -20,20 +19,25 @@ jobs:
           node-version: '24'
           cache: npm
       - run: npm ci
-      - name: Supply exact Node declarations for browser gate typecheck
-        run: npm install --no-save --package-lock=false --ignore-scripts --no-audit --no-fund @types/node@25.9.5
+        timeout-minutes: 5
+      - name: Supply pinned Node declarations outside the game dependency tree
+        timeout-minutes: 3
+        run: npm install --prefix "$RUNNER_TEMP/crossing-node-types" --save-exact --ignore-scripts --no-audit --no-fund @types/node@25.9.5
       - name: Verify phone source, integrity and evidence packaging
         id: source
         run: |
-          npx tsc --noEmit -p tsconfig.phone.json
+          npx tsc --noEmit -p tsconfig.phone.json --typeRoots "$GITHUB_WORKSPACE/node_modules/@types,$RUNNER_TEMP/crossing-node-types/node_modules/@types"
           node --test scripts/phone-integrity.test.mjs scripts/phone-evidence.test.mjs
           npm run check:world
-      - name: Verify Chrome and install supported browser dependencies
+      - name: Verify Chrome runtime with bounded dependency recovery
         id: browser
+        timeout-minutes: 8
         run: |
           google-chrome --version
-          npx playwright install-deps chromium
-          npx playwright install ffmpeg
+          bash scripts/prepare-installed-chrome.sh
+      - name: Install Playwright video recorder
+        timeout-minutes: 3
+        run: npx playwright install ffmpeg
       - name: Record one untrimmed cold phone tour
         id: phone_tests
         run: npx playwright test --config=playwright.phone.config.ts

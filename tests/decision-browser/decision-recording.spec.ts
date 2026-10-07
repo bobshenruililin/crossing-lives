@@ -2,8 +2,8 @@ import { test, expect } from '@playwright/test';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import {
-  action, auditNoPrivateStorage, changeDeadline, chooseBaseline, expectAcceptedFacts,
-  expectStage, expectWorldAndCore, experience, replay, startFresh,
+  action, auditNoPrivateStorage, changeDeadline, chooseBaseline, closeDisclosure, expectAcceptedFacts,
+  expectStage, expectWorldAndCore, experience, openDisclosure, readOutcomeFacts, reason, replay, startFresh,
 } from './decision-helpers';
 
 /** One real production interaction, with reading time, no state injection,
@@ -43,6 +43,20 @@ test('record a real fresh decision, earlier deadline, revised walk and replay at
     await action(page, 'Map Unfold both routes').click();
     await expectWorldAndCore(page);
     await read('Open the map: read both complete evenings and the shared real time scale.', 9_000);
+    const beforePriorities = [await readOutcomeFacts(page, 'HK'), await readOutcomeFacts(page, 'SZ')];
+    await openDisclosure(page, 'What matters to you?');
+    await action(page, 'Food').click();
+    await action(page, 'Company').click();
+    await expect(action(page, 'Food')).toHaveAttribute('aria-pressed', 'true');
+    await expect(action(page, 'Company')).toHaveAttribute('aria-pressed', 'true');
+    await expect(action(page, 'Comfort')).toHaveAttribute('aria-pressed', 'false');
+    await expect(action(page, 'Exploration')).toHaveAttribute('aria-pressed', 'false');
+    await expect(reason(page)).toHaveValue('');
+    await expect(reason(page)).not.toBeEditable();
+    await read('Optionally select Food and Company in your own terms. No city score or reason is inferred.', 6_000);
+    await closeDisclosure(page, 'What matters to you?');
+    expect([await readOutcomeFacts(page, 'HK'), await readOutcomeFacts(page, 'SZ')]).toEqual(beforePriorities);
+    await expectWorldAndCore(page);
     await chooseBaseline(page, 'Shenzhen');
     await expectWorldAndCore(page);
     await read('Tentatively choose Shenzhen: the phone becomes the active object.', 3_000);

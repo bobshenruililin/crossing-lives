@@ -44,7 +44,17 @@ for (const width of [360, 390, 1440]) {
     await expect(action(page, 'Food')).toHaveAttribute('aria-pressed', 'false');
     await expect(action(page, 'Comfort')).toHaveAttribute('aria-pressed', 'false');
     await expect(experience(page)).toContainText(/you selected/i);
+    await expect(page.locator('.decision-priorities')).toContainText('You selected: Company, Exploration.');
+    await expect(page.locator('.decision-priorities')).toContainText('Neither city receives a score.');
+    await expect(reason(page), 'Selecting priorities never invents a reason.').toHaveValue('');
+    if (width <= 390) {
+      for (const label of ['Food', 'Company', 'Comfort', 'Exploration']) await expect(action(page, label)).toBeInViewport({ ratio: 1 });
+      await capture(page, info, 'priorities');
+    }
     await closeDisclosure(page, 'What matters to you?');
+    expect([await readOutcomeFacts(page, 'HK'), await readOutcomeFacts(page, 'SZ')], 'Explicit priorities do not re-rank or alter either modeled outing.').toEqual(baselineOutcomes);
+    expect(await readInputFacts(page), 'Returning from the priority chooser preserves every comparison input.').toEqual(baselineInputs);
+    expect(await readBills(page)).toEqual(baselineBills);
     await chooseBaseline(page, width === 1440 ? 'Hong Kong' : 'Shenzhen', 'I want the full walk with our dinner.');
     await openDisclosure(page, 'What matters to you?');
     await expect(reason(page)).toHaveValue('I want the full walk with our dinner.');

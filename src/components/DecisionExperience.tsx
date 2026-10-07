@@ -117,7 +117,7 @@ function CompleteComparison({ snapshot, selected }: { snapshot: DecisionSnapshot
   const deadline = snapshot.inputs.homeByMinutes;
   return <section className="decision-comparison" aria-label="Two complete evenings on the same clock">
     <div className="decision-comparison-brief"><span>90 min dinner + shared order</span><span>All travel included</span></div>
-    <div role="group" className="decision-time-axis" aria-label="Common absolute time scale, 17:00 to midnight, UTC plus eight">{[17, 19, 21, 23, 24].map(hour => <span key={hour} style={{ left: position(hour * 60) }}>{hour === 24 ? '00:00' : `${hour}:00`}</span>)}</div>
+    <div role="group" className="decision-time-axis" aria-label="Common absolute time scale, 17:00 to midnight, UTC plus eight">{[17, 19, 21, 23, 24].map(hour => <span key={hour} data-hour={hour} style={{ left: position(hour * 60) }}>{hour === 24 ? '00:00' : `${hour}:00`}</span>)}</div>
     <div className="decision-timeline-pair">
       <div className="decision-deadline-line" data-testid="decision-deadline-marker" data-deadline-minute={deadline} style={{ left: position(deadline) }}><span>{formatClock(deadline)}<small>home by</small></span></div>
       {snapshot.result.options.map(option => <article key={option.id} className={`decision-option decision-option-${option.id}${selected === option.id ? ' is-selected' : ''}`}

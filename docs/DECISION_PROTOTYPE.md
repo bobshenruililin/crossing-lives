@@ -47,7 +47,9 @@ The actual desktop and mobile captures failed the creative review: the illustrat
 
 The next presentation pass keeps the matched model and changes how the person meets it: a full-height street, one attended object, and one compact scene overlay. The map holds both complete outings on the same clock. An optional priority question is available before a tentative choice. The phone introduces the earlier deadline and moves its marker while the existing outing tracks stay fixed. Two explicit repairs remain beside the consequence. Bills, history and sources are available on request. The current deadline and per-person budget must remain visible, including before anything changes.
 
-This next presentation remains in progress until its own exact-commit browser captures and walkthrough are reviewed. Source tests and the earlier entry’s passing cases are not visual acceptance. The reviewer must be able to follow the trade-off and its sacrifice through the interaction, without relying on source notes or a decorative scene.
+The scene revision `2f426eb66f764515f5acaf9f1ecae7c606dcc532` passed its 15 decision browser cases and completed a 55-second real interaction recording. The reviewed desktop/mobile frames keep the city visible and place the changing deadline beside both complete outing tracks; this meets the basic spatial direction. This is visual review, not a claim that real users understand or enjoy it.
+
+Two small defects were visible in that evidence: the narrow-screen 23:00 and midnight tick labels crowded together, and the desktop replay caveat was partly hidden below the sheet’s visible area. The next narrow correction removes the crowded intermediate label without changing the scale and gives the desktop core sheet slightly more room. It also records the optional priority selection before a tentative city choice. Those later pixels must be checked on their own exact revision. The reviewer should still be able to follow the trade-off and its sacrifice without source notes; passing tests alone do not settle experience quality.
 
 
 ### Browser coverage after the scene recomposition

@@ -125,7 +125,7 @@ export async function replay(page: Page, stage: 'baseline' | 'changed' | 'revise
   await expectCore(page);
 }
 
-export async function capture(page: Page, info: TestInfo, stage: 'baseline' | 'earlier-deadline' | 'revised' | 'replay') {
+export async function capture(page: Page, info: TestInfo, stage: 'baseline' | 'earlier-deadline' | 'revised' | 'replay' | 'priorities') {
   await page.evaluate(() => document.fonts.ready);
   const viewport = page.viewportSize()!;
   const name = `${stage}-${viewport.width}x${viewport.height}`;
@@ -450,6 +450,38 @@ export async function expectWorldAndCore(page: Page) {
     await expect(timeline(page, city)).toBeInViewport({ ratio: 1 });
   }
   await expect(page.getByTestId('decision-deadline-marker')).toBeInViewport({ ratio: 1 });
+  if (page.viewportSize()!.width <= 390) {
+    await page.evaluate(() => document.fonts.ready);
+    const labels = await page.locator('.decision-time-axis > span:visible').evaluateAll(nodes => nodes.map(node => {
+      const range = document.createRange(); range.selectNodeContents(node);
+      const box = range.getBoundingClientRect();
+      return { hour: node.getAttribute('data-hour'), text: node.textContent, left: box.left, right: box.right, top: box.top, bottom: box.bottom };
+    }).sort((a, b) => a.left - b.left));
+    expect(labels.map(label => label.hour), 'The mobile axis keeps its start, intermediate hours and midnight endpoint.').toEqual(['17', '19', '21', '24']);
+    for (let index = 0; index < labels.length; index += 1) {
+      expect(labels[index].right).toBeGreaterThan(labels[index].left);
+      expect(labels[index].bottom).toBeGreaterThan(labels[index].top);
+      if (index) expect(labels[index].left - labels[index - 1].right,
+        `Rendered tick labels ${labels[index - 1].text} and ${labels[index].text} must not collide.`).toBeGreaterThanOrEqual(4);
+    }
+  }
+  if (await experience(page).getAttribute('data-displayed-snapshot') !== await experience(page).getAttribute('data-stage')) {
+    const caveat = sheet(page).locator('.decision-core-caveat');
+    await expect(caveat).toHaveText('Authored prices and times. Entry, queues and services unknown. Modeled slack is not a guarantee.');
+    await expect(caveat, 'The whole replay caveat must be visible without scrolling.').toBeInViewport({ ratio: 1 });
+    const rendered = await caveat.evaluate(element => {
+      const range = document.createRange(); range.selectNodeContents(element);
+      const text = range.getBoundingClientRect();
+      const body = element.closest('.decision-core-body')!.getBoundingClientRect();
+      const footer = element.closest('[data-testid="decision-sheet"]')!.querySelector('.decision-sheet-tools')!.getBoundingClientRect();
+      return { text: { left: text.left, right: text.right, top: text.top, bottom: text.bottom },
+        body: { left: body.left, right: body.right, top: body.top, bottom: body.bottom }, footerTop: footer.top };
+    });
+    expect(rendered.text.left).toBeGreaterThanOrEqual(rendered.body.left);
+    expect(rendered.text.right).toBeLessThanOrEqual(rendered.body.right);
+    expect(rendered.text.top).toBeGreaterThanOrEqual(rendered.body.top);
+    expect(rendered.text.bottom, 'Every rendered caveat line stays above the clipping edge and footer.').toBeLessThanOrEqual(Math.min(rendered.body.bottom, rendered.footerTop));
+  }
   for (const button of await sheet(page).locator('button:visible').all()) {
     await expect(button, 'Every main causal-path action is present without scrolling its sheet.').toBeInViewport({ ratio: 1 });
   }

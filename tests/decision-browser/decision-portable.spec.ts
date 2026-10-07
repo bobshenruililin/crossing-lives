@@ -4,7 +4,7 @@ import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import {
   action, auditNoPrivateStorage, capture, changeDeadline, chooseBaseline, commitShortWalk,
-  expectAcceptedFacts, expectNoOverflow, expectStage, inspectCommonTimeline, openDisclosure,
+  expectAcceptedFacts, expectNoOverflow, expectStage, expectWorldAndCore, inspectCommonTimeline, openDisclosure, openObject,
   readInputFacts, replay, startFresh,
 } from './decision-helpers';
 
@@ -23,6 +23,9 @@ test('production portable runs the full decision loop under file:// with network
     await startFresh(page, pathToFileURL(path).href);
     await expect(page).toHaveURL(/^file:/);
     await expectAcceptedFacts(page, 'baseline');
+    await expectWorldAndCore(page);
+    await expect(page.locator('img.decision-world-image')).toHaveAttribute('src', /^data:image\//);
+    expect(await page.locator('img.decision-world-image').evaluate(async (image: HTMLImageElement) => { await image.decode(); return image.naturalWidth; })).toBeGreaterThanOrEqual(1000);
     const baseline = await readInputFacts(page);
     await chooseBaseline(page, 'Shenzhen', 'I am comparing the complete evening.');
     await changeDeadline(page);
@@ -54,7 +57,8 @@ test('production portable runs the full decision loop under file:// with network
     expect(errors).toEqual([]);
     await page.reload();
     await expectStage(page, 'baseline');
-    await expect(action(page, 'Change home-by time to 22:30')).toBeDisabled();
+    await openObject(page, 'phone');
+    await expect(action(page, 'Change home-by time to 22:30')).toHaveCount(0);
     await audit.expectZero(page);
     expect(attemptedNetwork).toEqual([]);
     expect(errors).toEqual([]);

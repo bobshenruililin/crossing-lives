@@ -12,40 +12,88 @@ export async function expectStage(page: Page, stage: 'baseline' | 'changed' | 'r
   await expect(experience(page)).toHaveAttribute('data-preview', String(preview));
 }
 
-function disclosure(page: Page, label: string) {
-  if (label === 'Unfold the evening') return page.locator('button[aria-controls="decision-unfolded"]');
-  return page.locator('summary').filter({ hasText: label });
+export const sheet = (page: Page) => page.getByTestId('decision-sheet');
+export const world = (page: Page) => page.getByTestId('decision-world-visible');
+export const contextStrip = (page: Page) => page.getByTestId('decision-context');
+export const activeObject = (page: Page) => experience(page).getAttribute('data-active-object');
+
+export async function expectCore(page: Page) {
+  await expect(experience(page)).toHaveAttribute('data-active-object', /^(map|phone)$/);
+  await expect(sheet(page)).toHaveCount(1);
+  await expect(sheet(page)).toBeVisible();
 }
 
+export async function returnToCore(page: Page) {
+  const active = await activeObject(page);
+  if (active === 'map' || active === 'phone') return;
+  const back = action(page, 'Back to evening');
+  if (await back.isVisible()) await back.click();
+  else await action(page, 'Map Unfold both routes').click();
+  await expectCore(page);
+}
+
+export async function openObject(page: Page, object: 'map' | 'phone' | 'menu') {
+  if (await activeObject(page) === object) return;
+  await action(page, { map: 'Map Unfold both routes', phone: 'Phone Inspect home-by time', menu: 'Menu See both bills' }[object]).click();
+  await expect(sheet(page)).toHaveCount(1);
+  await expect(sheet(page)).toBeVisible();
+}
+
+/** Optional inspection is a visible object-sheet navigation, never a hidden
+ * panel read. The old page disclosure names remain meaningful user actions. */
 export async function openDisclosure(page: Page, label: string) {
-  const control = disclosure(page, label);
-  await expect(control).toHaveCount(1);
-  await expect(control).toBeVisible();
-  const state = await control.evaluate(element => {
-    const details = element.closest('details');
-    return details ? details.open : element.getAttribute('aria-expanded') === 'true';
-  });
-  if (!state) await control.click();
+  if (label === 'Inspect the trip out and home') {
+    await expect(page.getByRole('heading', { name: label, exact: true })).toBeVisible();
+    return;
+  }
+  if (label === 'Read all authored starting facts') {
+    const summary = page.locator('summary').filter({ hasText: label });
+    await expect(summary).toHaveCount(1);
+    if (!await summary.evaluate(element => element.closest('details')!.open)) await summary.click();
+    return;
+  }
+  if (label === 'Open the bill and assumptions') {
+    await openObject(page, 'menu');
+    return;
+  }
+  await returnToCore(page);
+  if (label === 'What matters to you?') {
+    await action(page, label).click();
+  } else {
+    await action(page, 'Inspect the details').click();
+    await action(page, label).click();
+  }
+  await expect(sheet(page)).toHaveCount(1);
 }
 
 export async function closeDisclosure(page: Page, label: string) {
-  const control = disclosure(page, label);
-  const open = await control.evaluate(element => element.closest('details')?.open ?? element.getAttribute('aria-expanded') === 'true');
-  if (open) await control.click();
+  if (label === 'Inspect the trip out and home') return;
+  if (label === 'Read all authored starting facts') {
+    const summary = page.locator('summary').filter({ hasText: label });
+    if (await summary.count() && await summary.evaluate(element => element.closest('details')!.open)) await summary.click();
+    return;
+  }
+  await returnToCore(page);
 }
 
 export async function startFresh(page: Page, url = '/decision.html') {
   await page.goto(url);
   await expectStage(page, 'baseline');
-  await expect(action(page, 'Start with Hong Kong')).toBeVisible();
-  await expect(action(page, 'Start with Shenzhen')).toBeVisible();
-  await expect(action(page, 'Change home-by time to 22:30')).toBeDisabled();
+  await expect(experience(page)).toHaveAttribute('data-active-object', 'map');
+  await expect(sheet(page)).toHaveCount(1);
+  for (const city of ['Hong Kong', 'Shenzhen']) {
+    await expect(action(page, `Start with ${city}`)).toBeVisible();
+    await expect(action(page, `Start with ${city}`)).toHaveAttribute('aria-pressed', 'false');
+  }
   await expect(outcome(page, 'HK')).toBeVisible();
   await expect(outcome(page, 'SZ')).toBeVisible();
 }
 
 export async function chooseBaseline(page: Page, city: 'Hong Kong' | 'Shenzhen', ownReason?: string) {
+  await returnToCore(page);
+  await openObject(page, 'map');
   await action(page, `Start with ${city}`).click();
+  await expect(experience(page)).toHaveAttribute('data-active-object', 'phone');
   if (ownReason !== undefined) {
     await openDisclosure(page, 'What matters to you?');
     await reason(page).fill(ownReason);
@@ -55,11 +103,15 @@ export async function chooseBaseline(page: Page, city: 'Hong Kong' | 'Shenzhen',
 }
 
 export async function changeDeadline(page: Page) {
+  await returnToCore(page);
+  await openObject(page, 'phone');
   await action(page, 'Change home-by time to 22:30').click();
   await expectStage(page, 'changed');
 }
 
 export async function commitShortWalk(page: Page) {
+  await returnToCore(page);
+  await openObject(page, 'phone');
   await action(page, 'Preview a shorter Shenzhen walk').click();
   await expectStage(page, 'changed', 'revised', true);
   await action(page, 'Choose shorter Shenzhen walk').click();
@@ -67,8 +119,10 @@ export async function commitShortWalk(page: Page) {
 }
 
 export async function replay(page: Page, stage: 'baseline' | 'changed' | 'revised') {
+  await openDisclosure(page, 'Replay the comparison');
   await action(page, { baseline: 'Before', changed: 'Changed', revised: 'Revised' }[stage]).click();
   await expect(experience(page)).toHaveAttribute('data-displayed-snapshot', stage);
+  await expectCore(page);
 }
 
 export async function capture(page: Page, info: TestInfo, stage: 'baseline' | 'earlier-deadline' | 'revised' | 'replay') {
@@ -86,10 +140,14 @@ export async function capture(page: Page, info: TestInfo, stage: 'baseline' | 'e
 export async function expectNoOverflow(page: Page) {
   const overflow = await page.evaluate(() => {
     const root = document.documentElement;
-    return { viewport: innerWidth, document: root.scrollWidth, body: document.body.scrollWidth };
+    return { viewport: innerWidth, document: root.scrollWidth, body: document.body.scrollWidth,
+      viewportHeight: innerHeight, documentHeight: root.scrollHeight, bodyHeight: document.body.scrollHeight, x: scrollX, y: scrollY };
   });
   expect(overflow.document, 'The page has no horizontal scroll outside its viewport.').toBeLessThanOrEqual(overflow.viewport + 1);
   expect(overflow.body).toBeLessThanOrEqual(overflow.viewport + 1);
+  expect(overflow.documentHeight, 'Optional detail views scroll internally; the world document never scrolls.').toBeLessThanOrEqual(overflow.viewportHeight + 1);
+  expect(overflow.bodyHeight).toBeLessThanOrEqual(overflow.viewportHeight + 1);
+  expect([overflow.x, overflow.y]).toEqual([0, 0]);
 }
 
 export async function expectTouchTarget(locator: Locator) {
@@ -162,6 +220,7 @@ export async function readInputFacts(page: Page) {
     await expect(displayedValue, `Input ${key} exposes its value to the reader.`).toBeVisible();
     expect(await displayedValue.innerText(), `Input ${key} renders the exact value used by the comparison.`).toBe(value);
   }
+  await returnToCore(page);
   return Object.fromEntries(facts.map(fact => [fact.key, fact.value]));
 }
 
@@ -199,7 +258,7 @@ export async function expectAcceptedFacts(page: Page, stage: 'baseline' | 'chang
 /** Measures the positioned segments themselves. A correctly sized wrapper with
  * tiny, cropped, independently scaled, or incomplete contents will fail. */
 export async function inspectCommonTimeline(page: Page) {
-  await openDisclosure(page, 'Unfold the evening');
+  await expectCore(page);
   const tracks = [];
   for (const city of ['HK', 'SZ'] as const) {
     const track = timeline(page, city);
@@ -246,6 +305,7 @@ export async function inspectCommonTimeline(page: Page) {
   const markerBox = (await marker.boundingBox())!;
   const expectedMarkerX = tracks[0].x + tracks[0].width * (markerMinute - tracks[0].start) / (tracks[0].end - tracks[0].start);
   expect(Math.abs(markerBox.x - expectedMarkerX), 'The deadline is drawn on the same absolute scale as the route.').toBeLessThanOrEqual(2);
+  await openDisclosure(page, 'Unfold the evening');
   for (const [city, labels] of [
     ['Hong Kong', ['Local trip out', 'Dinner + shared order', 'Walk', 'Local trip home']],
     ['Shenzhen', ['Rail to Lo Wu', 'Outward clearance allowance', 'Transfer to Luohu dinner', 'Dinner + shared order', 'Walk', 'Transfer back to Lo Wu', 'Return clearance allowance', 'Rail back to Kowloon']],
@@ -258,9 +318,12 @@ export async function inspectCommonTimeline(page: Page) {
       await expect(legs.nth(index)).toBeVisible();
       await expect(legs.nth(index)).toContainText(labels[index]);
       await expect(legs.nth(index)).toContainText(/\d{2}:\d{2}–\d{2}:\d{2}/);
+      const actualSegment = tracks[city === 'Hong Kong' ? 0 : 1].segments[index];
+      await expect(legs.nth(index), 'Every outward and return duration agrees with its real shared-scale segment.').toContainText(`${actualSegment.end - actualSegment.start} min`);
     }
   }
   await closeDisclosure(page, 'Inspect the trip out and home');
+  await returnToCore(page);
   return tracks;
 }
 
@@ -282,9 +345,122 @@ export async function readBills(page: Page) {
   await openDisclosure(page, 'Open the bill and assumptions');
   const bills = page.locator('.decision-bill-pair > section');
   await expect(bills).toHaveCount(2);
-  return bills.evaluateAll(sections => sections.map(section => ({
+  const values = await bills.evaluateAll(sections => sections.map(section => ({
     heading: section.querySelector('h3')!.textContent,
     lines: [...section.querySelectorAll('li')].map(line => (line.textContent ?? '').replace(/\s+/g, ' ').trim()),
     groupTotal: section.querySelector('.decision-bill-total')!.textContent,
   })));
+  await returnToCore(page);
+  return values;
+}
+
+/** Read actual active-sheet geometry without opening a second surface. */
+export async function readCoreGeometry(page: Page) {
+  await expectCore(page);
+  const tracks = [];
+  for (const city of ['HK', 'SZ'] as const) {
+    tracks.push(await timeline(page, city).evaluate(element => {
+      const box = element.getBoundingClientRect();
+      return { x: box.x, y: box.y, width: box.width, height: box.height,
+        start: element.getAttribute('data-scale-start-minute'), end: element.getAttribute('data-scale-end-minute'),
+        segments: [...element.querySelectorAll<HTMLElement>('[data-segment-id]')].map(segment => {
+          const rect = segment.getBoundingClientRect();
+          return { id: segment.dataset.segmentId, start: segment.dataset.startMinute, end: segment.dataset.endMinute,
+            x: rect.x, y: rect.y, width: rect.width, height: rect.height };
+        }),
+      };
+    }));
+  }
+  const marker = page.getByTestId('decision-deadline-marker');
+  return { tracks, marker: { ...(await marker.boundingBox())!, minute: await marker.getAttribute('data-deadline-minute') },
+    outcomes: [await readOutcomeFacts(page, 'HK'), await readOutcomeFacts(page, 'SZ')] };
+}
+
+export async function expectWorldAndCore(page: Page) {
+  await expectCore(page);
+  await expect(world(page)).toBeInViewport({ ratio: 1 });
+  await expect(contextStrip(page)).toBeInViewport({ ratio: 1 });
+  await expect(sheet(page)).toBeInViewport({ ratio: 1 });
+  const worldBox = (await world(page).boundingBox())!;
+  const sheetBox = (await sheet(page).boundingBox())!;
+  const artwork = page.locator('img.decision-world-image, .decision-world-fallback svg');
+  await expect(artwork).toHaveCount(1);
+  await expect(artwork).toBeVisible();
+  // Observe the browser's natural loading only; do not predecode or substitute
+  // artwork in the canonical recording. Pixel sampling is a separate QA case.
+  await expect.poll(() => artwork.evaluate(element => element instanceof HTMLImageElement
+    ? element.complete && element.naturalWidth > 0 && element.naturalHeight > 0
+    : element instanceof SVGSVGElement)).toBe(true);
+  const picture = await artwork.evaluate(element => {
+    const box = element.getBoundingClientRect();
+    if (element instanceof SVGSVGElement) {
+      const bounds = element.getBBox(), matrix = element.getScreenCTM()!;
+      const corners = [[bounds.x, bounds.y], [bounds.x + bounds.width, bounds.y], [bounds.x, bounds.y + bounds.height], [bounds.x + bounds.width, bounds.y + bounds.height]]
+        .map(([x, y]) => new DOMPoint(x, y).matrixTransform(matrix));
+      return { kind: 'functional-fallback', left: Math.max(box.left, Math.min(...corners.map(point => point.x))),
+        top: Math.max(box.top, Math.min(...corners.map(point => point.y))),
+        right: Math.min(box.right, Math.max(...corners.map(point => point.x))),
+        bottom: Math.min(box.bottom, Math.max(...corners.map(point => point.y))) };
+    }
+    const css = getComputedStyle(element);
+    let width = box.width, height = box.height;
+    if (element instanceof HTMLImageElement && css.objectFit !== 'fill') {
+      const contain = Math.min(box.width / element.naturalWidth, box.height / element.naturalHeight);
+      const scale = css.objectFit === 'cover' ? Math.max(box.width / element.naturalWidth, box.height / element.naturalHeight)
+        : css.objectFit === 'none' ? 1 : css.objectFit === 'scale-down' ? Math.min(1, contain) : contain;
+      width = element.naturalWidth * scale;
+      height = element.naturalHeight * scale;
+    }
+    const offset = (value: string, space: number) => value.endsWith('%') ? space * Number.parseFloat(value) / 100
+      : value === 'center' ? space / 2 : value === 'right' || value === 'bottom' ? space
+      : value === 'left' || value === 'top' ? 0 : Number.parseFloat(value);
+    const [x = '50%', y = '50%'] = css.objectPosition.split(' ');
+    const left = box.x + offset(x, box.width - width), top = box.y + offset(y, box.height - height);
+    // The object-fit image plane may be smaller than its box (letterboxing),
+    // or larger and clipped by it. Neither invisible area counts as artwork.
+    return { kind: 'raster', left: Math.max(box.x, left), top: Math.max(box.y, top),
+      right: Math.min(box.right, left + width), bottom: Math.min(box.bottom, top + height) };
+  });
+  const visibleArt = {
+    left: Math.max(0, worldBox.x, picture.left), top: Math.max(0, worldBox.y, picture.top),
+    right: Math.min(page.viewportSize()!.width, worldBox.x + worldBox.width, picture.right),
+    bottom: Math.min(page.viewportSize()!.height, worldBox.y + worldBox.height, picture.bottom),
+  };
+  if (picture.kind === 'raster') {
+    expect(visibleArt.right - visibleArt.left, 'The actual raster picture plane intersects the exposed region, not merely its wrapper.').toBeGreaterThanOrEqual(280);
+    expect(visibleArt.bottom - visibleArt.top, 'At least 280px of successful raster artwork remains above or beside the sheet.').toBeGreaterThanOrEqual(280);
+  } else {
+    // The intentional failed-image case checks a working, visible fallback;
+    // it does not claim the full raster-world experience survived the failure.
+    expect(visibleArt.right - visibleArt.left, 'The actual SVG fallback drawing remains visible.').toBeGreaterThanOrEqual(100);
+    expect(visibleArt.bottom - visibleArt.top).toBeGreaterThanOrEqual(100);
+  }
+  const coveredBySheet = Math.max(0, Math.min(visibleArt.right, sheetBox.x + sheetBox.width) - Math.max(visibleArt.left, sheetBox.x))
+    * Math.max(0, Math.min(visibleArt.bottom, sheetBox.y + sheetBox.height) - Math.max(visibleArt.top, sheetBox.y));
+  expect(coveredBySheet, 'The measured artwork region is genuinely unoccluded by the active sheet.').toBeLessThanOrEqual(1);
+  expect(await artwork.evaluate(element => {
+    for (let node: Element | null = element; node; node = node.parentElement) {
+      const css = getComputedStyle(node);
+      if (css.visibility !== 'visible' || css.display === 'none' || Number(css.opacity) === 0) return false;
+    }
+    return true;
+  })).toBe(true);
+  for (const city of ['HK', 'SZ'] as const) {
+    await expect(outcome(page, city).locator('.decision-key-figures')).toBeInViewport({ ratio: 1 });
+    await expect(timeline(page, city)).toBeInViewport({ ratio: 1 });
+  }
+  await expect(page.getByTestId('decision-deadline-marker')).toBeInViewport({ ratio: 1 });
+  for (const button of await sheet(page).locator('button:visible').all()) {
+    await expect(button, 'Every main causal-path action is present without scrolling its sheet.').toBeInViewport({ ratio: 1 });
+  }
+  await expect(contextStrip(page)).toContainText(/400/);
+  await expect(contextStrip(page)).toContainText(/person|each/i);
+  await expect(contextStrip(page)).toContainText(/2\s*(?:adults|people)/i);
+  await expect(contextStrip(page)).toContainText('17:00');
+  const deadline = (await readOutcomeFacts(page, 'HK')).deadline;
+  await expect(contextStrip(page)).toContainText(deadline === '1410' ? '23:30' : '22:30');
+  const extent = await page.evaluate(() => ({ x: scrollX, y: scrollY, height: document.documentElement.scrollHeight, viewport: innerHeight }));
+  expect(extent.x).toBe(0);
+  expect(extent.y, 'The world is the viewport, not a page scrolled down to a form.').toBe(0);
+  expect(extent.height).toBeLessThanOrEqual(extent.viewport + 1);
 }

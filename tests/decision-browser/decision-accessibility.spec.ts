@@ -1,9 +1,9 @@
 import { test, expect, type Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import {
-  action, auditNoPrivateStorage, changeDeadline, chooseBaseline, closeDisclosure, commitShortWalk,
+  action, auditNoPrivateStorage, changeDeadline, chooseBaseline, closeDisclosure,
   expectKeyboardFocusVisible, expectNoOverflow, expectStage, expectTouchTarget,
-  experience, inspectCommonTimeline, openDisclosure, startFresh,
+  experience, expectWorldAndCore, inspectCommonTimeline, openDisclosure, readCoreGeometry, sheet, world, startFresh,
 } from './decision-helpers';
 
 async function expectSeriousAxeClear(page: Page) {
@@ -70,7 +70,7 @@ async function inspectArtwork(page: Page) {
   // Object anchors were checked against the actual 1672×941 approved source
   // pixels. Measure the cropped/contained bitmap, not the frame dimensions.
   for (const [name, x, y] of [['menu', .61, .62], ['map', .69, .65], ['phone', .76, .66]] as const) {
-    const pin = experience(page).locator(`.decision-world-pin.${name}`);
+    const pin = experience(page).locator(`button[data-object-id="${name}"]`);
     await expect(pin).toBeVisible();
     const box = (await pin.boundingBox())!;
     expect(Math.abs(box.x + box.width / 2 - (bitmap.projectedX + bitmap.projectedWidth * x)), `${name} remains on its object when the image is cropped.`).toBeLessThanOrEqual(3);
@@ -80,32 +80,35 @@ async function inspectArtwork(page: Page) {
 }
 
 for (const width of [360, 390, 1440]) {
-  test(`readable complete geometry, touch targets, focus and reduced motion at ${width}px`, async ({ page, context }) => {
+  test(`world and one active sheet: geometry, keyboard, accessibility and reduced motion at ${width}px`, async ({ page, context }) => {
     await page.setViewportSize({ width, height: width === 1440 ? 900 : 844 });
     await page.emulateMedia({ reducedMotion: 'reduce' });
     const audit = await auditNoPrivateStorage(context);
     await startFresh(page);
-    if (width <= 390) {
-      await page.evaluate(() => document.fonts.ready);
-      expect(await page.evaluate(() => scrollY), 'Initial entry is measured before scrolling or choosing.').toBe(0);
-      for (const city of ['HK', 'SZ'] as const) await expect(page.getByTestId(`decision-outcome-${city}`).locator('.decision-key-figures')).toBeInViewport({ ratio: 1 });
-      expect(await page.evaluate(() => scrollY)).toBe(0);
-    }
+    await page.evaluate(() => document.fonts.ready);
+    await expectWorldAndCore(page);
     await expectVisibleControls(page);
     await expectNoOverflow(page);
     await inspectArtwork(page);
     await expectSeriousAxeClear(page);
     await tabTo(page, 'Start with Hong Kong');
     await page.keyboard.press('Enter');
-    await expect(action(page, 'Change home-by time to 22:30')).toBeEnabled();
+    await expect(experience(page)).toHaveAttribute('data-active-object', 'phone');
+    await expect(page.locator('#decision-sheet-heading')).toBeFocused();
+    await expectKeyboardFocusVisible(page);
+    await expectWorldAndCore(page);
     await tabTo(page, 'Change home-by time to 22:30');
     await page.keyboard.press('Enter');
     await expectStage(page, 'changed');
+    await expect(page.getByTestId('decision-feedback')).toBeFocused();
+    await expectKeyboardFocusVisible(page);
+    await expectWorldAndCore(page);
     await expectVisibleControls(page);
     await expectNoOverflow(page);
     await inspectCommonTimeline(page);
     await openDisclosure(page, 'Open the bill and assumptions');
     await openDisclosure(page, 'Sources and what is still unknown');
+    await expect(sheet(page)).toHaveCount(1);
     await expect(experience(page)).toContainText(/entry.*(?:unknown|unverified)|eligibility.*(?:unknown|unverified)/i);
     await expect(experience(page)).toContainText(/(?:train|transport|service).*(?:unverified|not verified|unknown|check)/i);
     await expect(experience(page)).toContainText(/queue/i);
@@ -114,45 +117,81 @@ for (const width of [360, 390, 1440]) {
     await expectVisibleControls(page);
     await expectNoOverflow(page);
     await expectSeriousAxeClear(page);
-    await closeDisclosure(page, 'Open the bill and assumptions');
     await closeDisclosure(page, 'Sources and what is still unknown');
-    await commitShortWalk(page);
+
+    // Replaced controls must transfer actual keyboard focus on every transition.
+    await action(page, 'Preview a shorter Shenzhen walk').press('Enter');
+    await expectStage(page, 'changed', 'revised', true);
+    await expect(page.getByTestId('decision-feedback')).toBeFocused();
+    await expectKeyboardFocusVisible(page);
+    await expectWorldAndCore(page);
+    await action(page, 'Cancel preview').press('Enter');
+    await expectStage(page, 'changed');
+    await expect(page.getByTestId('decision-feedback')).toBeFocused();
+    await expectKeyboardFocusVisible(page);
+    await action(page, 'Preview a shorter Shenzhen walk').press('Enter');
+    await action(page, 'Choose shorter Shenzhen walk').press('Enter');
+    await expectStage(page, 'revised');
+    await expect(page.getByTestId('decision-feedback')).toBeFocused();
+    await expectKeyboardFocusVisible(page);
     await inspectCommonTimeline(page);
+    await expectWorldAndCore(page);
     await expectVisibleControls(page);
     await expectNoOverflow(page);
     await expectSeriousAxeClear(page);
     const motion = await page.evaluate(() => ({
       requested: matchMedia('(prefers-reduced-motion: reduce)').matches,
+      transitions: [...document.querySelectorAll('[data-testid="decision-sheet"], .decision-world-image, .decision-deadline-line, .decision-time-segment')]
+        .flatMap(element => getComputedStyle(element).transitionDuration.split(',').map(value => Number.parseFloat(value))),
       running: document.getAnimations().filter(animation => animation.playState === 'running')
         .map(animation => Number(animation.effect?.getComputedTiming().duration ?? 0)),
     }));
     expect(motion.requested).toBe(true);
-    expect(motion.running.filter(duration => duration > 10), 'Reduced-motion mode must not leave scene movement running.').toEqual([]);
+    expect(motion.transitions.every(duration => duration === 0), 'Reduced motion means actual zero-duration transitions.').toBe(true);
+    expect(motion.running.filter(duration => duration > 0)).toEqual([]);
     await audit.expectZero(page);
   });
 }
 
 for (const width of [360, 390]) {
-  test(`primary consequences remain beside the action without a jump at ${width}px`, async ({ page }) => {
+  test(`phone changes only the deadline marker while world and consequences remain visible at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 844 });
     await startFresh(page);
+    await expectWorldAndCore(page);
     await chooseBaseline(page, 'Shenzhen');
+    await expectWorldAndCore(page);
+    const before = await readCoreGeometry(page);
+    const originalTrackNodes = await Promise.all(['HK', 'SZ'].map(city => page.getByTestId(`decision-timeline-${city}`).elementHandle()));
+    expect(originalTrackNodes.every(Boolean)).toBe(true);
+    const worldBefore = await world(page).boundingBox();
     const deadline = action(page, 'Change home-by time to 22:30');
-    await deadline.scrollIntoViewIfNeeded();
+    await expect(deadline).toBeInViewport({ ratio: 1 });
     const actionBox = (await deadline.boundingBox())!;
-    const beforeDeadlineScroll = await page.evaluate(() => scrollY);
     await changeDeadline(page);
-    expect(Math.abs(await page.evaluate(() => scrollY) - beforeDeadlineScroll), 'The consequence stays local without scrolling it into place.').toBeLessThanOrEqual(2);
+    await expectWorldAndCore(page);
+    const displacement = before.tracks[0].width * 60 / 420;
+    await expect.poll(async () => Math.abs((await page.getByTestId('decision-deadline-marker').boundingBox())!.x - (before.marker.x - displacement))).toBeLessThanOrEqual(2);
+    const after = await readCoreGeometry(page);
+    for (const [index, city] of ['HK', 'SZ'].entries()) {
+      expect(await originalTrackNodes[index]!.evaluate((node, id) => node.isConnected && node === document.querySelector(`[data-testid="decision-timeline-${id}"]`), city),
+        `${city} keeps the exact original track DOM node through the deadline change.`).toBe(true);
+    }
+    expect(after.tracks, 'Both complete routes retain their exact real segment geometry.').toEqual(before.tracks);
+    expect(after.outcomes.map(({ deadline: _deadline, ...rest }) => rest)).toEqual(before.outcomes.map(({ deadline: _deadline, ...rest }) => rest));
+    expect(after.marker.minute).toBe('1350');
+    expect(before.marker.minute).toBe('1410');
+    expect(Math.abs(before.marker.x - after.marker.x - displacement), 'Only the deadline line moves one hour on the common seven-hour scale.').toBeLessThanOrEqual(2);
+    expect(await world(page).boundingBox()).toEqual(worldBefore);
     const feedback = page.getByTestId('decision-feedback');
-    await expect(feedback).toBeVisible();
     await expect(feedback).toBeInViewport({ ratio: 1 });
     await expect(feedback).toContainText(/15\s*(?:min|minute)/i);
-    const feedbackBox = (await feedback.boundingBox())!;
-    expect(Math.abs(feedbackBox.y - actionBox.y), 'The changed consequence is in the same local action area.').toBeLessThanOrEqual(240);
     await expect(feedback).toContainText(/cost|bill/i);
-    await action(page, 'Preview a shorter Shenzhen walk').scrollIntoViewIfNeeded();
-    const previewBox = (await action(page, 'Preview a shorter Shenzhen walk').boundingBox())!;
-    await action(page, 'Preview a shorter Shenzhen walk').click();
+    expect(Math.abs((await feedback.boundingBox())!.y - actionBox.y), 'The causal feedback occupies the same compact action area.').toBeLessThanOrEqual(240);
+    const previewAction = action(page, 'Preview a shorter Shenzhen walk');
+    await expect(previewAction).toBeInViewport({ ratio: 1 });
+    const previewBox = (await previewAction.boundingBox())!;
+    await previewAction.click();
+    await expectWorldAndCore(page);
     await expect(feedback).toBeInViewport({ ratio: 1 });
     await expect(feedback).toContainText(/45\s*(?:→|to)\s*15|30\s*(?:min|minute)/i);
     expect(Math.abs((await feedback.boundingBox())!.y - previewBox.y)).toBeLessThanOrEqual(240);

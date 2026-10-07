@@ -1,4 +1,4 @@
-import { useMemo, useReducer, useRef, useState } from 'react';
+import { useLayoutEffect, useMemo, useReducer, useRef, useState } from 'react';
 import { formatClock } from '../domain/engine';
 import { sources } from '../data/evidence';
 import { createDecisionSession, decisionReducer, previewRevision, selectDecisionView } from '../decision/session';
@@ -7,6 +7,9 @@ import './decision-experience.css';
 
 type DecisionOption = DecisionSnapshot['result']['options'][number];
 type Segment = { id: string; label: string; start: number; end: number; kind: 'travel' | 'clearance' | 'dinner' | 'walk' };
+type CoreObject = 'map' | 'phone';
+type SceneObject = CoreObject | 'menu';
+type Surface = SceneObject | 'priorities' | 'sources' | 'history' | 'route' | 'details' | 'about' | null;
 const stages: { id: SnapshotId; label: string; number: string }[] = [
   { id: 'baseline', label: 'Before', number: '01' },
   { id: 'changed', label: 'Changed', number: '02' },
@@ -18,11 +21,9 @@ const art = (name: string) => (globalThis as typeof globalThis & { __BETWEEN_ART
 const cityName = (id: 'hk' | 'sz') => id === 'hk' ? 'Hong Kong' : 'Shenzhen';
 const money = (amount: number | null) => amount === null ? 'Unknown' : `HK$${amount.toLocaleString('en-HK', { minimumFractionDigits: Number.isInteger(amount) ? 0 : 2, maximumFractionDigits: 2 })}`;
 const nativeMoney = (amount: number | null, currency: string) => amount === null ? 'Unknown' : `${currency} ${amount.toFixed(2)}`;
-const elapsed = (minutes: number) => `${Math.floor(minutes / 60) ? `${Math.floor(minutes / 60)}h ` : ''}${minutes % 60 ? `${minutes % 60}m` : ''}`.trim() || '0m';
 const SCALE_START = 17 * 60;
 const SCALE_END = 24 * 60;
 const position = (minute: number) => `${(minute - SCALE_START) / (SCALE_END - SCALE_START) * 100}%`;
-
 function inputLeaves(value: unknown, path = ''): { key: string; value: string }[] {
   if (value !== null && typeof value === 'object') return Object.entries(value).flatMap(([key, child]) => inputLeaves(child, path ? `${path}.${key}` : key));
   return [{ key: path, value: String(value) }];
@@ -63,83 +64,91 @@ function segmentsFor(option: DecisionOption): Segment[] {
     ...inward];
 }
 
-function DeskObjects() {
-  return <svg className="decision-desk-art" viewBox="0 0 210 108" role="presentation" aria-hidden="true" shapeRendering="crispEdges">
-    <path fill="#d9d7c9" d="M4 92h202v8H4z" />
-    <path fill="#c4beaa" d="M15 100h180v4H15z" />
-    <path fill="#8d9c8e" d="M151 10h34v5h8v9h8v20h-62V24h6v-9h6z" />
-    <path fill="#334b42" d="M166 44h7v41h20v7h-47v-7h20z" />
-    <path fill="#e9cc80" d="M145 44h50v6h-50z" />
-    <path fill="#b8af9f" d="M17 22h53v65H17zM76 29h53v58H76z" />
-    <path fill="#fffaf0" d="M13 18h53v65H13zM72 25h53v58H72z" />
-    <path fill="#606881" d="M20 25h39v8H20zM20 40h25v4H20zM20 48h34v4H20zM20 56h28v4H20z" />
-    <path fill="#3e7664" d="M79 32h39v8H79zM79 47h25v4H79zM79 55h34v4H79zM79 63h28v4H79z" />
-    <path fill="#d7a05f" d="M91 78h43v8h-6v6h-31v-6h-6z" />
-    <path fill="#f2db9c" d="M94 72h37v6H94z" />
-    <path fill="#765646" d="M102 60h4v15h-4zM111 57h4v18h-4z" />
-    <path fill="#48514a" d="M25 88h44v4H25z" />
-  </svg>;
-}
+const objects: { id: SceneObject; x: number; y: number; label: string; symbol: string }[] = [
+  { id: 'menu', x: .61, y: .62, label: 'Menu See both bills', symbol: '≡' },
+  { id: 'map', x: .69, y: .65, label: 'Map Unfold both routes', symbol: '↔' },
+  { id: 'phone', x: .76, y: .66, label: 'Phone Inspect home-by time', symbol: '◷' },
+];
 
-function ClockObject({ changed }: { changed: boolean }) {
-  return <svg viewBox="0 0 48 48" width="48" height="48" aria-hidden="true" shapeRendering="crispEdges">
-    <path fill="currentColor" d="M12 3h24v3h6v6h3v24h-3v6h-6v3H12v-3H6v-6H3V12h3V6h6z" />
-    <path fill="#fcf7ed" d="M12 9h24v3h3v24h-3v3H12v-3H9V12h3z" />
-    <path fill="currentColor" d={changed ? 'M22 22h4v14h-4zM13 15h6v4h7v7h-4v-4h-6v-3h-3z' : 'M22 22h4v14h-4zM18 12h4v6h4v8h-4v-6h-4z'} />
-  </svg>;
-}
-
-function OptionCard({ option, snapshotId, selected, canChoose, onChoose }: {
-  option: DecisionOption; snapshotId: SnapshotId; selected: boolean; canChoose: boolean; onChoose: () => void;
+/** The bitmap and every physical target use this one measured transform. */
+function DecisionStreet({ attended, surface, onOpen, failed, onFailure }: {
+  attended: SceneObject; surface: Surface; onOpen: (object: SceneObject) => void; failed: boolean; onFailure: () => void;
 }) {
-  return <article className={`decision-option decision-option-${option.id}${selected ? ' is-selected' : ''}`}
-    aria-labelledby={`decision-title-${option.id}`} data-testid={`decision-outcome-${option.id.toUpperCase()}`}
-    data-option-id={option.id} data-snapshot-id={snapshotId} data-home-minute={option.returnMinutes}
-    data-cost-hkd={option.perPersonHKD ?? 'unknown'} data-dinner-minutes={option.mealMinutes}
-    data-walk-minutes={option.walkMinutes} data-deadline-minute={option.homeByMinutes}>
-    <header className="decision-option-title"><span className="decision-city-marker" aria-hidden="true">{option.id === 'hk' ? '港' : '深'}</span><div><p>{option.id === 'hk' ? 'Stay local' : 'Cross via Lo Wu'}</p><h3 id={`decision-title-${option.id}`}>{cityName(option.id)}</h3></div></header>
-    <div className="decision-key-figures"><div><span>Whole evening / person</span><strong>{money(option.perPersonHKD)}</strong></div><div><span>Modeled home time</span><strong>{formatClock(option.returnMinutes)}</strong></div></div>
-    <p className={`decision-margin ${option.homeFeasible ? 'is-within' : 'is-late'}`}><span aria-hidden="true">{option.homeFeasible ? '↳' : '!'}</span>{option.homeFeasible ? `${option.spareMinutes} min modeled slack` : `${-option.spareMinutes} min late in model`}</p>
-    <div className="decision-compact-evening"><p><strong>Dinner {option.mealMinutes} min</strong><span> · </span><strong>Walk {option.walkMinutes} min</strong></p><p>Shared order included</p><p className="decision-compact-route">{option.outwardMinutes} min out + {option.inwardMinutes} min home</p></div>
-    <p className="decision-option-foot">{elapsed(option.totalMinutes)} · complete round trip</p>
-    {canChoose ? <button className={`decision-pick ${selected ? 'selected' : ''}`} type="button" aria-pressed={selected} onClick={onChoose}>Start with {cityName(option.id)}<span aria-hidden="true">{selected ? ' ✓' : ' →'}</span></button> : <p className="decision-selection-note">{selected ? `You selected ${cityName(option.id)}` : 'Alternative kept in view'}</p>}
-  </article>;
-}
-
-function TimeAndRoute({ snapshot }: { snapshot: DecisionSnapshot }) {
-  const [route, setRoute] = useState<'hk' | 'sz'>('sz');
-  const selected = snapshot.result.options.find(option => option.id === route)!;
-  const segments = segmentsFor(selected);
-  const deadline = snapshot.inputs.homeByMinutes;
-  return <section className="decision-unfolded" aria-labelledby="decision-time-title">
-    <div className="decision-section-heading"><div><p className="decision-eyebrow">The same clock for both evenings</p><h3 id="decision-time-title">Where the time goes</h3></div><span>Both cities · UTC+8</span></div>
-    <p className="decision-small">Every strip uses 17:00–00:00. Empty space is time left after arriving home.</p>
-    <div className="decision-time-key"><span><i className="travel"/>Travel</span><span><i className="clearance"/>Clearance</span><span><i className="dinner"/>Dinner</span><span><i className="walk"/>Walk</span></div>
-    <div className="decision-time-axis" aria-hidden="true">{[17, 18, 19, 20, 21, 22, 23, 24].map(hour => <span key={hour} style={{ left: position(hour * 60) }}>{hour === 24 ? '00' : hour}</span>)}</div>
-    <div className="decision-timeline-pair">
-      <div className="decision-deadline-line" data-testid="decision-deadline-marker" data-deadline-minute={deadline} style={{ left: position(deadline) }}><span>Home by<br/><b>{formatClock(deadline)}</b></span></div>
-      {snapshot.result.options.map(option => <div key={option.id} className="decision-timeline-row">
-        <div className="decision-timeline-label"><strong>{cityName(option.id)}</strong><span>{money(option.perPersonHKD)} / person · home {formatClock(option.returnMinutes)}</span></div>
-        <div role="group" className="decision-timeline-track" data-testid={`decision-timeline-${option.id.toUpperCase()}`} data-scale-start-minute={SCALE_START} data-scale-end-minute={SCALE_END} aria-label={`${cityName(option.id)} complete evening, 17:00 to midnight scale`}>
-          {segmentsFor(option).map(segment => <span key={segment.id} className={`decision-time-segment ${segment.kind}`} data-segment-id={segment.id} data-start-minute={segment.start} data-end-minute={segment.end} style={{ left: position(segment.start), width: `${(segment.end - segment.start) / (SCALE_END - SCALE_START) * 100}%` }}><span className="decision-sr-only">{segment.label}: {formatClock(segment.start)}–{formatClock(segment.end)}, {segment.end - segment.start} minutes.</span></span>)}
-          <span className={`decision-home-pin ${option.homeFeasible ? '' : 'is-late'}`} style={{ left: position(option.returnMinutes) }} aria-hidden="true"/>
-        </div>
-      </div>)}
-    </div>
-    <div className="decision-route-inspector">
-      <div role="group" className="decision-route-tabs" aria-label="Inspect a complete route">{(['hk', 'sz'] as const).map(id => <button key={id} type="button" aria-pressed={route === id} onClick={() => setRoute(id)}>{cityName(id)} route</button>)}</div>
-      <p className="decision-small">Schematic only. Places are not positioned geographically.</p>
-      <div role="group" className={`decision-route-map ${route}`} aria-label={route === 'sz' ? 'Kowloon, through Lo Wu, to dinner in Luohu, then back through Lo Wu to Kowloon' : 'Kowloon to a local dinner and walk, then back home'}>
-        <span className="decision-route-place"><i aria-hidden="true">⌂</i><strong>Kowloon</strong><small>Start / home</small></span>
-        <span className="decision-route-arrows" aria-hidden="true">→<br/>←</span>
-        {route === 'sz' && <><span className="decision-route-place crossing"><i aria-hidden="true">▥</i><strong>Lo Wu</strong><small>Both crossings</small></span><span className="decision-route-arrows" aria-hidden="true">→<br/>←</span></>}
-        <span className="decision-route-place"><i aria-hidden="true">▤</i><strong>{route === 'sz' ? 'Luohu' : 'Local evening'}</strong><small>Dinner + walk</small></span>
+  const frame = useRef<HTMLDivElement>(null);
+  const [geometry, setGeometry] = useState({ width: 1672, height: 941, left: 0, top: 0 });
+  const [fallbackOpen, setFallbackOpen] = useState(false);
+  useLayoutEffect(() => {
+    if (!frame.current) return;
+    const measure = () => {
+      const box = frame.current!.getBoundingClientRect();
+      const mobile = window.matchMedia('(max-width: 899px)').matches;
+      const scale = Math.max(box.width / 1672, box.height / 941, mobile ? 640 / 1672 : 0);
+      const width = 1672 * scale;
+      const height = 941 * scale;
+      const left = mobile ? Math.min(0, Math.max(box.width - width, box.width / 2 - width * .69)) : (box.width - width) / 2;
+      setGeometry({ width, height, left, top: (box.height - height) / 2 });
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(frame.current);
+    return () => observer.disconnect();
+  }, []);
+  return <section className="decision-world" aria-label="An imagined Hong Kong street at dusk">
+    <div ref={frame} className="decision-world-image-frame" data-testid="decision-world-frame">
+      {!failed ? <img className="decision-world-image" src={art('decision-hk-pixel.webp')} width="1672" height="941"
+        style={geometry} alt="A Hong Kong-inspired street at dusk, with a rail entrance and a small dining counter. A menu, folded map and phone rest on the counter."
+        onError={onFailure}/> : <div className="decision-world-fallback"><svg className="decision-desk-art" viewBox="0 0 640 360" aria-hidden="true"><path fill="#807060" d="M0 0h640v360H0z"/><path fill="#3e514f" d="M0 195h640v165H0z"/><path fill="#b99b70" d="M90 35h440v270H90z"/><path fill="#69775e" d="M70 40h480v35H70z"/><path fill="#ead0a0" d="M115 90h175v118H115zM315 90h185v118H315z"/><path fill="#705146" d="M70 238h500v18H70zM100 256h15v90h-15zM525 256h15v90h-15z"/><path fill="#ead8ae" d="M330 201h38v34h-38zM395 210h55v25h-55z"/><path fill="#344f58" d="M470 207h21v28h-21z"/><path fill="#c6a162" d="M150 295h72v8h-72zM365 294h72v8h-72z"/><path fill="#35433f" d="M150 303h8v57h-8zM214 303h8v57h-8zM365 302h8v58h-8zM429 302h8v58h-8z"/></svg><p>The illustration couldn’t load. The comparison and every object still work.</p></div>}
+      <div className="decision-physical-objects" role="group" aria-label="Objects on the counter">
+        {objects.map(object => <button key={object.id} id={`decision-object-${object.id}`} type="button" className={`decision-hotspot ${attended === object.id ? 'is-attended' : ''}`}
+          data-object-id={object.id} data-source-x={object.x} data-source-y={object.y}
+          style={{ left: geometry.left + geometry.width * object.x, top: geometry.top + geometry.height * object.y }}
+          aria-label={object.label} aria-expanded={surface === object.id} aria-controls={surface ? 'decision-sheet' : undefined} onClick={() => onOpen(object.id)}>
+          <span className="decision-hotspot-mark" aria-hidden="true">{object.symbol}</span><span className="decision-hotspot-label" aria-hidden="true">{object.id === 'map' ? 'Map · compare' : object.id === 'phone' ? 'Phone · home by' : 'Menu · the bill'}</span>
+        </button>)}
       </div>
-      <details className="decision-route-legs"><summary>Inspect the trip out and home <span aria-hidden="true">+</span></summary><ol>{segments.map(segment => <li key={segment.id}><span className={`decision-step-dot ${segment.kind}`} aria-hidden="true"/><div><strong>{segment.label}</strong><span>{formatClock(segment.start)}–{formatClock(segment.end)} · {segment.end - segment.start} min</span>{segment.kind === 'clearance' && <small>Authored allowance; actual queues are unknown.</small>}</div></li>)}</ol></details>
     </div>
+    <div className="decision-world-visible" data-testid="decision-world-visible" aria-hidden="true"/>
+    <div className="decision-object-fallback" onKeyDown={event => { if (event.key === 'Escape' && fallbackOpen) { event.preventDefault(); event.stopPropagation(); setFallbackOpen(false); requestAnimationFrame(() => document.getElementById('decision-choose-object')?.focus({ preventScroll: true })); } }}><button id="decision-choose-object" type="button" aria-label="Choose an object" aria-expanded={fallbackOpen} onClick={() => setFallbackOpen(value => !value)}>Objects <span aria-hidden="true">⌄</span></button>{fallbackOpen && <div role="group" aria-label="Named object controls">{objects.map(object => <button key={object.id} type="button" onClick={() => { setFallbackOpen(false); onOpen(object.id); }}>{object.id === 'map' ? 'Open map' : object.id === 'phone' ? 'Open phone' : 'Open menu'}</button>)}</div>}</div>
+    <p className="decision-world-caption">Imagined setting · authored example</p>
   </section>;
 }
 
+function CompleteComparison({ snapshot, selected }: { snapshot: DecisionSnapshot; selected?: 'hk' | 'sz' }) {
+  const deadline = snapshot.inputs.homeByMinutes;
+  return <section className="decision-comparison" aria-label="Two complete evenings on the same clock">
+    <div className="decision-comparison-brief"><span>90 min dinner + shared order</span><span>All travel included</span></div>
+    <div role="group" className="decision-time-axis" aria-label="Common absolute time scale, 17:00 to midnight, UTC plus eight">{[17, 19, 21, 23, 24].map(hour => <span key={hour} style={{ left: position(hour * 60) }}>{hour === 24 ? '00:00' : `${hour}:00`}</span>)}</div>
+    <div className="decision-timeline-pair">
+      <div className="decision-deadline-line" data-testid="decision-deadline-marker" data-deadline-minute={deadline} style={{ left: position(deadline) }}><span>{formatClock(deadline)}<small>home by</small></span></div>
+      {snapshot.result.options.map(option => <article key={option.id} className={`decision-option decision-option-${option.id}${selected === option.id ? ' is-selected' : ''}`}
+        aria-labelledby={`decision-title-${option.id}`} data-testid={`decision-outcome-${option.id.toUpperCase()}`}
+        data-option-id={option.id} data-snapshot-id={snapshot.id} data-home-minute={option.returnMinutes} data-cost-hkd={option.perPersonHKD ?? 'unknown'}
+        data-dinner-minutes={option.mealMinutes} data-walk-minutes={option.walkMinutes} data-deadline-minute={option.homeByMinutes}>
+        <div className="decision-lane-heading"><h3 id={`decision-title-${option.id}`}>{cityName(option.id)}<small>{option.id === 'hk' ? 'local evening' : 'rail via Lo Wu'}</small></h3><div className="decision-key-figures"><div><strong>{money(option.perPersonHKD)}</strong><small>/ person</small></div><div><strong>{formatClock(option.returnMinutes)}</strong><small>modeled home</small></div></div></div>
+        <div role="group" className="decision-timeline-track" data-testid={`decision-timeline-${option.id.toUpperCase()}`} data-option-id={option.id}
+          data-scale-start-minute={SCALE_START} data-scale-end-minute={SCALE_END} aria-label={`${cityName(option.id)} complete evening on the 17:00 to midnight scale`}>
+          {segmentsFor(option).map(segment => <span key={segment.id} className={`decision-time-segment ${segment.kind}`} data-segment-id={segment.id} data-start-minute={segment.start} data-end-minute={segment.end}
+            style={{ left: position(segment.start), width: `${(segment.end - segment.start) / (SCALE_END - SCALE_START) * 100}%` }}>
+            <span className="decision-sr-only">{segment.label}: {formatClock(segment.start)}–{formatClock(segment.end)}, {segment.end - segment.start} minutes.</span></span>)}
+          <span className={`decision-home-pin ${option.homeFeasible ? '' : 'is-late'}`} style={{ left: position(option.returnMinutes) }} aria-hidden="true"/>
+        </div>
+        <div className="decision-lane-facts"><span>Dinner {option.mealMinutes} min · walk {option.walkMinutes} min</span><span className={option.homeFeasible ? '' : 'is-late'}>{option.homeFeasible ? `${option.spareMinutes} min modeled slack` : `${-option.spareMinutes} min late`}</span></div>
+        <p className="decision-lane-route decision-sr-only">{option.outwardMinutes} min out + {option.inwardMinutes} min home · shared order included</p>
+      </article>)}
+    </div>
+    <div className="decision-time-key"><span><i className="travel"/>Travel</span><span><i className="clearance"/>Clearance</span><span><i className="dinner"/>Dinner</span><span><i className="walk"/>Walk</span><span>UTC+8</span></div>
+  </section>;
+}
+
+function RouteInspector({ snapshot }: { snapshot: DecisionSnapshot }) {
+  const [route, setRoute] = useState<'hk' | 'sz'>('sz');
+  const option = snapshot.result.options.find(item => item.id === route)!;
+  return <section className="decision-route-inspector"><p>Complete journeys on a schematic. This is not geographic routing or a timetable.</p>
+    <div role="group" className="decision-route-tabs" aria-label="Inspect a complete route">{(['hk', 'sz'] as const).map(id => <button key={id} type="button" aria-pressed={route === id} onClick={() => setRoute(id)}>{cityName(id)} route</button>)}</div>
+    <div role="group" className={`decision-route-map ${route}`} aria-label={route === 'sz' ? 'Kowloon through Lo Wu to Luohu, then back through Lo Wu to Kowloon' : 'Kowloon to local dinner and walking, then home'}><span>Kowloon<br/><small>start / home</small></span><i aria-hidden="true">⇄</i>{route === 'sz' && <><span>Lo Wu<br/><small>both crossings</small></span><i aria-hidden="true">⇄</i></>}<span>{route === 'sz' ? 'Luohu' : 'Local area'}<br/><small>dinner + walk</small></span></div>
+    <div className="decision-route-legs"><h3>Inspect the trip out and home</h3><ol>{segmentsFor(option).map(segment => <li key={segment.id}><span className={`decision-step-dot ${segment.kind}`} aria-hidden="true"/><div><strong>{segment.label}</strong><span>{formatClock(segment.start)}–{formatClock(segment.end)} · {segment.end - segment.start} min</span>{segment.kind === 'clearance' && <small>Authored allowance. Actual queues are unknown.</small>}</div></li>)}</ol></div>
+  </section>;
+}
 function Bills({ snapshot }: { snapshot: DecisionSnapshot }) {
   return <div className="decision-bills">
     <p>Every price, the FX rate and every journey duration below is an authored assumption. Shared orders are charged once for two adults. No live quotes.</p>
@@ -153,75 +162,79 @@ function Bills({ snapshot }: { snapshot: DecisionSnapshot }) {
   </div>;
 }
 
+function Evidence() {
+  return <div className="decision-evidence"><section><p className="decision-eyebrow">Authored assumptions</p><h3>Prices and durations are a worked example.</h3><p>Meals, shared orders, fares, travel, clearance allowances and FX are illustrative, not live quotes, queues, a timetable or a real travel plan. Unknown costs remain unknown, never zero.</p></section><section><p className="decision-eyebrow">Separate published fact</p><h3>Lo Wu passenger clearance: 06:30–00:00.</h3><p><a href={sources[0].href!} target="_blank" rel="noreferrer">Hong Kong Immigration Department · control points</a>. Checked 6 October 2026; page dated 26 June 2026. These are normal published hours, not live operating status.</p><p>The model keeps a 15-minute closing buffer. Fitting the published window is not a guarantee of a last train, seat, actual queue or entry permission.</p></section><section><p className="decision-eyebrow">Still unresolved</p><h3>Entry, service, prices and familiarity.</h3><p>Every traveler must check entry and return eligibility. Real transport services, restaurant availability, prices and queues remain unverified. Familiarity with either city’s dinner and walk is unknown. No preference score is invented.</p><p><a href="https://www.mtr.com.hk/en/customer/jp/index.php" target="_blank" rel="noreferrer">MTR route and fare planner</a> is a place to check, not the source for this example’s numbers.</p></section></div>;
+}
+
+const detailTitles: Partial<Record<NonNullable<Surface>, string>> = {
+  menu: 'Both complete bills', priorities: 'What matters to you?', sources: 'Sources and unknowns',
+  history: 'Before → changed → revised', route: 'The trip out and home', details: 'Take a closer look', about: 'About this example',
+};
+
 export function DecisionExperience() {
   const [session, dispatch] = useReducer(decisionReducer, undefined, createDecisionSession);
+  const [surface, setSurface] = useState<Surface>('map');
   const [preview, setPreview] = useState(false);
-  const [unfolded, setUnfolded] = useState(false);
-  const [announcement, setAnnouncement] = useState('');
   const [artFailed, setArtFailed] = useState(false);
+  const [announcement, setAnnouncement] = useState('');
   const [reasonDrafts, setReasonDrafts] = useState<Partial<Record<SnapshotId, string>>>({});
+  const returnCore = useRef<CoreObject>('map');
   const previewSnapshot = useMemo(() => preview ? previewRevision(session, 'shorten-sz') : null, [session, preview]);
   const snapshot = (previewSnapshot ?? session.snapshots[session.displayedSnapshotId])!;
   const currentChoice = preview ? null : session.choices[snapshot.id];
   const view = selectDecisionView(session);
-  const billRef = useRef<HTMLDetailsElement>(null);
-  const clockRef = useRef<HTMLElement>(null);
-  const routeRef = useRef<HTMLElement>(null);
+  const core = surface === 'map' || surface === 'phone';
   const viewingPast = session.displayedSnapshotId !== session.stage && !preview;
   const baselineChoice = session.choices.baseline;
-  const changed = snapshot.id !== 'baseline';
-  const hk = snapshot.result.options.find(option => option.id === 'hk')!;
   const sz = snapshot.result.options.find(option => option.id === 'sz')!;
   const baselineSz = session.snapshots.baseline.result.options.find(option => option.id === 'sz')!;
-  const isChoosing = session.stage === 'baseline' && !viewingPast;
-  const canRevise = session.stage === 'changed' && !viewingPast && !preview;
-  const setStage = (id: SnapshotId) => { setPreview(false); dispatch({ type: 'view-snapshot', snapshotId: id }); setAnnouncement(`Viewing ${stages.find(stage => stage.id === id)!.label.toLowerCase()}. Both original comparison options are shown.`); };
-  const focusFeedback = () => requestAnimationFrame(() => document.getElementById('decision-feedback')?.focus({ preventScroll: true }));
-  const choose = (id: 'hk' | 'sz') => { if (session.choices.baseline?.optionId !== id) setReasonDrafts(previous => ({ ...previous, baseline: '' })); dispatch({ type: 'choose-option', snapshotId: 'baseline', optionId: id }); setAnnouncement(`You selected ${cityName(id)}. You can now try the earlier home-by time.`); };
-  const revise = (revision: 'keep-hk' | 'shorten-sz') => { dispatch({ type: 'apply-revision', revision }); setPreview(false); focusFeedback(); setAnnouncement(revision === 'keep-hk' ? 'You selected the full Hong Kong evening. The full Shenzhen evening stays visible as the alternative.' : 'You selected Shenzhen with a 15-minute walk. Dinner and prices are unchanged.'); };
-  return <div className="decision-page"><a className="decision-skip" href="#decision-comparison">Skip to the two evenings</a>
-    <header className="decision-masthead"><a className="decision-brand" href="#decision-top" aria-label="Crossing Lives, top of this example"><span aria-hidden="true">▦</span> Crossing Lives</a><span>One evening, reconsidered</span><span className="decision-session-label">Fresh example · not saved</span></header>
-    <main id="decision-top" className="decision-main" data-testid="decision-experience" data-stage={session.stage} data-displayed-snapshot={snapshot.id} data-preview={preview}>
-      <section className="decision-intro"><div><p className="decision-eyebrow">An authored Hong Kong ↔ Shenzhen example</p><h1>What changes when we need to be home earlier?</h1><p>Dinner together, a walk, and time to get home. Choose an evening, then change one circumstance.</p></div></section>
-      <section className="decision-world" aria-label="A place to think through the evening">
-        <div className="decision-world-image-frame">{!artFailed ? <img className="decision-world-image" src={art('decision-hk-pixel.webp')} width="1672" height="941" alt="An imagined Hong Kong street at dusk: people walk past a rail entrance and a small dining counter. A menu, folded map and phone sit on the counter." onError={() => setArtFailed(true)}/> : <div className="decision-world-fallback"><DeskObjects/><p>The illustration couldn’t load. All three objects and the complete comparison still work below.</p></div>}
-          {!artFailed && <><div className="decision-world-caption">An imagined Hong Kong evening<span>Menu, map, phone: inspect what matters.</span></div><span className="decision-world-pin menu" aria-hidden="true">1</span><span className="decision-world-pin map" aria-hidden="true">2</span><span className="decision-world-pin phone" aria-hidden="true">3</span></>}
-        </div>
-        <div className="decision-world-controls">
-          <button className="menu" type="button" onClick={() => { if (billRef.current) { billRef.current.open = true; billRef.current.querySelector<HTMLElement>('summary')?.focus({ preventScroll: true }); billRef.current.scrollIntoView({ block: 'start' }); } }}><span aria-hidden="true">1</span><strong>Menu</strong><small>See both bills</small></button>
-          <button className="map" type="button" onClick={() => { setUnfolded(true); requestAnimationFrame(() => { routeRef.current?.querySelector<HTMLButtonElement>('button')?.focus({ preventScroll: true }); routeRef.current?.scrollIntoView({ block: 'start' }); }); }}><span aria-hidden="true">2</span><strong>Map</strong><small>Unfold both routes</small></button>
-          <button className="phone" type="button" onClick={() => { clockRef.current?.focus({ preventScroll: true }); clockRef.current?.scrollIntoView({ block: 'center' }); }}><span aria-hidden="true">3</span><strong>Phone</strong><small>Inspect home-by time</small></button>
-        </div>
-      </section>
-      <div className="decision-planning-paper">
-      <div className="decision-starting-facts"><p><strong>2 adults</strong> leaving <strong>Kowloon at 17:00</strong><span aria-hidden="true"> · </span><strong>HK$400 each</strong></p><p>Same starting plan: 90-minute dinner, 45-minute walk, one shared order. No added delay. Fixed authored example.</p></div>
-      <nav className="decision-stage-nav" aria-label="Replay your decision">{stages.map(stage => <button type="button" key={stage.id} aria-label={stage.label} disabled={!session.snapshots[stage.id]} aria-current={!preview && snapshot.id === stage.id ? 'step' : undefined} onClick={() => setStage(stage.id)}><span>{stage.number}</span>{stage.label}{session.snapshots[stage.id] && session.choices[stage.id] && <i aria-hidden="true">•</i>}</button>)}</nav>
-      <section className="decision-comparison" id="decision-comparison" aria-labelledby="decision-comparison-title">
-        <div className="decision-section-heading"><div><p className="decision-eyebrow">{preview ? 'Preview · shorter Shenzhen walk' : viewingPast ? 'Replay · the exact comparison from this step' : snapshot.id === 'baseline' ? 'Start with the whole evening' : snapshot.id === 'changed' ? 'One constraint changed' : 'Your reconsidered plan'}</p><h2 id="decision-comparison-title">{preview ? 'Thirty minutes come from the walk.' : viewingPast ? (snapshot.id === 'baseline' ? 'Before we moved the deadline.' : 'After only the deadline moved.') : snapshot.id === 'baseline' ? 'Which evening would you try?' : snapshot.id === 'changed' ? 'Same evenings. Less time to get home.' : session.snapshots.revised?.revision === 'shorten-sz' ? 'A shorter walk makes room to return.' : 'Keep the full evening in Hong Kong.'}</h2></div><p className="decision-authored-label">Modeled, not live<br/>No city is scored</p></div>
-        {changed && !preview && baselineChoice && <p className="decision-starting-choice">Your starting choice: {cityName(baselineChoice.optionId)}.</p>}
-        {preview && <p className="decision-preview-note">Preview only: Shenzhen walk {baselineSz.walkMinutes} → {sz.walkMinutes} min. You give up {baselineSz.walkMinutes - sz.walkMinutes} minutes of walking. Dinner, shared order and cost stay the same.</p>}
-        <div className="decision-options">{snapshot.result.options.map(option => <OptionCard key={option.id} option={option} snapshotId={snapshot.id} selected={currentChoice?.optionId === option.id} canChoose={isChoosing} onChoose={() => choose(option.id)} />)}</div>
-        <p className="decision-comparison-caveat">Both include dinner, walking, a shared order and travel home. Modeled time only; real entry, queues and services remain unresolved.</p>
-        {isChoosing && baselineChoice && <p className="decision-inline-feedback" role="status">You selected {cityName(baselineChoice.optionId)} for now. Try the clock below to see what changes.</p>}
-      </section>
-      <section ref={clockRef} tabIndex={-1} className={`decision-clock-panel${changed ? ' is-changed' : ''}`} aria-label="The one changed circumstance">
-        <div className="decision-clock-readout"><ClockObject changed={changed}/><div><span>Home by</span><strong>{formatClock(snapshot.inputs.homeByMinutes)}</strong>{changed && <small><s>23:30</s> → 22:30 · 60 min earlier</small>}</div></div>
-        <div className="decision-clock-context">{!changed ? <><strong>What if you need to be home an hour earlier?</strong><p>{!baselineChoice ? 'Pick an evening above, then move this one deadline.' : 'Only the deadline moves. The outings themselves stay put.'}</p></> : <><strong>{snapshot.id === 'changed' ? 'Only the deadline moved.' : 'The earlier deadline stays at 22:30.'}</strong><p>Departure, dinner, shared order, prices and travel assumptions are unchanged.{snapshot.id === 'changed' && ' The 45-minute walks are unchanged.'}{snapshot.id === 'changed' && ' Both modeled home times are unchanged too.'}</p></>}</div>
-        {!changed && !viewingPast && <button className="decision-action" type="button" disabled={!baselineChoice} onClick={() => { dispatch({ type: 'change-deadline' }); focusFeedback(); setAnnouncement('Home-by time changed from 23:30 to 22:30. Only the deadline changed.'); }}>Change home-by time to 22:30 <span aria-hidden="true">↶</span></button>}
-        {changed && <span className="decision-change-stamp">1 circumstance<br/>changed</span>}
-      </section>
-      {changed && <section id={!preview ? "decision-feedback" : undefined} data-testid={!preview ? "decision-feedback" : undefined} tabIndex={-1} className="decision-consequence" aria-label="What the changed deadline means" role="status" aria-live="polite"><p><span aria-hidden="true">↳</span>{sz.homeFeasible ? `Shenzhen now gets home at ${formatClock(sz.returnMinutes)}, ${sz.spareMinutes} minutes before ${formatClock(sz.homeByMinutes)}, for the same ${money(sz.perPersonHKD)} per person.` : `Shenzhen still costs ${money(sz.perPersonHKD)} and gets home at ${formatClock(sz.returnMinutes)}. It now misses ${formatClock(sz.homeByMinutes)} by ${-sz.spareMinutes} minutes.`}</p><small>Hong Kong remains {money(hk.perPersonHKD)} / person, home {formatClock(hk.returnMinutes)}. Modeled slack is not a guarantee. Home-time fit does not verify travel feasibility.</small>{snapshot.id === 'revised' && !preview && <p className="decision-kept-choice" data-testid="decision-choice-status">{view.reconsideration.summary}</p>}</section>}
-      {canRevise && <section className="decision-reconsider" aria-labelledby="decision-reconsider-title"><div><p className="decision-eyebrow">Reconsider the trade-off</p><h2 id="decision-reconsider-title">What are you willing to change?</h2><p>Keep the full Hong Kong evening, or preview giving up 30 minutes of the Shenzhen walk. Both keep dinner and the shared order.</p></div><div className="decision-reconsider-actions"><button type="button" className="decision-secondary-action" onClick={() => revise('keep-hk')}>Keep full Hong Kong evening <span aria-hidden="true">→</span></button><button type="button" className="decision-action" onClick={() => { setPreview(true); focusFeedback(); setAnnouncement('Previewing a 15-minute Shenzhen walk. No revised choice has been committed.'); }}>Preview a shorter Shenzhen walk <span aria-hidden="true">→</span></button></div></section>}
-      {preview && <section id="decision-feedback" data-testid="decision-feedback" tabIndex={-1} className="decision-preview-actions" role="status" aria-label="Choose or cancel the preview"><p>Shenzhen walk: {baselineSz.walkMinutes} → {sz.walkMinutes} min. You give up {baselineSz.walkMinutes - sz.walkMinutes} minutes of walking. Modeled home: {formatClock(baselineSz.returnMinutes)} → {formatClock(sz.returnMinutes)}. Cost stays {money(sz.perPersonHKD)} per person.</p><div><button className="decision-action" type="button" onClick={() => revise('shorten-sz')}>Choose shorter Shenzhen walk <span aria-hidden="true">✓</span></button><button className="decision-text-button" type="button" onClick={() => { setPreview(false); focusFeedback(); setAnnouncement('Preview canceled. Back to the unchanged full evenings with the earlier deadline.'); }}>Cancel preview</button></div></section>}
-      {viewingPast && <p className="decision-replay-note">You’re replaying {stages.find(stage => stage.id === snapshot.id)?.label.toLowerCase()}. No choice has been changed.<button type="button" onClick={() => setStage(session.stage)}>Return to current decision <span aria-hidden="true">→</span></button></p>}
-      <details className="decision-priorities"><summary>What matters to you? <span>Optional</span><i aria-hidden="true">+</i></summary><div><p>Choose your priorities in your own terms. They don’t award either city points.</p><div className="decision-priority-buttons">{priorities.map(priority => <button key={priority} type="button" aria-pressed={session.priorities.includes(priority)} disabled={session.stage !== 'baseline' || viewingPast || preview} onClick={() => dispatch({ type: 'set-priorities', priorities: session.priorities.includes(priority) ? session.priorities.filter(item => item !== priority) : [...session.priorities, priority] })}>{priorityLabels[priority]}{session.priorities.includes(priority) && <span aria-hidden="true"> ✓</span>}</button>)}</div><p className="decision-small">{session.stage !== 'baseline' && 'Priorities stay fixed after the deadline changes. '}You selected: {session.priorities.length ? session.priorities.map(priority => priorityLabels[priority]).join(', ') : 'no priorities yet'}.</p><label htmlFor="decision-reason">Your reason (optional)</label><textarea id="decision-reason" rows={2} maxLength={500} value={(!viewingPast && !preview ? reasonDrafts[snapshot.id] ?? currentChoice?.reason : currentChoice?.reason) ?? ''} disabled={!currentChoice || viewingPast || preview} placeholder={!currentChoice ? 'Choose an evening first.' : 'What makes this choice right for you?'} onChange={event => { setReasonDrafts(previous => ({ ...previous, [snapshot.id]: event.target.value })); dispatch({ type: 'set-reason', snapshotId: snapshot.id, reason: event.target.value }); }}/><p className="decision-small">Your words stay with this decision step, in this tab only. We don’t infer your feelings or familiarity.</p></div></details>
-      <section ref={routeRef} className="decision-inspect"><button type="button" className="decision-unfold-button" aria-expanded={unfolded} aria-controls="decision-unfolded" onClick={() => setUnfolded(value => !value)}><span aria-hidden="true">▤</span><div><strong>{unfolded ? 'Fold the evening away' : 'Unfold the evening'}</strong><small>A common clock, the route out and the way home</small></div><i aria-hidden="true">{unfolded ? '−' : '+'}</i></button><div id="decision-unfolded" hidden={!unfolded}>{unfolded && <TimeAndRoute snapshot={snapshot}/>}</div></section>
-      <details ref={billRef} className="decision-disclosure"><summary>Open the bill and assumptions <span aria-hidden="true">+</span></summary><Bills snapshot={snapshot}/></details>
-      <details className="decision-disclosure"><summary>Sources and what is still unknown <span aria-hidden="true">+</span></summary><div className="decision-evidence"><section><p className="decision-eyebrow">Authored assumptions</p><h3>Prices and durations are a worked example.</h3><p>Meals, drinks, shared orders, fares, travel, clearance allowances and FX are fixed illustrative inputs. They are not quotes, live queues, a timetable or a real travel plan.</p></section><section><p className="decision-eyebrow">Separate published fact</p><h3>Lo Wu passenger clearance: 06:30–00:00.</h3><p><a href={sources[0].href!} target="_blank" rel="noreferrer">Hong Kong Immigration Department · control points</a>. Checked 6 October 2026; page dated 26 June 2026. These are normal published hours, not live operating status.</p><p>The model also keeps a 15-minute closing buffer. Fitting the published window does not confirm a last train, seat, actual queue or entry permission.</p></section><section><p className="decision-eyebrow">Unresolved</p><h3>Real entry, service, prices and personal experience.</h3><p>Every traveler must check entry and return eligibility. Transport services, restaurant availability, real prices and actual queues remain unverified. Familiarity with dinner and walking in either city is unknown; no preference score is invented.</p><p><a href="https://www.mtr.com.hk/en/customer/jp/index.php" target="_blank" rel="noreferrer">MTR route and fare planner</a> is a place to check fares, not a source for this example’s numbers. A missing cost would remain unknown, never become zero.</p></section></div></details>
-      {session.stage === 'revised' && !preview && <section className="decision-replay-summary" aria-labelledby="decision-replay-title"><p className="decision-eyebrow">See what changed</p><h2 id="decision-replay-title">Replay why the decision changed.</h2><div>{stages.map(stage => { const choice = session.choices[stage.id]; return <button key={stage.id} type="button" onClick={() => setStage(stage.id)} aria-label={`Replay ${stage.label.toLowerCase()}`}><span>{stage.number} · {stage.label}</span><strong>{stage.id === 'baseline' ? 'Home by 23:30' : stage.id === 'changed' ? 'Home by 22:30' : session.snapshots.revised?.revision === 'shorten-sz' ? 'Shenzhen walk: 15 min' : 'Hong Kong: full evening'}</strong><small>{choice ? `You selected ${cityName(choice.optionId)}` : 'A constraint to reconsider'}{choice?.reason ? ` · “${choice.reason}”` : ''}</small></button>; })}</div><p className="decision-small">The two complete options from each step are preserved. Your reasons come from you; the arithmetic comes from the same transparent model.</p></section>}
+  const attended: SceneObject = surface === 'menu' ? 'menu' : core ? surface : baselineChoice ? 'phone' : 'map';
+  const focus = (id = 'decision-sheet-heading') => requestAnimationFrame(() => document.getElementById(id)?.focus({ preventScroll: true }));
+  const openObject = (object: SceneObject) => { if (object !== 'menu') returnCore.current = object; setSurface(object); focus(); };
+  const openDetail = (next: Surface) => { if (core) returnCore.current = surface; setSurface(next); focus(); };
+  const back = () => { setSurface(returnCore.current); focus(); };
+  const close = () => { const object = attended; setSurface(null); focus(`decision-object-${object}`); };
+  const choose = (optionId: 'hk' | 'sz') => {
+    if (session.choices.baseline?.optionId !== optionId) setReasonDrafts(previous => ({ ...previous, baseline: '' }));
+    dispatch({ type: 'choose-option', snapshotId: 'baseline', optionId });
+    returnCore.current = 'phone'; setSurface('phone'); focus();
+    setAnnouncement(`You selected ${cityName(optionId)} for now. The phone asks whether you need to be home earlier.`);
+  };
+  const changeDeadline = () => { dispatch({ type: 'change-deadline' }); setSurface('phone'); returnCore.current = 'phone'; focus('decision-feedback'); setAnnouncement('Only the home-by deadline moved from 23:30 to 22:30. Both complete evenings stay unchanged.'); };
+  const revise = (revision: 'keep-hk' | 'shorten-sz') => { dispatch({ type: 'apply-revision', revision }); setPreview(false); setSurface('phone'); focus('decision-feedback'); setAnnouncement(revision === 'keep-hk' ? 'You selected the full Hong Kong evening.' : 'You selected Shenzhen with a 15-minute walk. Dinner and cost stayed unchanged.'); };
+  const setStage = (id: SnapshotId) => { setPreview(false); dispatch({ type: 'view-snapshot', snapshotId: id }); returnCore.current = 'phone'; setSurface('phone'); focus(); setAnnouncement(`Viewing ${stages.find(stage => stage.id === id)!.label.toLowerCase()}: the exact two options from that step.`); };
+  const canChoose = session.stage === 'baseline' && !viewingPast && (surface === 'map' || !baselineChoice);
+  const title = !core ? detailTitles[surface ?? 'about'] : viewingPast ? `${stages.find(stage => stage.id === snapshot.id)!.label}: the same comparison`
+    : preview ? 'Trade 30 minutes of walking?' : session.stage === 'changed' ? 'What would you change?'
+    : session.stage === 'revised' ? 'Does this choice still fit?'
+    : baselineChoice && surface === 'phone' ? 'Home an hour earlier?' : 'Which evening would you try?';
+  return <main className="decision-experience" data-testid="decision-experience" data-stage={session.stage} data-displayed-snapshot={snapshot.id} data-preview={preview} data-active-object={surface ?? 'closed'} data-attended-object={attended} aria-label="Crossing Lives, one evening reconsidered" onKeyDown={event => { if (event.key === 'Escape' && surface) { event.preventDefault(); event.stopPropagation(); if (core) close(); else back(); } }}>
+    <DecisionStreet attended={attended} surface={surface} onOpen={openObject} failed={artFailed} onFailure={() => setArtFailed(true)}/>
+    <div className="decision-context" data-testid="decision-context" role="group" aria-label="Fixed authored context"><span><strong>17:00</strong> · Kowloon · 2 adults</span><span><strong>HK$400</strong> / person <i aria-hidden="true">·</i> home by <strong>{formatClock(snapshot.inputs.homeByMinutes)}</strong></span></div>
+    {surface && <section id="decision-sheet" data-testid="decision-sheet" data-active-object={surface} data-core={core} className={`decision-sheet ${core ? 'is-core' : 'is-detail'}`} aria-labelledby="decision-sheet-heading">
+      <header className="decision-sheet-header">{!core && <button type="button" className="decision-back" aria-label="Back to evening" onClick={back}><span aria-hidden="true">←</span></button>}<div><p className="decision-eyebrow">{core ? `${surface === 'map' ? 'The map' : 'The phone'} · ${preview ? 'preview only' : viewingPast ? 'replay' : snapshot.id === 'baseline' ? 'one whole evening' : snapshot.id === 'changed' ? 'one circumstance changed' : 'your chosen adjustment'}` : surface === 'menu' ? 'The menu · authored prices' : 'Optional inspection'}</p><h2 id="decision-sheet-heading" tabIndex={-1}>{title}</h2></div>{core && <button type="button" className="decision-put-down" aria-label={`Put down ${surface}`} onClick={close}>×</button>}</header>
+      <div key={core ? 'core' : surface} className={`decision-sheet-body ${core ? 'decision-core-body' : 'decision-detail-body'}`}>
+        {core ? <>
+          <CompleteComparison snapshot={snapshot} selected={currentChoice?.optionId ?? undefined}/>
+          {viewingPast ? <div className="decision-replay-note"><p>{stages.find(stage => stage.id === snapshot.id)?.label} pair · read-only.</p><nav className="decision-stage-nav" aria-label="Replay your decision">{stages.map(stage => <button key={stage.id} type="button" disabled={!session.snapshots[stage.id]} aria-current={snapshot.id === stage.id ? 'step' : undefined} onClick={() => setStage(stage.id)}>{stage.label}</button>)}</nav><button type="button" className="decision-primary" onClick={() => setStage(session.stage)}>Return to current decision</button></div>
+          : canChoose ? <div role="group" className="decision-choice-actions" aria-label="Choose a tentative evening">{(['hk', 'sz'] as const).map(id => <button key={id} type="button" className="decision-choice" aria-label={`Start with ${cityName(id)}`} aria-pressed={baselineChoice?.optionId === id} onClick={() => choose(id)}>{cityName(id)} <span aria-hidden="true">→</span></button>)}</div>
+          : session.stage === 'baseline' ? <section className="decision-phone-question"><p>You selected <strong>{cityName(baselineChoice!.optionId)}</strong> for now. What if home-by becomes <strong>22:30</strong>?</p><button type="button" className="decision-primary" onClick={changeDeadline}>Change home-by time to 22:30 <span aria-hidden="true">↶</span></button></section>
+          : <section id="decision-feedback" data-testid="decision-feedback" tabIndex={-1} className="decision-feedback" aria-label="What changes, and what stays the same" role="status">
+            {preview ? <><p><strong>Walk {baselineSz.walkMinutes} → {sz.walkMinutes} min:</strong> give up {baselineSz.walkMinutes - sz.walkMinutes} minutes. Home {formatClock(sz.returnMinutes)}; cost stays {money(sz.perPersonHKD)}.</p><div className="decision-action-pair"><button className="decision-primary" type="button" aria-label="Choose shorter Shenzhen walk" onClick={() => revise('shorten-sz')}>Choose shorter walk</button><button className="decision-secondary" type="button" onClick={() => { setPreview(false); focus('decision-feedback'); setAnnouncement('Preview canceled. The full Shenzhen walk is restored in the changed comparison.'); }}>Cancel preview</button></div></>
+            : session.stage === 'changed' ? <><p><strong>Shenzhen is {-sz.spareMinutes} min late.</strong> Only 23:30 → 22:30 changed. Costs, home times, dinner and walks are unchanged.</p><div className="decision-action-pair"><button className="decision-secondary" type="button" aria-label="Keep full Hong Kong evening" onClick={() => revise('keep-hk')}>Keep full Hong Kong</button><button className="decision-primary" type="button" aria-label="Preview a shorter Shenzhen walk" onClick={() => { setPreview(true); focus('decision-feedback'); setAnnouncement('Preview: Shenzhen walk 45 to 15 minutes. No revised choice has been committed.'); }}>Try shorter SZ walk</button></div></>
+            : <><p data-testid="decision-choice-status"><strong>{view.reconsideration.summary}</strong> {session.snapshots.revised?.revision === 'shorten-sz' ? `Walk 45 → 15 min; ${sz.spareMinutes} min modeled slack, same cost.` : 'Both full evenings remain in view; the deadline is still 22:30.'}</p><button className="decision-primary" type="button" onClick={() => openDetail('history')}>Replay the comparison <span aria-hidden="true">↶</span></button></>}
+          </section>}
+          <p className="decision-core-caveat">Authored prices and times. Entry, queues and services unknown. Modeled slack is not a guarantee.</p>
+        </> : surface === 'menu' ? <Bills snapshot={snapshot}/>
+        : surface === 'route' ? <RouteInspector snapshot={snapshot}/>
+        : surface === 'sources' ? <Evidence/>
+        : surface === 'priorities' ? <section className="decision-priorities"><p>Food, company, comfort, exploration: choose what matters to you. Neither city receives a score.</p><div className="decision-priority-buttons">{priorities.map(priority => <button key={priority} type="button" aria-pressed={session.priorities.includes(priority)} disabled={session.stage !== 'baseline' || viewingPast || preview} onClick={() => dispatch({ type: 'set-priorities', priorities: session.priorities.includes(priority) ? session.priorities.filter(value => value !== priority) : [...session.priorities, priority] })}>{priorityLabels[priority]}{session.priorities.includes(priority) && <span aria-hidden="true"> ✓</span>}</button>)}</div><p>You selected: {session.priorities.length ? session.priorities.map(priority => priorityLabels[priority]).join(', ') : 'no priorities yet'}.</p>{session.stage !== 'baseline' && <p className="decision-small">Priorities stay fixed after the deadline changes.</p>}<label htmlFor="decision-reason">Your reason (optional)</label><textarea id="decision-reason" rows={3} maxLength={500} value={(!viewingPast && !preview ? reasonDrafts[snapshot.id] ?? currentChoice?.reason : currentChoice?.reason) ?? ''} disabled={!currentChoice || viewingPast || preview} placeholder={!currentChoice ? 'Choose an evening first, if you want to add a reason.' : 'What makes this choice right for you?'} onChange={event => { setReasonDrafts(previous => ({ ...previous, [snapshot.id]: event.target.value })); dispatch({ type: 'set-reason', snapshotId: snapshot.id, reason: event.target.value }); }}/><p className="decision-small">Your words only. We don’t infer feelings, preferences or familiarity.</p></section>
+        : surface === 'history' ? <section className="decision-history"><p>Revisit the same complete pair from each step. The arithmetic changes only with the stated input.</p>{stages.map(stage => { const choice = session.choices[stage.id]; return <button key={stage.id} type="button" disabled={!session.snapshots[stage.id]} aria-label={stage.label} onClick={() => setStage(stage.id)}><span>{stage.number} · {stage.label}</span><strong>{stage.id === 'baseline' ? 'Home by 23:30' : stage.id === 'changed' ? 'Only home-by becomes 22:30' : session.snapshots.revised?.revision === 'shorten-sz' ? 'Shenzhen walk: 45 → 15 min' : 'Keep the full Hong Kong evening'}</strong><small>{choice ? `You selected ${cityName(choice.optionId)}` : 'No choice selected'}{choice?.reason ? ` · “${choice.reason}”` : ''}</small></button>; })}<p className="decision-small">Qualitative priorities: {session.priorities.length ? session.priorities.map(priority => priorityLabels[priority]).join(', ') : 'none selected'}.</p></section>
+        : surface === 'details' ? <nav className="decision-inspection-list" aria-label="Optional details"><button type="button" onClick={() => openDetail('menu')}>Open the bill and assumptions <span aria-hidden="true">→</span></button><button type="button" onClick={() => openDetail('route')}>Unfold the evening <span aria-hidden="true">→</span></button><button type="button" onClick={() => openDetail('sources')}>Sources and what is still unknown <span aria-hidden="true">→</span></button><button type="button" onClick={() => openDetail('history')}>Replay the comparison <span aria-hidden="true">→</span></button><button type="button" onClick={() => openDetail('priorities')}>Priorities and your reason <span aria-hidden="true">→</span></button><button type="button" onClick={() => openDetail('about')}>About this example <span aria-hidden="true">→</span></button></nav>
+        : <section className="decision-about"><p>A fresh, fixed example of Crossing Lives. All choices stay in this tab. No account, persistent saving, tracking, booking or AI advice.</p><p>The larger question includes work, commuting, housing, business costs and ownership. Those need separate research and participants; this evening invents no company performance numbers.</p><button type="button" onClick={() => { dispatch({ type: 'reset' }); setPreview(false); setReasonDrafts({}); returnCore.current = 'map'; setSurface('map'); focus(); setAnnouncement('A fresh authored example has started.'); }}>Start this example again</button></section>}
       </div>
-      <footer className="decision-footer"><p>One fixed slice of Crossing Lives. Fresh in-memory example; no account, saving, tracking or AI-generated advice.</p><details><summary>What sits beyond this evening?</summary><p>The wider question includes cross-border work, commuting, housing, business costs and ownership: whose goals matter, which constraints change, and who benefits? Those need separate evidence and real participants. This example makes no company-performance claims.</p></details><button type="button" onClick={() => { dispatch({ type: 'reset' }); setReasonDrafts({}); setPreview(false); setUnfolded(false); setAnnouncement('A fresh authored example has started. Previous in-tab choices and reasons were cleared.'); }}>Start this example again <span aria-hidden="true">↺</span></button></footer>
-      <p className="decision-sr-only" role="status" aria-atomic="true">{announcement}</p>
-    </main>
-  </div>;
+      {core && <div className="decision-sheet-tools"><button type="button" onClick={() => openDetail('priorities')}>What matters to you?</button><button type="button" onClick={() => openDetail('details')}>Inspect the details <span aria-hidden="true">↗</span></button></div>}
+    </section>}
+    <p className="decision-sr-only" role="status" aria-live="polite" aria-atomic="true">{announcement}</p>
+  </main>;
 }

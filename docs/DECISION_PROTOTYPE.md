@@ -41,4 +41,17 @@ Use `npm run dev:decision`, then open `/decision.html` on the existing 4173 loca
 
 The person should be able to identify which input changed, which numbers did not, what a revision gives up, what remains unknown, and why their choice changed or stayed the same. An attractive scene alone does not meet that goal.
 
-Current state: implementation and source tests are in progress. The new UI, interactions and portable artifact have not yet received their exact-commit browser or visual review. Old-experience verification is not evidence that this new thinking sequence works. The first real captures must be judged alongside mathematical and accessibility checks.
+The first decision entry was rendered at commit `cccb130ce2c6d95f8c714e85df3dfdeeba8f4640`. Thirteen functional/browser cases passed, including matched inputs, replay, mobile geometry, storage isolation and opening the portable file offline. Its separate walkthrough failed before interaction because tracing was started twice; that recorder lifecycle has a narrow repair. These results do not establish that the experience is engaging or understood by a person.
+
+The actual desktop and mobile captures failed the creative review: the illustration read as a website banner, while the decisive interaction became a long planning form. The first candidate is preserved as a working comparison-model proof, not an accepted experience milestone.
+
+The next presentation pass keeps the matched model and changes how the person meets it: a full-height street, one attended object, and one compact scene overlay. The map holds both complete outings on the same clock. An optional priority question is available before a tentative choice. The phone introduces the earlier deadline and moves its marker while the existing outing tracks stay fixed. Two explicit repairs remain beside the consequence. Bills, history and sources are available on request. The current deadline and per-person budget must remain visible, including before anything changes.
+
+This next presentation remains in progress until its own exact-commit browser captures and walkthrough are reviewed. Source tests and the earlier entry’s passing cases are not visual acceptance. The reviewer must be able to follow the trade-off and its sacrifice through the interaction, without relying on source notes or a decorative scene.
+
+
+### Browser coverage after the scene recomposition
+
+The previous 14 behavioral cases keep their exact matched inputs, bills, full routes, unchanged deadline-only facts, cancelable revision, explicit sacrifice, replay, priorities/reasons, source caveats, storage and offline assertions. Page-scroll and disclosure selectors have been replaced because the planning page no longer exists; those checks now use the actual object and sheet controls. One additional case follows the complete path with real mobile taps.
+
+The presentation checks require both costs/home times, both route tracks, the current deadline and primary actions to be visible together. They measure the decoded image plane exposed outside the active sheet, rather than treating a tall wrapper as visible artwork. The deadline check retains the same track nodes and geometry while the marker moves. Keyboard return focus and actual reduced-motion transition durations remain checked. Detailed source facts may scroll inside their own inspection view. These source assertions still require an actual browser run; they do not establish that someone understands or enjoys the experience.

@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import {
   action, auditNoPrivateStorage, capture, changeDeadline, changedKeys, chooseBaseline,
   closeDisclosure, commitShortWalk, expectAcceptedFacts, expectNoOverflow, expectStage,
-  experience, inspectCommonTimeline, openDisclosure, outcome, readInputFacts,
+  experience, expectWorldAndCore, inspectCommonTimeline, openDisclosure, openObject, outcome, readInputFacts,
   readOutcomeFacts, readBills, reason, replay, startFresh,
 } from './decision-helpers';
 
@@ -14,6 +14,7 @@ for (const width of [360, 390, 1440]) {
     page.on('pageerror', error => errors.push(error.message));
     await startFresh(page);
     await expectAcceptedFacts(page, 'baseline');
+    await expectWorldAndCore(page);
     await capture(page, info, 'baseline');
     await expect(experience(page)).toContainText(/authored|fictional|illustrative/i);
     const baselineInputs = await readInputFacts(page);
@@ -30,8 +31,12 @@ for (const width of [360, 390, 1440]) {
     const baselineOutcomes = [await readOutcomeFacts(page, 'HK'), await readOutcomeFacts(page, 'SZ')];
     const baselineTimeline = await inspectCommonTimeline(page);
     await closeDisclosure(page, 'Open the bill and assumptions');
-    await chooseBaseline(page, width === 1440 ? 'Hong Kong' : 'Shenzhen', 'I want the full walk with our dinner.');
+    await openObject(page, 'phone');
+    await expect(action(page, 'Change home-by time to 22:30'), 'The constraint action is unavailable before a tentative choice.').toHaveCount(0);
+    await openObject(page, 'map');
     await openDisclosure(page, 'What matters to you?');
+    await expect(reason(page), 'No reason exists before an explicit tentative choice.').toHaveValue('');
+    await expect(reason(page)).not.toBeEditable();
     await action(page, 'Company').click();
     await action(page, 'Exploration').click();
     await expect(action(page, 'Company')).toHaveAttribute('aria-pressed', 'true');
@@ -39,14 +44,19 @@ for (const width of [360, 390, 1440]) {
     await expect(action(page, 'Food')).toHaveAttribute('aria-pressed', 'false');
     await expect(action(page, 'Comfort')).toHaveAttribute('aria-pressed', 'false');
     await expect(experience(page)).toContainText(/you selected/i);
-    await expect(reason(page)).toHaveValue('I want the full walk with our dinner.');
-    expect([await readOutcomeFacts(page, 'HK'), await readOutcomeFacts(page, 'SZ')]).toEqual(baselineOutcomes);
     await closeDisclosure(page, 'What matters to you?');
+    await chooseBaseline(page, width === 1440 ? 'Hong Kong' : 'Shenzhen', 'I want the full walk with our dinner.');
+    await openDisclosure(page, 'What matters to you?');
+    await expect(reason(page)).toHaveValue('I want the full walk with our dinner.');
+    await closeDisclosure(page, 'What matters to you?');
+    expect([await readOutcomeFacts(page, 'HK'), await readOutcomeFacts(page, 'SZ')]).toEqual(baselineOutcomes);
+    await expectWorldAndCore(page);
     await expectNoOverflow(page);
     await audit.expectZero(page);
 
     await changeDeadline(page);
     await expectAcceptedFacts(page, 'changed');
+    await expectWorldAndCore(page);
     await capture(page, info, 'earlier-deadline');
     const changedInputs = await readInputFacts(page);
     expect(changedKeys(baselineInputs, changedInputs), 'Earlier deadline changes exactly one authored input.').toEqual(['homeByMinutes']);
@@ -58,7 +68,7 @@ for (const width of [360, 390, 1440]) {
       baselineTimeline.map(track => track.segments.map(({ id, start, end }) => ({ id, start, end }))),
     );
     await expect(experience(page)).toContainText(/23:30\s*(?:→|to).*22:30|23:30.*22:30/s);
-    await expect(experience(page)).toContainText(/cost(?:s)? (?:stay|unchanged)|bills? (?:stay|unchanged)|same (?:cost|bill)|prices.*unchanged/i);
+    await expect(experience(page)).toContainText(/cost(?:s)?(?:[, ]| and).*unchanged|cost(?:s)? stay|bills? (?:stay|unchanged)|same (?:cost|bill)|prices.*unchanged/i);
     await expect(experience(page)).toContainText(/(?:home|return) times?.*(?:stay|unchanged)|same (?:home|return) time/i);
     await expect(experience(page)).toContainText(/activit(?:y|ies).*unchanged|same activit|dinner.*walk.*unchanged|dinner.*walking.*unchanged/i);
     await closeDisclosure(page, 'Open the bill and assumptions');
@@ -80,6 +90,7 @@ for (const width of [360, 390, 1440]) {
 
     await commitShortWalk(page);
     await expectAcceptedFacts(page, 'revised', true);
+    await expectWorldAndCore(page);
     await capture(page, info, 'revised');
     const revisedInputs = await readInputFacts(page);
     expect(revisedInputs).toEqual(previewInputs);
@@ -104,6 +115,7 @@ for (const width of [360, 390, 1440]) {
     for (let pass = 0; pass < 2; pass += 1) {
       await replay(page, 'baseline');
       await expectStage(page, 'revised', 'baseline');
+      await expectWorldAndCore(page);
       if (!pass) await capture(page, info, 'replay');
       expect(await readInputFacts(page)).toEqual(baselineInputs);
       expect(await readBills(page)).toEqual(baselineBills);
@@ -134,7 +146,8 @@ for (const width of [360, 390, 1440]) {
     expect(errors).toEqual([]);
     await page.reload();
     await expectStage(page, 'baseline');
-    await expect(action(page, 'Change home-by time to 22:30')).toBeDisabled();
+    await openObject(page, 'phone');
+    await expect(action(page, 'Change home-by time to 22:30'), 'The constraint action is unavailable before a tentative choice.').toHaveCount(0);
     await expect(experience(page)).not.toContainText('I accept 30 minutes less walking');
     await expectAcceptedFacts(page, 'baseline');
     await audit.expectZero(page);
@@ -159,9 +172,13 @@ test('keeping Hong Kong is a valid reconsideration without a forced choice flip'
   await reason(page).fill('Keeping the full walk matters more to us.');
   await replay(page, 'baseline');
   expect(await readInputFacts(page)).toEqual(original);
+  await openDisclosure(page, 'What matters to you?');
   await expect(reason(page)).toHaveValue('We prefer keeping the full evening nearby.');
+  await closeDisclosure(page, 'What matters to you?');
   await action(page, 'Return to current decision').click();
+  await openDisclosure(page, 'What matters to you?');
   await expect(reason(page)).toHaveValue('Keeping the full walk matters more to us.');
+  await closeDisclosure(page, 'What matters to you?');
   await expect(outcome(page, 'SZ')).toContainText('22:45');
   await audit.expectZero(page);
 });

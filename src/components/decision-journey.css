@@ -1,0 +1,73 @@
+/* A quiet scene layer. These rules do not change the initial comparison layout. */
+.decision-journey-scene { position: absolute; inset: 0; background: #454c49; }
+.decision-journey-frame { position: absolute; inset: 0; overflow: hidden; }
+.decision-journey-plane { position: absolute; transition: left 500ms ease, top 500ms ease; }
+.decision-journey-background { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; object-fit: fill; }
+.decision-journey-background[hidden] { display: none; }
+.decision-journey-player { position: absolute; z-index: 3; overflow: hidden; pointer-events: none; transform: translate(calc(-1 * var(--anchor-x)), calc(-1 * var(--anchor-y))); transition: left 500ms ease, top 500ms ease; image-rendering: pixelated; }
+.decision-journey-player > img { position: absolute; width: 200%; height: 200%; max-width: none; }
+.decision-journey-player > svg { height: 84%; width: 27%; margin: 10% 37%; }
+.decision-journey-node-targets, .decision-journey-object-targets { position: absolute; inset: 0; pointer-events: none; }
+.decision-journey-node-targets { z-index: 2; }
+.decision-journey-object-targets { z-index: 4; }
+.decision-journey-node-targets button, .decision-journey-object-targets button { pointer-events: auto; }
+.decision-journey-node { position: absolute; width: 60px; height: 44px; transform: translate(-50%, -50%); border: 0; border-radius: 50%; background: #fff3c525; color: #fff4cd; box-shadow: inset 0 -2px #ffe7a39c; text-shadow: 1px 1px #303d37; font-size: 30px; }
+.decision-journey-node.is-here { background: #ffedb547; }
+.decision-journey-object-targets .decision-hotspot-mark { width: 25px; height: 25px; font-size: 19px; opacity: .8; }
+.decision-journey-object-targets .decision-hotspot:focus-visible .decision-hotspot-mark, .decision-journey-object-targets .decision-hotspot:hover .decision-hotspot-mark { opacity: 1; }
+.decision-journey-place { position: absolute; z-index: 5; top: 17px; left: 22px; max-width: calc(100% - 135px); padding: 9px 12px; background: #29312fec; color: #fff3db; border: 1px solid #ccbea57d; box-shadow: 3px 3px #1c25253b; }
+.decision-journey-place span { display: block; font-size: 12px; }
+.decision-journey-place strong { display: block; font-size: 18px; font-weight: 750; }
+.decision-journey-place small { font-size: 12px; font-weight: 500; }
+.decision-journey-dialogue { position: absolute; z-index: 3; left: 22px; bottom: 20px; width: min(470px, calc(100% - 44px)); max-height: calc(100dvh - 115px); overflow: auto; background: #fbf0dcee; border: 1px solid #807055; box-shadow: 5px 5px #27322f66; padding: 16px 18px 10px; }
+.decision-journey-dialogue h2 { font-size: 22px; letter-spacing: -.025em; line-height: 1.25; margin-bottom: 8px; }
+.decision-journey-dialogue > p { line-height: 1.45; }
+.decision-journey-dialogue > .decision-primary { display: block; width: 100%; margin-top: 10px; }
+.decision-journey-controls { display: flex; gap: 8px; margin-top: 12px; }
+.decision-journey-controls > button { flex: 1; }
+.decision-journey-controls button[aria-pressed=true] { background: #dfd0b1; border-color: #827050; }
+.decision-journey-dialogue .decision-journey-note { color: #675e4c; font-size: 12px; line-height: 1.4; margin-top: 7px; }
+.decision-journey-dialogue .decision-journey-forecast { font-size: 13px; margin-top: 10px; border-top: 1px solid #cdbca0; padding-top: 8px; }
+.decision-journey-link { border: 0; background: transparent; padding: 8px 0; min-height: 44px; text-decoration: underline; text-underline-offset: 3px; text-align: left; font-size: 13px; }
+.decision-journey-invite { position: absolute; z-index: 3; top: 94px; right: 22px; border: 1px solid #c7ab7c; padding: 8px 12px; min-height: 44px; background: #f8ebd0ed; color: #463e32; box-shadow: 3px 3px #25342f66; font-size: 13px; }
+.decision-journey-outward { position: absolute; inset: 0; display: flex; justify-content: center; align-items: center; align-content: center; flex-wrap: wrap; gap: 12px; padding: 100px 30px 230px; background: #334946; color: #f7e6c5; }
+.decision-journey-outward > span { font-size: 17px; text-align: center; padding: 14px 8px; border-top: 2px solid #ddbd7c; border-bottom: 2px solid #ddbd7c; }
+.decision-journey-outward small { display: block; font-size: 12px; }
+.decision-journey-outward i { font-size: 26px; font-style: normal; color: #ddbd7c; }
+.decision-journey-outward > p { flex: 0 0 100%; font-size: 14px; text-align: center; }
+.decision-journey-fallback { position: absolute; inset: 0; background: linear-gradient(#677e75 68%, #938976 68%); }
+.decision-journey-fallback span { position: absolute; top: 45%; padding: 25px 15px; border: 4px solid #e1c999; background: #475b53; color: #fff1d4; }
+.decision-fallback-building { left: 60%; }
+.decision-fallback-station { left: 21%; }
+.decision-journey-fallback-note { position: absolute; z-index: 4; left: 12px; right: 12px; bottom: 12px; width: fit-content; max-width: calc(100% - 24px); padding: 8px 10px; background: #f7ecd7; color: #39352f; font-size: 12px; }
+.decision-journey-scene[data-city=sz][data-phase=arrived] .decision-fallback-building { left: 22%; }
+.decision-journey-scene[data-city=sz][data-phase=arrived] .decision-fallback-station { left: 70%; }
+@media (min-width: 900px) {
+  .decision-journey-scene[data-phase=exploring][data-node=station] .decision-journey-dialogue, .decision-journey-scene[data-phase=arrived][data-city=sz] .decision-journey-dialogue { right: 22px; left: auto; }
+  .decision-journey-scene:not(.has-sheet) .decision-journey-frame { bottom: 0; }
+}
+@media (max-width: 899px) {
+  .decision-journey-frame { bottom: var(--journey-dialogue-height, 290px); }
+  .decision-journey-invite { top: 93px; right: auto; left: 12px; }
+  .decision-journey-dialogue { left: 0; right: 0; bottom: 0; width: 100%; max-height: 46dvh; padding: 12px 16px 5px; border-left: 0; border-right: 0; border-bottom: 0; box-shadow: 0 -4px #29332f44; background: #faf0dceF; }
+  .decision-journey-dialogue h2 { font-size: 19px; margin-bottom: 6px; }
+  .decision-journey-dialogue > p { font-size: 14px; }
+  .decision-journey-dialogue > .decision-eyebrow { font-size: 12px; }
+  .decision-journey-controls { margin-top: 9px; }
+  .decision-journey-dialogue > .decision-primary { margin-top: 8px; }
+  .decision-journey-place { top: 10px; left: 10px; max-width: calc(100% - 106px); padding: 7px 10px; }
+  .decision-journey-place strong { font-size: 17px; }
+  .decision-journey-place small { display: block; }
+  .decision-journey-outward { padding: 90px 13px 30px; gap: 8px; }
+  .decision-journey-outward > span { font-size: 14px; padding: 12px 5px; }
+  .decision-journey-outward small { max-width: 75px; }
+  .decision-journey-outward i { font-size: 20px; }
+  .decision-journey-scene.has-sheet .decision-journey-frame { bottom: auto; height: var(--city-height); }
+}
+@media (max-height: 720px) and (max-width: 899px) {
+
+  .decision-journey-dialogue { max-height: 48dvh; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .decision-journey-plane, .decision-journey-player { transition: none; }
+}

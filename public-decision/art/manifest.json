@@ -19,5 +19,54 @@
       ]
     },
     "note": "Imagined scene; not geographic routing evidence."
+  },
+  "journey": {
+    "player": {
+      "src": "/art/decision-player.webp",
+      "width": 1254,
+      "height": 1254,
+      "columns": 2,
+      "rows": 2,
+      "cellSize": 627,
+      "poses": {
+        "idleRight": {
+          "column": 0,
+          "row": 0,
+          "footAnchor": [
+            330,
+            600
+          ]
+        },
+        "idleBack": {
+          "column": 1,
+          "row": 1,
+          "footAnchor": [
+            290.5,
+            583
+          ]
+        }
+      }
+    },
+    "shenzhen": {
+      "day": "/art/decision-sz-day.webp",
+      "evening": "/art/decision-sz-evening.webp",
+      "width": 1672,
+      "height": 941,
+      "hotspotAnchors": {
+        "menu": [
+          0.245,
+          0.63
+        ],
+        "map": [
+          0.535,
+          0.625
+        ],
+        "phone": [
+          0.628,
+          0.674
+        ]
+      }
+    },
+    "note": "Original imagined project artwork. Lighting is illustrative; no geographic or sunset claim. See JOURNEY-ASSETS.md."
   }
 }

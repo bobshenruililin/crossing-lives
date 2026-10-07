@@ -32,10 +32,9 @@ for (const match of [...css.matchAll(/url\(([^)]+)\)/g)]) {
   css = css.replace(match[0], () => `url(data:${mime};base64,${bytes.toString('base64')})`);
 }
 const safeScript = text => text.replace(/<\/script/gi, '<\\/script');
-// Only the one approved decision-world image belongs to this entry. Do not add
-// the legacy story's unused illustration payload to this focused prototype.
-const artworkName = 'decision-hk-pixel.webp';
-const artwork = { [artworkName]: `data:image/webp;base64,${(await readFile(path.join(dist, 'art', artworkName))).toString('base64')}` };
+// Explicit approved decision-world assets only; keep legacy export separate.
+const artworkNames = ['decision-hk-pixel.webp', 'decision-player.webp', 'decision-sz-day.webp', 'decision-sz-evening.webp'];
+const artwork = Object.fromEntries(await Promise.all(artworkNames.map(async name => [name, `data:image/webp;base64,${(await readFile(path.join(dist, 'art', name))).toString('base64')}`])));
 html = html.replace(scripts[0][0], () => `<script>globalThis.__BETWEEN_ART__=${JSON.stringify(artwork)};</script><script type="module">${safeScript(moduleSource)}</script>`);
 html = html.replace(styles[0][0], () => `<style>${css}</style>`);
 if (/href="\.\/favicon\.svg"/.test(html)) {

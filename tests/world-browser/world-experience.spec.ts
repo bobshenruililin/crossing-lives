@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { CASES, SCENES, nameFor } from './world-fixtures';
-import { approvedArtHash, capture, choiceAttribute, closePoint, expectFacts, expectHitTarget, expectNoOverflow, expectScene, expectUnknown, geometryFingerprint, insight, mapTo, openPoint, player, position, renderedArtHash, selectChoice, startWorld, takeExit, world } from './world-helpers';
+import { approvedArtHash, capture, choiceAttribute, closePoint, expectFacts, expectNoOverflow, expectScene, expectUnknown, geometryFingerprint, insight, mapTo, openPoint, player, position, renderedArtHash, selectChoice, startWorld, takeExit, walkToEntrance, world } from './world-helpers';
 import { expectVisibleSprite, expectVisibleWorldTargets, expectWorldDominant, observeFrames, readFrames } from './world-geometry';
 import { checkRegionalDiscovery } from './world-regional';
 import { auditWorldStorage } from './world-storage';
@@ -38,14 +38,7 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 1440, height: 900 
 test('walk to a real entrance, press Enter, and commit scene and decoded artwork together', async ({ page }, info) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await startWorld(page);
-  // Eight real movement commands approach the home door at x1228.92.
-  for (let i = 0; i < 8; i++) await page.keyboard.press('ArrowRight');
-  await expect(player(page)).toHaveAttribute('data-walking', 'false');
-  await expect(world(page)).toHaveAttribute('data-scene', 'hk-home');
-  await expect(page.getByTestId('exit-metro-carriage')).toHaveAttribute('data-nearby', 'true');
-  await expect(page.locator('.world-inspect-control')).toHaveAccessibleName('Enter Leave for the train');
-  await expect(page.getByTestId('exit-metro-carriage').locator('.world-target-label')).toContainText('Enter');
-  await expectHitTarget(page.getByTestId('exit-metro-carriage'));
+  await walkToEntrance(page, 'hk-home', 'metro-carriage');
   await capture(page, info, 'marked-entrance-before-enter');
   await observeFrames(page);
   await page.keyboard.press('Enter');
@@ -108,9 +101,9 @@ test('all twelve places have distinct decoded art and distinct working visual me
 test('optional people, day and scenario controls change the cast and route without inventing fares', async ({ page }, info) => {
   await page.goto('/world.html');
   await page.getByRole('button', { name: 'Change people or day' }).click();
-  await page.getByLabel('People', { exact: true }).selectOption('family');
-  await page.getByLabel('Day', { exact: true }).selectOption('weekday');
-  await page.getByLabel('Day in mind', { exact: true }).selectOption('housing');
+  await page.getByRole('combobox', { name: 'People', exact: true }).selectOption('family');
+  await page.getByRole('combobox', { name: 'Day', exact: true }).selectOption('weekday');
+  await page.getByRole('combobox', { name: 'Day in mind', exact: true }).selectOption('housing');
   await expect(page.getByText('Fictional cast: two adults and one child. Child fares and eligibility are unknown.', { exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'Play', exact: true }).click();
   await expectScene(page, 'neighborhood-lane');
@@ -126,8 +119,8 @@ test('optional people, day and scenario controls change the cast and route witho
   await expectFacts(page, 'parcel-counter', 0); const familyGeometry = await geometryFingerprint(page, 'parcel-counter'); await closePoint(page);
   for (const [party, count] of [['solo', 1], ['couple', 2], ['older-couple', 2], ['family', 3]] as const) {
     await page.getByRole('button', { name: 'Change people and day', exact: true }).click();
-    await page.getByLabel('People', { exact: true }).selectOption(party);
-    await page.getByLabel('Day', { exact: true }).selectOption('weekend');
+    await page.getByRole('combobox', { name: 'People', exact: true }).selectOption(party);
+    await page.getByRole('combobox', { name: 'Day', exact: true }).selectOption('weekend');
     await expect(page.getByRole('dialog')).toContainText('Day is authored context, not live opening hours or queues.');
     await page.getByRole('button', { name: 'Keep exploring', exact: true }).click();
     await expect(page.locator('.world-sprite')).toHaveCount(count);
@@ -139,6 +132,6 @@ test('optional people, day and scenario controls change the cast and route witho
   await capture(page, info, 'family-visible-without-fabricated-fare');
   // Another cold start demonstrates the different daily-life start and focused route.
   await page.reload(); await page.getByRole('button', { name: 'Change people or day' }).click();
-  await page.getByLabel('Day in mind', { exact: true }).selectOption('daily-life'); await page.getByRole('button', { name: 'Play', exact: true }).click();
+  await page.getByRole('combobox', { name: 'Day in mind', exact: true }).selectOption('daily-life'); await page.getByRole('button', { name: 'Play', exact: true }).click();
   await expectScene(page, 'hk-home'); await expect(page.locator('.world-route-cue')).toContainText(nameFor('metro-carriage'));
 });

@@ -17,7 +17,7 @@ export function WorldInteraction({ sceneId, values, onChange }: InteractionProps
     <WorldDiagram scene={sceneId} choice={variant.value}/>
     <div className="wi-result" role="status" aria-live="polite" aria-atomic="true">
       {numbers.length > 0 && <><span className="wi-example-caption">{numbers.some(number => number.unit === 'HKD' || number.unit === 'CNY-equivalent') ? 'Illustrative example · not a price quote' : 'Illustrative timing'}</span><dl className="wi-numbers" aria-label="Visible consequence">{numbers.map(number => <div key={number.label} data-world-number={number.label}>
-        <dt>{number.label}</dt><dd><strong>{typeof number.value === 'number' ? number.value.toLocaleString('en-HK') : number.value}</strong><span>{number.unit}</span></dd>
+        <dt>{number.label}</dt><dd><strong>{typeof number.value === 'number' ? number.value.toLocaleString('en-HK') : number.value}</strong><span className={sceneId === 'hk-home' ? 'world-sr-only' : undefined}>{number.unit}</span></dd>
       </div>)}</dl></>}
       <p className="wi-thought">{variant.thought}</p>
     </div>

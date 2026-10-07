@@ -12,10 +12,10 @@ async function validFocus(page: Page) {
   });
   expect(focus).not.toBeNull(); expect(focus!.tag).not.toBe('BODY'); expect(focus!.inert).toBe(false); expect(focus!.visible).toBe(true); expect(focus!.inView).toBe(true);
 }
-async function tabTo(page: Page, target: Locator, limit = 24) {
+async function tabTo(page: Page, target: Locator, limit = 24, direction: 'Tab' | 'Shift+Tab' = 'Tab') {
   for (let i = 0; i < limit; i++) {
     if (await target.evaluate(el => el === document.activeElement)) return;
-    await page.keyboard.press('Tab'); await validFocus(page);
+    await page.keyboard.press(direction); await validFocus(page);
   }
   throw new Error(`Real Tab could not reach ${await target.getAttribute('aria-label') ?? await target.textContent()}`);
 }
@@ -38,10 +38,13 @@ test('real Tab, Enter, Space and Escape keep focus visible and reach evidence; a
   await expect(page.getByRole('dialog', { name: 'World map', exact: true })).toBeVisible();
   await validFocus(page); await page.keyboard.press('Escape'); await expect(mapButton).toBeFocused();
   await page.keyboard.press('Enter'); await expect(page.getByRole('dialog', { name: 'World map', exact: true })).toBeVisible();
-  await page.keyboard.press('Escape');
+  await page.keyboard.press('Escape'); await expect(mapButton).toBeFocused();
   for (const id of ['hk-home', 'parcel-counter', 'rental-home', 'office-floor', 'planning-museum'] as const) {
     if (id !== 'hk-home') await mapTo(page, id);
-    await tabTo(page, page.locator(`#world-point-${pointFor(id).id}`));
+    // Home's point precedes the restored Map button in native DOM order.
+    // Reverse Tab reaches it directly; forward Tab would leave this document.
+    // Other map visits restore stage focus, before their physical scene points.
+    await tabTo(page, page.locator(`#world-point-${pointFor(id).id}`), 24, id === 'hk-home' ? 'Shift+Tab' : 'Tab');
     await page.keyboard.press('Enter');
     await expect(page.getByRole('dialog', { name: pointFor(id).label, exact: true })).toBeVisible();
     await validFocus(page);

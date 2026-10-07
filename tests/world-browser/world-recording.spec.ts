@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { SCENES, CASES } from './world-fixtures';
-import { capture, closePoint, expectFacts, expectScene, openPoint, player, selectChoice, stage, startWorld, takeExit, world } from './world-helpers';
+import { capture, closePoint, expectFacts, expectScene, openPoint, player, selectChoice, stage, startWorld, takeExit, walkToEntrance, world } from './world-helpers';
 import { auditWorldStorage } from './world-storage';
 
 /** Actual browser video from a cold context; real controls and reading pauses.
@@ -37,9 +37,7 @@ test('record the complete cold world walkthrough with twelve places and readable
           // through the native tab order to the stage, without injected focus.
           for (let tab = 0; tab < 6 && !(await stage(page).evaluate(el => el === document.activeElement)); tab++) await page.keyboard.press('Shift+Tab');
           await expect(stage(page)).toBeFocused();
-          for (let step = 0; step < 8; step++) await page.keyboard.press('ArrowRight');
-          await expect(player(page)).toHaveAttribute('data-walking', 'false');
-          await expect(page.getByTestId('exit-metro-carriage')).toHaveAttribute('data-nearby', 'true');
+          await walkToEntrance(page, 'hk-home', 'metro-carriage');
         });
         await chapter('Press Enter and physically leave home for the decoded train carriage.', 4_000, async () => { await page.keyboard.press('Enter'); await expectScene(page, id); });
       } else if (index) {

@@ -5,7 +5,7 @@ import { clockHands, clockMinute, formatClock, learningSchedule, mortgageAllocat
 function Frame({ label, kind, caption, children }: { label: string; kind: string; caption: string; children: ReactNode }) {
   return <figure className="wi-figure" data-mechanism={kind}>
     <svg className="wi-visual" viewBox="0 0 360 176" role="img" aria-label={label}><g>{children}</g></svg>
-    <figcaption>{caption}</figcaption>
+    {caption && <figcaption>{caption}</figcaption>}
   </figure>;
 }
 function Icon({ x, y, kind = 'home' }: { x: number; y: number; kind?: string }) {
@@ -24,7 +24,7 @@ function Path({ d, active = true, dashed = false, className = '' }: { d: string;
 function HomeClock({ choice }: { choice: string }) {
   const minute = clockMinute('hk-home', choice), hands = clockHands(minute), earlier = choice === 'earlier';
   const edge = earlier ? 268 : 333;
-  return <Frame kind="clock-window" label={`Home by ${formatClock(minute)}. The earlier marker shortens the illustrative window. This does not time a journey.`} caption="Illustrative window · return travel belongs inside it">
+  return <Frame kind="clock-window" label={`Home by ${formatClock(minute)}. The earlier marker shortens the illustrative window. This does not time a journey.`} caption="">
     <circle cx="85" cy="80" r="59" className="wi-dial"/>
     {Array.from({ length: 12 }, (_, i) => <path key={i} d="M85 28V34" transform={`rotate(${i * 30} 85 80)`} className="wi-tick"/>)}
     <path d={`M85 80L${hands.hour.x} ${hands.hour.y}`} className="wi-hand wi-hour-hand"/>

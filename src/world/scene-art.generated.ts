@@ -10,16 +10,16 @@ export const SCENE_ART_OVERRIDES: Partial<Record<SceneId, Partial<SceneRecord>>>
       "approved": true
     },
     "playerStart": {
-      "x": 501.6,
+      "x": 1120,
       "y": 837.49
     },
     "entryPoints": {
       "left": {
-        "x": 501.6,
+        "x": 1120,
         "y": 837.49
       },
       "right": {
-        "x": 501.6,
+        "x": 1120,
         "y": 837.49
       }
     },
@@ -34,19 +34,23 @@ export const SCENE_ART_OVERRIDES: Partial<Record<SceneId, Partial<SceneRecord>>>
       {
         "id": "hk-home-next",
         "targetSceneId": "metro-carriage",
-        "label": "Leave for the train",
+        "label": "the MTR",
         "x": 1228.92,
         "y": 799.85,
-        "entryDirection": "left"
+        "entryDirection": "left",
+        "doorAnchor": {
+          "x": 1228.92,
+          "y": 733
+        }
       }
     ],
     "points": [
       {
         "id": "hk-home-object",
-        "x": 451.44,
-        "y": 479.91,
+        "x": 555,
+        "y": 150,
         "approach": {
-          "x": 451.44,
+          "x": 555,
           "y": 837.49
         },
         "label": "Home-by clock",
@@ -101,13 +105,13 @@ export const SCENE_ART_OVERRIDES: Partial<Record<SceneId, Partial<SceneRecord>>>
       {
         "id": "metro-carriage-next",
         "targetSceneId": "border-arrival",
-        "label": "Across the boundary",
-        "x": 1524.864,
+        "label": "Futian arrival",
+        "x": 836,
         "y": 785.735,
         "entryDirection": "left",
         "doorAnchor": {
-          "x": 1524.864,
-          "y": 663.405
+          "x": 836,
+          "y": 470
         }
       }
     ],

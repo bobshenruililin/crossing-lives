@@ -75,6 +75,57 @@ export async function mapTo(page: Page, id: SceneId, embedded = false) {
   await map.getByRole('button', { name: nameFor(id), exact: true }).click();
   await expectScene(page, id, embedded);
 }
+/** Follow the real keyboard controls toward the authored entrance feet.
+ * The caller must reach stage focus through the normal UI; no focus/state is injected. */
+export async function walkToEntrance(page: Page, from: SceneId, to: SceneId) {
+  const exit = exitFor(from, to), marker = page.getByTestId(`exit-${to}`);
+  await expect(stage(page)).toBeFocused();
+  await expect(world(page)).toHaveAttribute('data-scene', from);
+  for (let step = 0; step < 32; step++) {
+    if (await marker.getAttribute('data-nearby') === 'true') break;
+    const before = await position(page), dx = exit.x - before.x, dy = exit.y - before.y;
+    const key = Math.abs(dx) > 47.5 ? (dx > 0 ? 'ArrowRight' : 'ArrowLeft')
+      : Math.abs(dy) > 22.5 ? (dy > 0 ? 'ArrowDown' : 'ArrowUp') : null;
+    expect(key, 'Reaching the entrance with real keys must expose its nearby action.').not.toBeNull();
+    await page.keyboard.press(key!);
+    await expect(player(page)).toHaveAttribute('data-walking', 'false');
+    const after = await position(page);
+    expect(Math.hypot(after.x - before.x, after.y - before.y), 'Each approach key visibly advances the player.').toBeGreaterThan(0);
+    await expect(world(page)).toHaveAttribute('data-scene', from);
+  }
+  await expect(marker).toHaveAttribute('data-nearby', 'true');
+  await expect(page.locator('.world-inspect-control')).toHaveAccessibleName(`Enter ${exit.label}`);
+  await expect(marker.locator('.world-target-label')).toContainText('Enter');
+  await expectHitTarget(marker);
+}
+
+type PointerSample = { left: number; top: number; right: number; bottom: number; targetInside: boolean; pointerType: string };
+type PointerAudit = { down: PointerSample | null; up: PointerSample | null };
+/** Observe the ordinary click before any native focus/blur handlers and at release.
+ * Instrumentation only: it never moves, focuses, scrolls or dispatches to a target. */
+async function watchExitPointer(target: Locator) {
+  await target.evaluate(el => {
+    const w = window as typeof window & { __worldExitPointerAudit: PointerAudit };
+    w.__worldExitPointerAudit = { down: null, up: null };
+    const sample = (event: PointerEvent): PointerSample => {
+      const r = el.getBoundingClientRect();
+      return { left: r.left, top: r.top, right: r.right, bottom: r.bottom, targetInside: event.target instanceof Node && el.contains(event.target), pointerType: event.pointerType };
+    };
+    el.addEventListener('pointerdown', event => { w.__worldExitPointerAudit.down = sample(event as PointerEvent); }, { capture: true, once: true });
+    document.addEventListener('pointerup', event => { w.__worldExitPointerAudit.up = sample(event); }, { capture: true, once: true });
+  });
+}
+async function expectStableExitPointer(page: Page) {
+  const audit = await page.evaluate(() => (window as typeof window & { __worldExitPointerAudit: PointerAudit }).__worldExitPointerAudit);
+  expect(audit.down, 'The ordinary exit click actually presses the intended target.').not.toBeNull();
+  expect(audit.up, 'The ordinary exit click releases over the same target.').not.toBeNull();
+  expect(audit.down!.targetInside).toBe(true); expect(audit.up!.targetInside).toBe(true);
+  expect(audit.down!.pointerType).toBe('mouse'); expect(audit.up!.pointerType).toBe('mouse');
+  for (const edge of ['left', 'top', 'right', 'bottom'] as const) {
+    expect(Math.abs(audit.up![edge] - audit.down![edge]), `The ${edge} edge must not move between ordinary pointer press and release.`).toBeLessThanOrEqual(1);
+  }
+}
+
 /** Click the visible route control, never an offscreen forced click or state seed. */
 export async function takeExit(page: Page, from: SceneId, to: SceneId, embedded = false) {
   const label = `Walk to ${exitFor(from, to).label}`;
@@ -85,7 +136,10 @@ export async function takeExit(page: Page, from: SceneId, to: SceneId, embedded 
   }
   expect(chosen, `A user can reach the ${to} entrance from this view.`).toBeDefined();
   await expectHitTarget(chosen!);
+  const observeOriginalFailure = from === 'metro-carriage' && to === 'border-arrival';
+  if (observeOriginalFailure) await watchExitPointer(chosen!);
   await chosen!.click();
+  if (observeOriginalFailure) await expectStableExitPointer(page);
   await expectScene(page, to, embedded);
 }
 /** Reads only the currently rendered decoded resource, and never warms next-scene art. */

@@ -2,13 +2,13 @@ import { test, expect } from '@playwright/test';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import {
-  action, auditNoPrivateStorage, changeDeadline, chooseBaseline, closeDisclosure, expectAcceptedFacts,
-  expectStage, expectWorldAndCore, experience, openDisclosure, readOutcomeFacts, reason, replay, startFresh,
+  action, applyTimeChange, auditNoPrivateStorage, beginTimePreview, chooseBaseline, clockControl, closeDisclosure, expectAcceptedFacts,
+  expectStage, expectTimeFacts, expectWorldAndCore, experience, openDisclosure, readOutcomeFacts, reason, replay, startFresh,
 } from './decision-helpers';
 
 /** One real production interaction, with reading time, no state injection,
  * image-readiness manipulation, compositing replacement, or generated film. */
-test('record a real fresh decision, earlier deadline, revised walk and replay at 1440x900', async ({ browser, baseURL }, info) => {
+test('record a real selected clock, priorities, full-plan choice and replay at 1440x900', async ({ browser, baseURL }, info) => {
   test.setTimeout(120_000);
   const commit = process.env.GITHUB_SHA ?? process.env.CROSSING_DECISION_COMMIT;
   expect(commit, 'The canonical review film must identify its exact tested commit.').toMatch(/^[a-f0-9]{40}$/);
@@ -51,8 +51,7 @@ test('record a real fresh decision, earlier deadline, revised walk and replay at
     await expect(action(page, 'Company')).toHaveAttribute('aria-pressed', 'true');
     await expect(action(page, 'Comfort')).toHaveAttribute('aria-pressed', 'false');
     await expect(action(page, 'Exploration')).toHaveAttribute('aria-pressed', 'false');
-    await expect(reason(page)).toHaveValue('');
-    await expect(reason(page)).not.toBeEditable();
+    await expect(reason(page)).toHaveCount(0);
     await read('Optionally select Food and Company in your own terms. No city score or reason is inferred.', 6_000);
     await closeDisclosure(page, 'What matters to you?');
     expect([await readOutcomeFacts(page, 'HK'), await readOutcomeFacts(page, 'SZ')]).toEqual(beforePriorities);
@@ -60,20 +59,25 @@ test('record a real fresh decision, earlier deadline, revised walk and replay at
     await chooseBaseline(page, 'Shenzhen');
     await expectWorldAndCore(page);
     await read('Tentatively choose Shenzhen: the phone becomes the active object.', 3_000);
-    await changeDeadline(page);
-    await expectAcceptedFacts(page, 'changed');
+    await beginTimePreview(page, 'departure');
+    await expect(clockControl(page, 'departure')).toBeFocused();
+    await clockControl(page, 'departure').press('ArrowUp');
+    await clockControl(page, 'departure').press('ArrowUp');
+    await expect(clockControl(page, 'departure')).toHaveValue('990');
+    await expectStage(page, 'baseline', 'changed', true);
+    await expectTimeFacts(page, { departure: 990, deadline: 1410, hkHome: 1155, szHome: 1335 });
+    await expectWorldAndCore(page);
+    await read('Use the real departure clock to select 16:30. Preview both complete journeys moving earlier, with the original comparison uncommitted.', 7_000);
+    await applyTimeChange(page);
+    await expectTimeFacts(page, { departure: 990, deadline: 1410, hkHome: 1155, szHome: 1335 });
     await expect(page.getByTestId('decision-feedback')).toBeInViewport({ ratio: 1 });
     await expectWorldAndCore(page);
-    await read('Change only home-by time: inspect unchanged bills and returns, with Shenzhen 15 minutes late.', 9_000);
-    await action(page, 'Preview a shorter Shenzhen walk').click();
-    await expectStage(page, 'changed', 'revised', true);
-    await expectAcceptedFacts(page, 'revised', true);
-    await expectWorldAndCore(page);
-    await read('Preview the explicit sacrifice: Shenzhen walk 45 to 15 minutes, dinner and cost unchanged.', 7_000);
-    await action(page, 'Choose shorter Shenzhen walk').click();
+    await read('Apply only the departure change. Both full plans keep their costs and activities; Shenzhen reaches home at 22:15.', 8_000);
+    await action(page, 'Keep full Shenzhen evening').click();
     await expectStage(page, 'revised');
+    await expectTimeFacts(page, { departure: 990, deadline: 1410, hkHome: 1155, szHome: 1335 });
     await expectWorldAndCore(page);
-    await read('Commit the shorter walk: both routes remain beside the explicit choice and its cost.', 7_000);
+    await read('Keep the full Shenzhen evening, including the entire 45-minute walk. No automatic shortening or city score.', 7_000);
     await replay(page, 'baseline');
     await expectStage(page, 'revised', 'baseline');
     await expectAcceptedFacts(page, 'baseline');
@@ -81,7 +85,7 @@ test('record a real fresh decision, earlier deadline, revised walk and replay at
     await read('Replay Before: verify the original comparison has not been rewritten.', 7_000);
     await action(page, 'Return to current decision').click();
     await expectStage(page, 'revised');
-    await expectAcceptedFacts(page, 'revised', true);
+    await expectTimeFacts(page, { departure: 990, deadline: 1410, hkHome: 1155, szHome: 1335 });
     await expectWorldAndCore(page);
     await audit.expectZero(page);
     await read('Return to the current revised decision.', 3_000);

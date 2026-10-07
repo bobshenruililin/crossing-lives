@@ -1,6 +1,6 @@
 # One evening, reconsidered
 
-This separate prototype restores the project's primary operation: compare two complete evenings under matched circumstances, change one requirement, and inspect why a decision changes or stays the same. It is a fixed authored example, not a verified real-trip plan.
+This separate prototype restores the project's primary operation: compare two complete evenings under matched circumstances, change one requirement, and inspect why a decision changes or stays the same. It is an authored evening with one player-controlled time change, not a verified real-trip plan.
 
 The original experience remains a separate fallback. The new entry imports no legacy App, personal journal or story-storage initialization. Its state exists only in the current page; reload starts a fresh example. No earlier story, planner, note or preference is loaded or overwritten.
 
@@ -16,7 +16,20 @@ The existing `compareOutings` engine gives these **authored fixture results**:
 | Changed: home by 22:30 only | Same bill and return; still inside modeled deadline | Same bill and return; 15 minutes after deadline |
 | Revised: shorten only the Shenzhen walk to 15 minutes | Unchanged full local plan | Same bill; home 22:15, with 30 fewer walking minutes |
 
-Keeping the complete Hong Kong plan is the other explicit revision. The prototype does not force someone to change cities. The earlier deadline changes no price, route, dinner or walking time until the person explicitly chooses a revision. Fifteen minutes of modeled slack is not a confidence interval or a return guarantee.
+The person can also keep either complete city plan. The prototype does not force a city change or a shorter walk. The earlier deadline changes no price, route, dinner or walking time until the person explicitly chooses a revision. Fifteen minutes of modeled slack is not a confidence interval or a return guarantee.
+
+## The adjustable Phone
+
+After a tentative city choice, select either departure or home-by. One native clock selector and 15-minute earlier/later buttons preview that field only. Apply commits the displayed comparison; Cancel restores the untouched starting snapshot. A preview does not enter history. The other time, prices, party, route and activity durations stay fixed until an explicit walk revision.
+
+- Departure window: 15:00–20:00 on the same day.
+- Home-by window: 20:00–01:00, with after-midnight values explicitly labeled next day.
+- Common axis: 15:00–02:00 next day, fixed for every preview and replay.
+- One circumstance per attempt; start the example again to try another.
+
+An authored 16:30 departure gets the full Hong Kong outing home at 19:15 and full Shenzhen outing home at 22:15, with both bills unchanged. Keeping full Shenzhen retains its 45-minute walk. At 19:00 departure, the full Shenzhen plan gets home at 00:45 next day and its modeled return clearance ends 23:55. That misses the chosen 15-minute closing buffer, even though it is before the normal published midnight closure. It must not be described simply as “border closed.” Shortening the walk is optional and can leave a different constraint unsolved.
+
+Explicit priorities never change these calculations. If someone selected exploration, the view may factually connect that selection to giving up 30 walking minutes; it cannot infer that they must choose a city or convert the preference into points. The optional reason field appears only after an actual choice.
 
 ## Implementation boundary
 
@@ -27,7 +40,7 @@ Keeping the complete Hong Kong plan is the other explicit revision. The prototyp
 - The two-city time axis stays fixed through the deadline change and replay.
 - The original pixel-inspired street is a semantic setting, not geographic routing evidence. All important text and route controls are HTML/SVG.
 
-Arbitrary origin/budget/party/time editing, missing required-duration handling and broader daily-life scenarios are later work. The existing practical planner has more numeric inputs, but its required travel durations are authored numbers. This prototype does not hide that limitation behind a real-planning claim.
+Other origin/budget/party editing, arbitrary dates, missing required-duration handling and broader daily-life scenarios are later work. The existing practical planner has more numeric inputs, but its required travel durations are authored numbers. This prototype does not hide that limitation behind a real-planning claim.
 
 The larger research path remains everyday choices → flows of time, money and effort → business models/work/commuting → housing/rent/ownership/wealth → participation and distribution. Each layer needs its own appropriate evidence. A dinner-price difference does not establish company profit, wages, housing causality or household wealth. The independent business evidence and fixed-surplus workspace remain distinct from this first comparison slice.
 
@@ -45,11 +58,14 @@ The first decision entry was rendered at commit `cccb130ce2c6d95f8c714e85df3dfde
 
 The actual desktop and mobile captures failed the creative review: the illustration read as a website banner, while the decisive interaction became a long planning form. The first candidate is preserved as a working comparison-model proof, not an accepted experience milestone.
 
-The next presentation pass keeps the matched model and changes how the person meets it: a full-height street, one attended object, and one compact scene overlay. The map holds both complete outings on the same clock. An optional priority question is available before a tentative choice. The phone introduces the earlier deadline and moves its marker while the existing outing tracks stay fixed. Two explicit repairs remain beside the consequence. Bills, history and sources are available on request. The current deadline and per-person budget must remain visible, including before anything changes.
+The next presentation pass keeps the matched model and changes how the person meets it: a full-height street, one attended object, and one compact scene overlay. The map holds both complete outings on the same clock. An optional priority question is available before a tentative choice. The phone exposes one time change; a deadline edit moves its marker while a departure edit shifts both journeys together. Full-plan choices and the explicit walking trade-off remain beside the consequence. Bills, history and sources are available on request. The current deadline and per-person budget must remain visible, including before anything changes.
 
 The scene revision `2f426eb66f764515f5acaf9f1ecae7c606dcc532` passed its 15 decision browser cases and completed a 55-second real interaction recording. The reviewed desktop/mobile frames keep the city visible and place the changing deadline beside both complete outing tracks; this meets the basic spatial direction. This is visual review, not a claim that real users understand or enjoy it.
 
-Two small defects were visible in that evidence: the narrow-screen 23:00 and midnight tick labels crowded together, and the desktop replay caveat was partly hidden below the sheet’s visible area. The next narrow correction removes the crowded intermediate label without changing the scale and gives the desktop core sheet slightly more room. It also records the optional priority selection before a tentative city choice. Those later pixels must be checked on their own exact revision. The reviewer should still be able to follow the trade-off and its sacrifice without source notes; passing tests alone do not settle experience quality.
+Revision `22d06c626f2333f091350cc94b0b3999f0550f54` corrected the crowded mobile tick labels and desktop replay-caveat clipping. Its 15 decision cases, real recording and offline check passed; actual 360/390px priority views and replay frames were reviewed. No real-user understanding claim is made.
+
+The subsequent adjustable-time controller passes independent checks across its supported clock values, but its new interface still awaits its own exact-commit browser and visual gate. The expanded axis, clock editor, full Shenzhen choice, next-day labels and remaining-constraint messages must all be inspected in the actual scene. The broader episodes remain planned.
+
 
 
 ### Browser coverage after the scene recomposition

@@ -4,8 +4,10 @@ import type { ComparisonResult, OptionId, OutingFixture, OutingInputs, OutingOpt
 
 export type DeepReadonly<T> = T extends object ? { readonly [K in keyof T]: DeepReadonly<T[K]> } : T;
 export type SnapshotId = 'baseline' | 'changed' | 'revised';
-export type RevisionId = 'keep-hk' | 'shorten-sz';
+export type RevisionId = 'keep-hk' | 'keep-sz' | 'shorten-sz';
 export type Priority = 'food' | 'company' | 'comfort' | 'exploration';
+export type TimeChangeField = 'departureMinutes' | 'homeByMinutes';
+export interface TimeChange { readonly field: TimeChangeField; readonly minutes: number }
 
 export const DECISION_FIXTURE_VERSION = 'crossing-lives-illustrative-2026-10-06-v1';
 export const DECISION_PRESET_ID = 'two-adults-earlier-home-v1';
@@ -18,6 +20,14 @@ function freeze<T>(value: T): DeepReadonly<T> {
   }
   return value as DeepReadonly<T>;
 }
+
+/** Absolute minutes from departure-day midnight, UTC+8. After-midnight deadlines are 1440+, never 0–60. */
+export const DECISION_TIME_LIMITS = freeze({
+  departureMinutes: { min: 15 * 60, max: 20 * 60, step: 15 },
+  homeByMinutes: { min: 20 * 60, max: 25 * 60, step: 15 },
+});
+/** One authored scale includes every supported full or shortened outing, before any preview is opened. */
+export const DECISION_TIMELINE_RANGE = Object.freeze({ startMinutes: 15 * 60, endMinutes: 26 * 60 });
 
 /** Fixed, fictional context. Both options consume this one matched input object. */
 export const DECISION_PRESET_INPUTS: DeepReadonly<OutingInputs> = freeze({
@@ -39,7 +49,8 @@ export const DECISION_SCOPE_NOTES: readonly string[] = Object.freeze([
   'Entry eligibility and activity familiarity are unknown. Crossing-hours fit does not verify transport service or immigration eligibility.',
   'Modeled slack is not a guarantee. Actual journeys and queues may take longer.',
   'Qualitative priorities and your reason are your own statements. They never alter the facts or create a preference ranking.',
-  'This slice has fixed numeric inputs. Arbitrary input editing and unknown required durations are not supported here.',
+  'Change one time in this authored evening: departure 15:00–20:00 on the same day, or home-by 20:00–01:00 the next day, in 15-minute steps. Other numeric assumptions stay fixed.',
+  'After midnight is explicitly the next day. Arbitrary dates, other input editing and unknown required durations are not supported here.',
 ]);
 
 export interface DecisionSnapshot {
@@ -56,6 +67,10 @@ export interface DecisionChoice {
   /** Only explicit user text; null means no reason was supplied. */
   readonly reason: string | null;
 }
+
+export type TimeChangePreview =
+  | { readonly valid: true; readonly snapshot: DecisionSnapshot }
+  | { readonly valid: false; readonly error: string };
 
 export interface DecisionSession {
   readonly presetId: typeof DECISION_PRESET_ID;
@@ -75,7 +90,7 @@ export interface DecisionSession {
 
 export type DecisionEvent =
   | { type: 'choose-option'; snapshotId: SnapshotId; optionId: OptionId }
-  | { type: 'change-deadline' }
+  | ({ type: 'change-time' } & TimeChange)
   | { type: 'apply-revision'; revision: RevisionId; reason?: string }
   | { type: 'set-reason'; snapshotId: SnapshotId; reason: string }
   | { type: 'set-priorities'; priorities: readonly Priority[] }
@@ -83,7 +98,7 @@ export type DecisionEvent =
   | { type: 'reset' };
 
 export interface DecisionSessionConfig {
-  /** Test/evidence fixture injection only; practical input editing is intentionally absent. */
+  /** Test/evidence fixture injection only; arbitrary practical input editing is intentionally absent. */
   fixture?: OutingFixture;
   fixtureVersion?: string;
 }
@@ -112,7 +127,25 @@ export function createDecisionSession(config: DecisionSessionConfig = {}): Decis
 
 const normalizeReason = (reason: string): string | null => reason.trim() || null;
 const isOption = (id: unknown): id is OptionId => id === 'hk' || id === 'sz';
-const isRevision = (id: unknown): id is RevisionId => id === 'keep-hk' || id === 'shorten-sz';
+const isRevision = (id: unknown): id is RevisionId => id === 'keep-hk' || id === 'keep-sz' || id === 'shorten-sz';
+
+/** A free, validated one-field preview. Canceling it requires no reducer event or cleanup. */
+export function previewTimeChange(session: DecisionSession, change: TimeChange): TimeChangePreview {
+  if (session.stage !== 'baseline') return freeze({ valid: false, error: 'This comparison already has its one time change. Start again to try another.' });
+  if (!session.choices.baseline) return freeze({ valid: false, error: 'Choose a tentative evening before changing its circumstances.' });
+  if (!change || (change.field !== 'departureMinutes' && change.field !== 'homeByMinutes')) {
+    return freeze({ valid: false, error: 'Choose departure or home-by as the one time to change.' });
+  }
+  const limits = DECISION_TIME_LIMITS[change.field];
+  const label = change.field === 'departureMinutes' ? 'Departure' : 'Home-by';
+  if (!Number.isInteger(change.minutes) || change.minutes < limits.min || change.minutes > limits.max) {
+    return freeze({ valid: false, error: `${label} must be a whole-minute time from ${formatClock(limits.min)} to ${formatClock(limits.max)}.` });
+  }
+  if ((change.minutes - limits.min) % limits.step !== 0) return freeze({ valid: false, error: `Choose ${label.toLowerCase()} in 15-minute steps.` });
+  if (change.minutes === session.snapshots.baseline.inputs[change.field]) return freeze({ valid: false, error: `Choose a ${label.toLowerCase()} time different from the baseline.` });
+  const inputs = { ...session.snapshots.baseline.inputs, [change.field]: change.minutes };
+  return freeze({ valid: true, snapshot: makeSnapshot('changed', inputs, session.fixture, session.fixtureVersion) });
+}
 
 /** Free inspection: computes a preview using the captured fixture, with no state change or story clock. */
 export function previewRevision(session: DecisionSession, revision: RevisionId): DecisionSnapshot | null {
@@ -148,17 +181,17 @@ export function decisionReducer(session: DecisionSession, event: DecisionEvent):
       return freeze({ ...session, choices: { ...session.choices, [event.snapshotId]: { ...choice, reason } } });
     }
     case 'set-priorities': {
-      // Keep this controlled comparison's qualitative context fixed after the one deadline change.
+      // Keep this controlled comparison's qualitative context fixed after the one circumstance change.
       if (session.stage !== 'baseline') return session;
       if (!Array.isArray(event.priorities) || event.priorities.some(priority => !DECISION_PRIORITIES.includes(priority))) return session;
       const priorities = DECISION_PRIORITIES.filter(priority => event.priorities.includes(priority));
       if (priorities.length === session.priorities.length && priorities.every((priority, index) => priority === session.priorities[index])) return session;
       return freeze({ ...session, priorities });
     }
-    case 'change-deadline': {
-      if (session.stage !== 'baseline' || !session.choices.baseline) return session;
-      const changed = makeSnapshot('changed', { ...session.snapshots.baseline.inputs, homeByMinutes: 22 * 60 + 30 }, session.fixture, session.fixtureVersion);
-      return freeze({ ...session, stage: 'changed', displayedSnapshotId: 'changed', snapshots: { ...session.snapshots, changed } });
+    case 'change-time': {
+      const preview = previewTimeChange(session, event);
+      if (!preview.valid) return session;
+      return freeze({ ...session, stage: 'changed', displayedSnapshotId: 'changed', snapshots: { ...session.snapshots, changed: preview.snapshot } });
     }
     case 'apply-revision': {
       if (session.stage !== 'changed' || !isRevision(event.revision)) return session;
@@ -223,6 +256,9 @@ export function selectDecisionDeltas(
   if (!before || !after || before.fixtureVersion !== after.fixtureVersion) return null;
   const inputChanges = inputDiff(before.inputs, after.inputs);
   const facts: string[] = [];
+  if (before.inputs.departureMinutes !== after.inputs.departureMinutes) {
+    facts.push(`Departure changed from ${formatClock(before.inputs.departureMinutes)} to ${formatClock(after.inputs.departureMinutes)}.`);
+  }
   if (before.result.normalizedHomeByMinutes !== after.result.normalizedHomeByMinutes) {
     facts.push(`Home-by changed from ${formatClock(before.result.normalizedHomeByMinutes!)} to ${formatClock(after.result.normalizedHomeByMinutes!)}.`);
   }
@@ -241,6 +277,9 @@ export function selectDecisionDeltas(
     optionFacts.push(next.spareMinutes < 0
       ? `${label} is modeled ${-next.spareMinutes} minutes after the home-by deadline.`
       : `${label} has ${next.spareMinutes} minutes of modeled slack; this is not a guarantee.`);
+    if (next.crossingPlan) optionFacts.push(next.crossingFeasible
+      ? `${label}'s crossings fit the modeled opening-hours window and closing buffer; this does not verify service or entry eligibility.`
+      : `${label}'s crossing plan falls outside the modeled opening-hours window or closing buffer.`);
     return {
       optionId: previous.id, before: previous, after: next, perPersonCostChangeHKD,
       returnChangeMinutes: next.returnMinutes - previous.returnMinutes,
@@ -262,14 +301,17 @@ export function selectDecisionView(session: DecisionSession) {
     : session.stage === 'baseline' ? `You selected ${city(currentChoice.optionId)}.`
     : hasChoiceChanged ? `You first selected ${city(initialChoice!.optionId)} and now selected ${city(currentChoice.optionId)}.`
     : `You kept ${city(currentChoice.optionId)} as your choice.`;
-  // All tabs use one scale, including the original deadline, so replay cannot visually rescale a journey.
-  const timelineEnd = Math.max(session.snapshots.baseline.result.normalizedHomeByMinutes!, ...availableSnapshotIds.flatMap(id => session.snapshots[id]!.result.options.map(option => option.returnMinutes)));
+  const changedInputs = session.snapshots.changed?.inputs;
+  const changedField: TimeChangeField = changedInputs?.departureMinutes !== session.snapshots.baseline.inputs.departureMinutes ? 'departureMinutes' : 'homeByMinutes';
+  const timeChange = changedInputs ? {
+    field: changedField, beforeMinutes: session.snapshots.baseline.inputs[changedField], afterMinutes: changedInputs[changedField],
+  } : null;
   return freeze({
     stage: session.stage, displayedSnapshotId: session.displayedSnapshotId, displayedSnapshot, currentSnapshot,
     availableSnapshotIds, initialChoice, currentChoice, displayedChoice: session.choices[session.displayedSnapshotId],
-    priorities: session.priorities, canChangeDeadline: session.stage === 'baseline' && initialChoice !== null,
+    priorities: session.priorities, canChangeTime: session.stage === 'baseline' && initialChoice !== null,
     canApplyRevision: session.stage === 'changed', scopeNotes: DECISION_SCOPE_NOTES,
-    timelineRange: { startMinutes: session.snapshots.baseline.inputs.departureMinutes, endMinutes: timelineEnd },
+    timelineRange: DECISION_TIMELINE_RANGE, timeChange,
     reconsideration: { hasChoiceChanged, summary: choiceSummary, reason: currentChoice?.reason ?? null },
     deltas: selectDecisionDeltas(session),
   });

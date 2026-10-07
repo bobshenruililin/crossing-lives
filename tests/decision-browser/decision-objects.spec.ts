@@ -59,7 +59,7 @@ test('scene objects replace one sheet, return keyboard focus and preserve the ex
   }
   // Optional evidence may scroll inside its own view, while the world stays fixed.
   await openDisclosure(page, 'Open the bill and assumptions');
-  await openDisclosure(page, 'Read all authored starting facts');
+  await openDisclosure(page, 'Inputs used in this comparison');
   await page.locator('[data-input-key] dd').last().scrollIntoViewIfNeeded();
   await expect(page.locator('[data-input-key] dd').last()).toBeInViewport({ ratio: 1 });
   expect(await page.locator('.decision-detail-body').evaluate(element => element.scrollTop)).toBeGreaterThan(0);
@@ -111,18 +111,22 @@ test('ordinary mobile taps complete the world-to-phone decision without scrollin
     await action(page, 'Map Unfold both routes').tap();
     await expectWorldAndCore(page);
     await action(page, 'What matters to you?').tap();
-    await expect(reason(page)).toHaveValue('');
-    await expect(reason(page)).not.toBeEditable();
+    await expect(reason(page)).toHaveCount(0);
     await action(page, 'Food').tap();
     await expect(action(page, 'Food')).toHaveAttribute('aria-pressed', 'true');
     await action(page, 'Back to evening').tap();
     await action(page, 'Phone Inspect home-by time').tap();
-    await expect(action(page, 'Change home-by time to 22:30')).toHaveCount(0);
+    await expect(action(page, 'Change home-by')).toHaveCount(0);
     await action(page, 'Map Unfold both routes').tap();
     await action(page, 'Start with Shenzhen').tap();
     await expect(experience(page)).toHaveAttribute('data-active-object', 'phone');
     await expectWorldAndCore(page);
-    await action(page, 'Change home-by time to 22:30').tap();
+    await action(page, 'Change home-by').tap();
+    await expect(action(page, 'Apply time change')).toBeDisabled();
+    for (let step = 0; step < 4; step += 1) await action(page, '15 minutes earlier').tap();
+    await expect(page.getByRole('combobox', { name: 'Home-by time', exact: true })).toHaveValue('1350');
+    await expectWorldAndCore(page);
+    await action(page, 'Apply time change').tap();
     await expectAcceptedFacts(page, 'changed');
     await expectWorldAndCore(page);
     await action(page, 'Preview a shorter Shenzhen walk').tap();

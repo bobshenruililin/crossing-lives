@@ -32,3 +32,10 @@ The recording remains actual Playwright browser interaction with unchanged actio
 The upload step excludes only the duplicated raw recording at `test-results/walkthrough-*/recording/*.webm`. Failure traces, screenshots and the report remain included. Existing uploaded artifacts are untouched. This uses the [official upload-artifact v4 multiple-path/exclusion syntax](https://github.com/actions/upload-artifact/tree/v4#upload-using-multiple-paths-and-exclusions), without changing the runner, sandbox, permissions or retention period.
 
 A review of the verified spending artifact found four byte-identical 16,128,923-byte video copies. Deduplication reduces future archive volume; it does not reduce the captured journey or constitute a runtime performance measurement.
+
+
+## Early decision evidence, full verification afterward
+
+The decision build and browser cases run before the retained original-experience cases. The `crossing-lives-decision-preview` artifact is uploaded immediately for visual review, including its own report, screenshots, failure traces, portable file and one canonical recording. It is partial evidence while the job is running, never an overall pass.
+
+The complete retained browser suite and unchanged production capture still run in the same job whenever their source/build/browser prerequisites succeeded, even if the decision stage failed. No test is omitted and no failure is ignored. Their `crossing-lives-verification` artifact follows. The two artifacts avoid a duplicate canonical decision video; use the early artifact for decision evidence and the final artifact for retained-experience evidence. This ordering also protects the decision report from the retained runner's ordinary output-directory cleanup. Both have seven-day retention, read-only repository permissions and no deployment step.

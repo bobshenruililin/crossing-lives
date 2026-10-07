@@ -1,7 +1,7 @@
 import { test, expect, type Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import {
-  action, auditNoPrivateStorage, changeDeadline, chooseBaseline, closeDisclosure,
+  action, applyTimeChange, auditNoPrivateStorage, chooseBaseline, clockControl, closeDisclosure,
   expectKeyboardFocusVisible, expectNoOverflow, expectStage, expectTouchTarget,
   experience, expectWorldAndCore, inspectCommonTimeline, openDisclosure, readCoreGeometry, sheet, world, startFresh,
 } from './decision-helpers';
@@ -97,7 +97,16 @@ for (const width of [360, 390, 1440]) {
     await expect(page.locator('#decision-sheet-heading')).toBeFocused();
     await expectKeyboardFocusVisible(page);
     await expectWorldAndCore(page);
-    await tabTo(page, 'Change home-by time to 22:30');
+    await tabTo(page, 'Change home-by');
+    await page.keyboard.press('Enter');
+    await expect(clockControl(page, 'homeBy')).toHaveValue('1410');
+    await expect(action(page, 'Apply time change')).toBeDisabled();
+    for (let step = 0; step < 4; step += 1) await action(page, '15 minutes earlier').press('Enter');
+    await expect(clockControl(page, 'homeBy')).toHaveValue('1350');
+    await expectWorldAndCore(page);
+    await expectVisibleControls(page); // Includes the active native time select.
+    await expectSeriousAxeClear(page);
+    await tabTo(page, 'Apply time change');
     await page.keyboard.press('Enter');
     await expectStage(page, 'changed');
     await expect(page.getByTestId('decision-feedback')).toBeFocused();
@@ -164,12 +173,17 @@ for (const width of [360, 390]) {
     const originalTrackNodes = await Promise.all(['HK', 'SZ'].map(city => page.getByTestId(`decision-timeline-${city}`).elementHandle()));
     expect(originalTrackNodes.every(Boolean)).toBe(true);
     const worldBefore = await world(page).boundingBox();
-    const deadline = action(page, 'Change home-by time to 22:30');
+    const deadline = action(page, 'Change home-by');
     await expect(deadline).toBeInViewport({ ratio: 1 });
-    const actionBox = (await deadline.boundingBox())!;
-    await changeDeadline(page);
+    await deadline.click();
+    await clockControl(page, 'homeBy').selectOption('1350');
     await expectWorldAndCore(page);
-    const displacement = before.tracks[0].width * 60 / 420;
+    const apply = action(page, 'Apply time change');
+    await expect(apply).toBeInViewport({ ratio: 1 });
+    const actionBox = (await apply.boundingBox())!;
+    await applyTimeChange(page);
+    await expectWorldAndCore(page);
+    const displacement = before.tracks[0].width * 60 / 660;
     await expect.poll(async () => Math.abs((await page.getByTestId('decision-deadline-marker').boundingBox())!.x - (before.marker.x - displacement))).toBeLessThanOrEqual(2);
     const after = await readCoreGeometry(page);
     for (const [index, city] of ['HK', 'SZ'].entries()) {
@@ -180,11 +194,12 @@ for (const width of [360, 390]) {
     expect(after.outcomes.map(({ deadline: _deadline, ...rest }) => rest)).toEqual(before.outcomes.map(({ deadline: _deadline, ...rest }) => rest));
     expect(after.marker.minute).toBe('1350');
     expect(before.marker.minute).toBe('1410');
-    expect(Math.abs(before.marker.x - after.marker.x - displacement), 'Only the deadline line moves one hour on the common seven-hour scale.').toBeLessThanOrEqual(2);
+    expect(Math.abs(before.marker.x - after.marker.x - displacement), 'Only the deadline line moves one hour on the common eleven-hour scale.').toBeLessThanOrEqual(2);
     expect(await world(page).boundingBox()).toEqual(worldBefore);
     const feedback = page.getByTestId('decision-feedback');
     await expect(feedback).toBeInViewport({ ratio: 1 });
-    await expect(feedback).toContainText(/15\s*(?:min|minute)/i);
+    await expect(page.getByTestId('decision-outcome-SZ').locator('.decision-lane-facts')).toBeInViewport({ ratio: 1 });
+    await expect(page.getByTestId('decision-outcome-SZ').locator('.decision-lane-facts')).toContainText(/15\s*(?:min|minute).*late/i);
     await expect(feedback).toContainText(/cost|bill/i);
     expect(Math.abs((await feedback.boundingBox())!.y - actionBox.y), 'The causal feedback occupies the same compact action area.').toBeLessThanOrEqual(240);
     const previewAction = action(page, 'Preview a shorter Shenzhen walk');

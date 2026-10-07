@@ -1,16 +1,18 @@
 # crossing-lives
 
-**Between / 兩地之間** is the first interactive prototype of an individual-first Hong Kong–Shenzhen decision project: one evening, two possibilities.
-
-It begins inside an original illustrated place. Short conversations and ordinary objects let an evening unfold; an optional practical comparison exposes the whole-outing arithmetic when wanted. Neither city is assigned an inherently better outcome.
+**Crossing Lives** explores everyday cross-border decisions through an original pixel world, complete outing comparisons and visible changes in circumstances. The current flagship asks how an evening changes when departure or home-by time changes. Neither city is assigned an inherently better outcome.
 
 ## Current direction: the decision-led prototype
 
-The active prototype puts the whole-evening comparison and changed circumstances first. It is a **separate entry at `/decision.html`**, using matched immutable input snapshots rather than the original story's active-city selector. One fixed authored example changes only the home-by deadline, then lets the person keep the complete Hong Kong plan or shorten the Shenzhen walk and replay the difference. Qualitative priorities and reasons are explicit; no city preference score is inferred.
+The active prototype is a **separate entry at `/decision.html`**. A map, phone and menu open one compact view over the street. Both complete city outings use the same immutable input snapshot and time scale. The phone lets the person preview one departure or home-by change, apply or cancel it, then keep either full plan or explicitly try a shorter Shenzhen walk. Qualitative priorities and optional reasons are stated by the person; no city score or hidden repair is inferred.
 
-Run `npm run dev:decision`, or `npm run export:decision` for the independent production/offline artifact. The original entry remains a verified fallback and its stored data is not read or overwritten by the new page. The new comparison, pixel scene and 14-case production suite are implemented but **await their own actual CI and visual review**. Source-only success is not a playability or audience-understanding claim. See [the first-slice scope](docs/DECISION_PROTOTYPE.md).
+The clock controls operate within one authored evening: departure 15:00–20:00, or home-by 20:00–01:00 next day, in 15-minute steps. Other inputs remain fixed for this episode. These are illustrative prices and journey assumptions, not a verified travel plan. A controllable character, new party sizes, work routines, housing and regional explainers are planned extensions, not completed features.
 
-## What is here
+Run `npm run dev:decision`, or `npm run export:decision` for the independent production/offline artifact. The earlier entry remains a verified fallback, and the new page does not read or replace its saved data. Revision `22d06c626f2333f091350cc94b0b3999f0550f54` verified the scene, fixed deadline change, priorities, replay and offline opening. **The newly adjustable Phone requires its own exact-commit browser and visual review.** Passing source tests does not establish audience understanding. See [the episode scope](docs/DECISION_PROTOTYPE.md).
+
+## Earlier complete prototype
+
+The original `/` entry, also known as Between / 兩地之間, retains these tested capabilities while the new decision-led episodes develop:
 
 - A scene-led fictional Saturday with Jun, free observations, natural spoken choices and explicit travel/meal/walk commitments
 - Dinner/shared-order choices, a disclosed optional delay, short/long walks or going straight home after dinner, and an ordinary home ending

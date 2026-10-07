@@ -46,7 +46,7 @@ export async function openDisclosure(page: Page, label: string) {
     await expect(page.getByRole('heading', { name: label, exact: true })).toBeVisible();
     return;
   }
-  if (label === 'Read all authored starting facts') {
+  if (label === 'Inputs used in this comparison') {
     const summary = page.locator('summary').filter({ hasText: label });
     await expect(summary).toHaveCount(1);
     if (!await summary.evaluate(element => element.closest('details')!.open)) await summary.click();
@@ -68,7 +68,7 @@ export async function openDisclosure(page: Page, label: string) {
 
 export async function closeDisclosure(page: Page, label: string) {
   if (label === 'Inspect the trip out and home') return;
-  if (label === 'Read all authored starting facts') {
+  if (label === 'Inputs used in this comparison') {
     const summary = page.locator('summary').filter({ hasText: label });
     if (await summary.count() && await summary.evaluate(element => element.closest('details')!.open)) await summary.click();
     return;
@@ -96,17 +96,43 @@ export async function chooseBaseline(page: Page, city: 'Hong Kong' | 'Shenzhen',
   await expect(experience(page)).toHaveAttribute('data-active-object', 'phone');
   if (ownReason !== undefined) {
     await openDisclosure(page, 'What matters to you?');
+    await expect(reason(page), 'A tentative choice does not infer a reason.').toHaveValue('');
     await reason(page).fill(ownReason);
     await closeDisclosure(page, 'What matters to you?');
   }
-  await expect(action(page, 'Change home-by time to 22:30')).toBeEnabled();
+  await expect(action(page, 'Change departure')).toBeEnabled();
+  await expect(action(page, 'Change home-by')).toBeEnabled();
 }
 
-export async function changeDeadline(page: Page) {
+export type TimeField = 'departure' | 'homeBy';
+export const clockControl = (page: Page, field: TimeField) => page.getByRole('combobox', { name: field === 'departure' ? 'Departure time' : 'Home-by time', exact: true });
+export const clockText = (minutes: number) => `${String(Math.floor(minutes / 60) % 24).padStart(2, '0')}:${String(minutes % 60).padStart(2, '0')}`;
+
+export async function beginTimePreview(page: Page, field: TimeField) {
   await returnToCore(page);
   await openObject(page, 'phone');
-  await action(page, 'Change home-by time to 22:30').click();
+  await action(page, field === 'departure' ? 'Change departure' : 'Change home-by').click();
+  await expect(clockControl(page, field)).toBeInViewport({ ratio: 1 });
+}
+
+export async function previewTime(page: Page, field: TimeField, minutes: number) {
+  await beginTimePreview(page, field);
+  await clockControl(page, field).selectOption(String(minutes));
+  await expectStage(page, 'baseline', 'changed', true);
+  await expect(experience(page)).toHaveAttribute('data-preview-kind', 'time');
+  await expect(action(page, 'Apply time change')).toBeEnabled();
+}
+
+export async function applyTimeChange(page: Page) {
+  await action(page, 'Apply time change').click();
   await expectStage(page, 'changed');
+  await expect(experience(page)).toHaveAttribute('data-preview-kind', 'none');
+}
+
+/** The accepted earlier-home example now uses genuine clock selection. */
+export async function changeDeadline(page: Page) {
+  await previewTime(page, 'homeBy', 1350);
+  await applyTimeChange(page);
 }
 
 export async function commitShortWalk(page: Page) {
@@ -125,7 +151,7 @@ export async function replay(page: Page, stage: 'baseline' | 'changed' | 'revise
   await expectCore(page);
 }
 
-export async function capture(page: Page, info: TestInfo, stage: 'baseline' | 'earlier-deadline' | 'revised' | 'replay' | 'priorities') {
+export async function capture(page: Page, info: TestInfo, stage: 'baseline' | 'earlier-deadline' | 'revised' | 'replay' | 'priorities' | 'earlier-departure' | 'late-departure' | 'time-preview') {
   await page.evaluate(() => document.fonts.ready);
   const viewport = page.viewportSize()!;
   const name = `${stage}-${viewport.width}x${viewport.height}`;
@@ -205,7 +231,7 @@ export async function auditNoPrivateStorage(context: BrowserContext) {
 
 export async function readInputFacts(page: Page) {
   await openDisclosure(page, 'Open the bill and assumptions');
-  await openDisclosure(page, 'Read all authored starting facts');
+  await openDisclosure(page, 'Inputs used in this comparison');
   const facts = await page.locator('[data-input-key][data-input-value]').evaluateAll(nodes => nodes.map(node => ({
     key: node.getAttribute('data-input-key')!, value: node.getAttribute('data-input-value')!,
     text: (node.textContent ?? '').replace(/\s+/g, ' ').trim(),
@@ -275,11 +301,12 @@ export async function inspectCommonTimeline(page: Page) {
         }),
       };
     });
-    expect(geometry.start).toBe(1020);
-    expect(geometry.end).toBeGreaterThanOrEqual(1410);
+    expect(geometry.start).toBe(900);
+    expect(geometry.end).toBe(1560);
     expect(geometry.width).toBeGreaterThan(200);
     expect(geometry.segments.length, 'Both actual outward and homeward route legs are drawn.').toBeGreaterThanOrEqual(city === 'HK' ? 4 : 8);
-    expect(geometry.segments[0].start).toBe(geometry.start);
+    expect(geometry.segments[0].start).toBe(Number(await outcome(page, city).getAttribute('data-departure-minute')));
+    expect(geometry.segments[0].start).toBeGreaterThanOrEqual(geometry.start);
     const home = Number((await readOutcomeFacts(page, city)).home);
     expect(geometry.segments.at(-1)!.end, 'The timeline includes the complete return all the way home.').toBe(home);
     for (let index = 0; index < geometry.segments.length; index += 1) {
@@ -317,7 +344,7 @@ export async function inspectCommonTimeline(page: Page) {
     for (let index = 0; index < labels.length; index += 1) {
       await expect(legs.nth(index)).toBeVisible();
       await expect(legs.nth(index)).toContainText(labels[index]);
-      await expect(legs.nth(index)).toContainText(/\d{2}:\d{2}–\d{2}:\d{2}/);
+      expect((await legs.nth(index).innerText()).match(/\d{2}:\d{2}/g), 'Every leg exposes both start and end clocks, including overnight legs.').toHaveLength(2);
       const actualSegment = tracks[city === 'Hong Kong' ? 0 : 1].segments[index];
       await expect(legs.nth(index), 'Every outward and return duration agrees with its real shared-scale segment.').toContainText(`${actualSegment.end - actualSegment.start} min`);
     }
@@ -457,7 +484,10 @@ export async function expectWorldAndCore(page: Page) {
       const box = range.getBoundingClientRect();
       return { hour: node.getAttribute('data-hour'), text: node.textContent, left: box.left, right: box.right, top: box.top, bottom: box.bottom };
     }).sort((a, b) => a.left - b.left));
-    expect(labels.map(label => label.hour), 'The mobile axis keeps its start, intermediate hours and midnight endpoint.').toEqual(['17', '19', '21', '24']);
+    expect(labels.length, 'The fixed overnight axis retains readable intermediate labels.').toBeGreaterThanOrEqual(3);
+    expect(labels[0].hour).toBe('15');
+    expect(labels.at(-1)!.hour).toBe('26');
+    expect(labels.at(-1)!.text).toContain('02:00');
     for (let index = 0; index < labels.length; index += 1) {
       expect(labels[index].right).toBeGreaterThan(labels[index].left);
       expect(labels[index].bottom).toBeGreaterThan(labels[index].top);
@@ -482,17 +512,37 @@ export async function expectWorldAndCore(page: Page) {
     expect(rendered.text.top).toBeGreaterThanOrEqual(rendered.body.top);
     expect(rendered.text.bottom, 'Every rendered caveat line stays above the clipping edge and footer.').toBeLessThanOrEqual(Math.min(rendered.body.bottom, rendered.footerTop));
   }
-  for (const button of await sheet(page).locator('button:visible').all()) {
+  for (const button of await sheet(page).locator('button:visible, select:visible').all()) {
     await expect(button, 'Every main causal-path action is present without scrolling its sheet.').toBeInViewport({ ratio: 1 });
   }
   await expect(contextStrip(page)).toContainText(/400/);
   await expect(contextStrip(page)).toContainText(/person|each/i);
   await expect(contextStrip(page)).toContainText(/2\s*(?:adults|people)/i);
-  await expect(contextStrip(page)).toContainText('17:00');
-  const deadline = (await readOutcomeFacts(page, 'HK')).deadline;
-  await expect(contextStrip(page)).toContainText(deadline === '1410' ? '23:30' : '22:30');
+  const departure = Number(await outcome(page, 'HK').getAttribute('data-departure-minute'));
+  await expect(contextStrip(page)).toContainText(clockText(departure));
+  const deadline = Number((await readOutcomeFacts(page, 'HK')).deadline);
+  await expect(contextStrip(page)).toContainText(clockText(deadline));
+  if (deadline >= 1440) await expect(contextStrip(page)).toContainText(/next day/i);
   const extent = await page.evaluate(() => ({ x: scrollX, y: scrollY, height: document.documentElement.scrollHeight, viewport: innerHeight }));
   expect(extent.x).toBe(0);
   expect(extent.y, 'The world is the viewport, not a page scrolled down to a form.').toBe(0);
   expect(extent.height).toBeLessThanOrEqual(extent.viewport + 1);
+}
+
+/** Explicit expected outcomes for the new authored clock cases. This checks
+ * rendered facts; it does not reproduce the outing engine or price arithmetic. */
+export async function expectTimeFacts(page: Page, expected: {
+  departure: number; deadline: number; hkHome: number; szHome: number; szWalk?: number;
+}) {
+  const walk = expected.szWalk ?? 45;
+  expect(await readOutcomeFacts(page, 'HK')).toEqual({ cost: '336', home: String(expected.hkHome), dinner: '90', walk: '45', deadline: String(expected.deadline) });
+  expect(await readOutcomeFacts(page, 'SZ')).toEqual({ cost: '291.83', home: String(expected.szHome), dinner: '90', walk: String(walk), deadline: String(expected.deadline) });
+  for (const [city, home, cityWalk, cost] of [['HK', expected.hkHome, 45, '336'], ['SZ', expected.szHome, walk, '291.83']] as const) {
+    await expect(outcome(page, city)).toHaveAttribute('data-departure-minute', String(expected.departure));
+    await expect(outcome(page, city)).toContainText(cost);
+    await expect(outcome(page, city)).toContainText(clockText(home));
+    await expect(outcome(page, city)).toContainText('Dinner 90 min');
+    await expect(outcome(page, city)).toContainText(`walk ${cityWalk} min`);
+    if (home >= 1440) await expect(outcome(page, city).locator('.decision-key-figures')).toContainText(/next day/i);
+  }
 }

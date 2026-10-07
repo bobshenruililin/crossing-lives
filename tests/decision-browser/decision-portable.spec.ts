@@ -58,7 +58,7 @@ test('production portable runs the full decision loop under file:// with network
     await page.reload();
     await expectStage(page, 'baseline');
     await openObject(page, 'phone');
-    await expect(action(page, 'Change home-by time to 22:30')).toHaveCount(0);
+    await expect(action(page, 'Change home-by')).toHaveCount(0);
     await audit.expectZero(page);
     expect(attemptedNetwork).toEqual([]);
     expect(errors).toEqual([]);

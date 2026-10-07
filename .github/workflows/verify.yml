@@ -15,24 +15,49 @@ jobs:
           node-version: '24'
           cache: npm
       - run: npm ci
-      - run: npm run check
+      - id: source_checks
+        run: npm run check
       - name: Verify installed Chrome stable
+        id: chrome_check
         run: google-chrome --version
-      - run: npx playwright install-deps chromium
+      - id: browser_deps
+        run: npx playwright install-deps chromium
       - name: Install Playwright's video recorder
+        id: video_recorder
         run: npx playwright install ffmpeg
-      - run: npm run export:portable
-      - run: npm run test:browser
+      - id: legacy_export
+        run: npm run export:portable
+      - name: Build the decision-led prototype
+        id: decision_export
+        run: npm run export:decision
+      - name: Verify the decision-led production entry
+        id: decision_tests
+        run: npm run test:decision
+        env:
+          CROSSING_BROWSER_CHANNEL: chrome
+      - name: Upload decision evidence for early visual review
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: crossing-lives-decision-preview
+          retention-days: 7
+          if-no-files-found: ignore
+          path: |
+            artifacts/crossing-lives-decision-prototype.html
+            artifacts/decision/
+            playwright-report/decision/
+            test-results/decision/
+            !test-results/decision/**/recording/*.webm
+      # A decision failure must not skip the independent retained checks.
+      # The early artifact is partial evidence; the job must finish to pass.
+      - name: Verify the retained original experience
+        if: ${{ always() && steps.source_checks.outcome == 'success' && steps.chrome_check.outcome == 'success' && steps.browser_deps.outcome == 'success' && steps.video_recorder.outcome == 'success' && steps.legacy_export.outcome == 'success' }}
+        run: npm run test:browser
         env:
           CROSSING_BROWSER_CHANNEL: chrome
       - name: Capture cold production scene readiness
+        if: ${{ always() && steps.source_checks.outcome == 'success' && steps.chrome_check.outcome == 'success' && steps.browser_deps.outcome == 'success' && steps.video_recorder.outcome == 'success' && steps.legacy_export.outcome == 'success' }}
         run: npx playwright test --config=playwright.production.config.ts
-        env:
-          CROSSING_BROWSER_CHANNEL: chrome
-      - name: Build the separate decision-led prototype
-        run: npm run export:decision
-      - name: Verify the decision-led production entry
-        run: npm run test:decision
         env:
           CROSSING_BROWSER_CHANNEL: chrome
       - uses: actions/upload-artifact@v4
@@ -44,6 +69,8 @@ jobs:
             artifacts/
             playwright-report/
             test-results/
+            !artifacts/decision/
+            !artifacts/crossing-lives-decision-prototype.html
             !test-results/walkthrough-*/recording/*.webm
             !test-results/production-capture/**/recording/*.webm
             !test-results/decision/**/recording/*.webm

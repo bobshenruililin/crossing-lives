@@ -32,11 +32,10 @@ for (const width of [360, 390, 1440]) {
     const baselineTimeline = await inspectCommonTimeline(page);
     await closeDisclosure(page, 'Open the bill and assumptions');
     await openObject(page, 'phone');
-    await expect(action(page, 'Change home-by time to 22:30'), 'The constraint action is unavailable before a tentative choice.').toHaveCount(0);
+    await expect(action(page, 'Change home-by'), 'The constraint action is unavailable before a tentative choice.').toHaveCount(0);
     await openObject(page, 'map');
     await openDisclosure(page, 'What matters to you?');
-    await expect(reason(page), 'No reason exists before an explicit tentative choice.').toHaveValue('');
-    await expect(reason(page)).not.toBeEditable();
+    await expect(reason(page), 'No writing task appears before an explicit tentative choice.').toHaveCount(0);
     await action(page, 'Company').click();
     await action(page, 'Exploration').click();
     await expect(action(page, 'Company')).toHaveAttribute('aria-pressed', 'true');
@@ -46,7 +45,7 @@ for (const width of [360, 390, 1440]) {
     await expect(experience(page)).toContainText(/you selected/i);
     await expect(page.locator('.decision-priorities')).toContainText('You selected: Company, Exploration.');
     await expect(page.locator('.decision-priorities')).toContainText('Neither city receives a score.');
-    await expect(reason(page), 'Selecting priorities never invents a reason.').toHaveValue('');
+    await expect(reason(page), 'Selecting priorities never creates an inferred reason or writing field.').toHaveCount(0);
     if (width <= 390) {
       for (const label of ['Food', 'Company', 'Comfort', 'Exploration']) await expect(action(page, label)).toBeInViewport({ ratio: 1 });
       await capture(page, info, 'priorities');
@@ -88,8 +87,9 @@ for (const width of [360, 390, 1440]) {
     await action(page, 'Preview a shorter Shenzhen walk').click();
     await expectStage(page, 'changed', 'revised', true);
     await expectAcceptedFacts(page, 'revised', true);
+    await expect(page.getByTestId('decision-feedback')).toContainText('You selected exploration.');
     await expect(experience(page)).toContainText(/45\s*(?:→|to)\s*15|45.*15.*minute/s);
-    await expect(experience(page)).toContainText(/30\s*(?:min|minute).*(?:less|lost|give|sacrif)|(?:less|lose|sacrif|give up).*30\s*(?:min|minute)/i);
+    await expect(experience(page)).toContainText(/30\s*(?:min|minute).*(?:less|lost|give|sacrif)|(?:less|lose|sacrif|gives? up).*30\s*(?:min|minute)/i);
     const previewInputs = await readInputFacts(page);
     expect(changedKeys(changedInputs, previewInputs), 'Only Shenzhen walking time is sacrificed.').toEqual(['itineraryOverrides.sz.walkMinutes']);
     expect(previewInputs['itineraryOverrides.sz.walkMinutes']).toBe('15');
@@ -157,7 +157,7 @@ for (const width of [360, 390, 1440]) {
     await page.reload();
     await expectStage(page, 'baseline');
     await openObject(page, 'phone');
-    await expect(action(page, 'Change home-by time to 22:30'), 'The constraint action is unavailable before a tentative choice.').toHaveCount(0);
+    await expect(action(page, 'Change home-by'), 'The constraint action is unavailable before a tentative choice.').toHaveCount(0);
     await expect(experience(page)).not.toContainText('I accept 30 minutes less walking');
     await expectAcceptedFacts(page, 'baseline');
     await audit.expectZero(page);

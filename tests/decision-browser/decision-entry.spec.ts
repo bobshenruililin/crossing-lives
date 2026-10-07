@@ -7,19 +7,14 @@ import {
   openDisclosure, openObject, readInputFacts, reason, replay, sheet, startAtWorld, startFresh,
 } from './decision-helpers';
 import { interaction, tabTo } from './decision-friend-helpers';
-import { observeFirstArrivalFrame, expectFirstArrivalFrame } from './decision-journey-projection';
+import { observeFirstArrivalFrame, expectFirstArrivalFrame, expectPlayerFullyVisible } from './decision-journey-projection';
 
 async function expectVisiblePerson(page: Page) {
   const player = page.getByTestId('decision-player');
-  await expect(player).toBeInViewport({ ratio: 1 });
+  await expectPlayerFullyVisible(page);
   const sprite = player.locator('img');
   await expect(sprite).toBeVisible();
   await expect.poll(() => sprite.evaluate((image: HTMLImageElement) => image.complete && image.naturalWidth > 0)).toBe(true);
-  await expect.poll(() => player.evaluate(element => {
-    const box = element.getBoundingClientRect();
-    const crop = element.closest('[data-testid="decision-journey-frame"]')!.getBoundingClientRect();
-    return box.left >= crop.left && box.right <= crop.right && box.top >= crop.top && box.bottom <= crop.bottom;
-  })).toBe(true);
 }
 
 for (const [width, mode] of [[390, 'touch'], [1440, 'keyboard']] as const) {

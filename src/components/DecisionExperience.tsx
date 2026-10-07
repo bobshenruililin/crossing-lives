@@ -1,4 +1,4 @@
-import { useMemo, useReducer, useRef, useState } from 'react';
+import { useLayoutEffect, useMemo, useReducer, useRef, useState } from 'react';
 import { sources } from '../data/evidence';
 import { createDecisionSession, decisionReducer, previewRevision, previewTimeChange, selectDecisionView, DECISION_TIME_LIMITS } from '../decision/session';
 import type { DecisionEvent, DecisionSession, DecisionSnapshot, Priority, SnapshotId, RevisionId, TimeChange, TimeChangeField } from '../decision/session';
@@ -79,6 +79,11 @@ export function DecisionExperience() {
   const [reasonDrafts, setReasonDrafts] = useState<Partial<Record<SnapshotId, string>>>({});
   const returnCore = useRef<CoreObject>('map');
   const returnToWorld = useRef(false);
+  // Opening a sheet can unmount the focused world button. Restore focus in
+  // the same commit so an immediate Escape still bubbles through this main.
+  useLayoutEffect(() => {
+    if (surface && !friendOpen) document.getElementById('decision-sheet-heading')?.focus({ preventScroll: true });
+  }, [surface, friendOpen]);
   const timeResult = useMemo(() => timeDraft ? previewTimeChange(session, timeDraft) : null, [session, timeDraft]);
   const walkSnapshot = useMemo(() => walkPreview ? previewRevision(session, 'shorten-sz') : null, [session, walkPreview]);
   const preview = walkPreview || timeDraft !== null;

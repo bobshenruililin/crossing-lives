@@ -1,5 +1,22 @@
 import { expect, type Page } from '@playwright/test';
 
+/** Chrome reported 0.9999997615814209 for a wholly contained player at 390px.
+ * Allow only intersection-ratio float noise; the actual viewport and scene
+ * rectangle bounds below still require complete containment, with no inset loss. */
+export async function expectPlayerFullyVisible(page: Page) {
+  const player = page.getByTestId('decision-player');
+  await expect(player).toBeInViewport({ ratio: 1 - 0.000001 });
+  await expect.poll(() => player.evaluate(element => {
+    const box = element.getBoundingClientRect();
+    const crop = element.closest('[data-testid="decision-journey-frame"]')!.getBoundingClientRect();
+    return {
+      positiveSize: box.width > 0 && box.height > 0,
+      insideViewport: box.left >= 0 && box.right <= window.innerWidth && box.top >= 0 && box.bottom <= window.innerHeight,
+      insideScene: box.left >= crop.left && box.right <= crop.right && box.top >= crop.top && box.bottom <= crop.bottom,
+    };
+  }), 'The entire player rectangle must remain inside both viewport and scene crop.').toEqual({ positiveSize: true, insideViewport: true, insideScene: true });
+}
+
 /** Reads the actual DOM coordinate plane before input. Never scrolls,
  * focuses, clicks, taps, or substitutes viewport visibility for crop visibility. */
 export async function expectProjectedObjectTarget(page: Page, id: string) {

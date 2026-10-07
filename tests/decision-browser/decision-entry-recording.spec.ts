@@ -3,6 +3,7 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { action, auditNoPrivateStorage, expectAcceptedFacts, experience, startAtWorld } from './decision-helpers';
 import { interaction } from './decision-friend-helpers';
+import { expectPlayerFullyVisible } from './decision-journey-projection';
 
 /** A fresh mobile browser records its real first thirty seconds. No seed,
  * asset warming, replacement frames, trimming, or manual tracing ownership. */
@@ -37,7 +38,7 @@ test('record the first thirty seconds from a cold mobile world to baseline arriv
   };
   try {
     await startAtWorld(page);
-    await expect(page.getByTestId('decision-player')).toBeInViewport({ ratio: 1 });
+    await expectPlayerFullyVisible(page);
     await expect.poll(() => page.getByTestId('decision-player').locator('img').evaluate((image: HTMLImageElement) => image.complete && image.naturalWidth > 0)).toBe(true);
     await mark('The cold page opens beside the counter, with a visible person and no city chosen.');
     expect(actions.at(-1)!.elapsedMs).toBeLessThanOrEqual(5_000);

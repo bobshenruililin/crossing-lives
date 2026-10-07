@@ -1,0 +1,78 @@
+# Proposal: install as .github/workflows/phone.yml after integrating the required UI contracts.
+# Existing .github/workflows/verify.yml is byte-for-byte unchanged.
+name: Verify phone world tour
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+  pull_request:
+jobs:
+  phone:
+    name: Full Chromium touch phone tour
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - name: Supply exact Node declarations for browser gate typecheck
+        run: npm install --no-save --package-lock=false --ignore-scripts --no-audit --no-fund @types/node@25.9.5
+      - name: Verify phone source, integrity and evidence packaging
+        id: source
+        run: |
+          npx tsc --noEmit -p tsconfig.phone.json
+          node --test scripts/phone-integrity.test.mjs scripts/phone-evidence.test.mjs
+          npm run check:world
+      - name: Verify Chrome and install supported browser dependencies
+        id: browser
+        run: |
+          google-chrome --version
+          npx playwright install-deps chromium
+          npx playwright install ffmpeg
+      - name: Record one untrimmed cold phone tour
+        id: phone_tests
+        run: npx playwright test --config=playwright.phone.config.ts
+        env:
+          CROSSING_BROWSER_CHANNEL: chrome
+      - name: Prepare small phone review
+        id: phone_review
+        if: always()
+        run: node scripts/phone-evidence.mjs review "$RUNNER_TEMP/phone-review"
+        env:
+          PHONE_TEST_OUTCOME: ${{ steps.phone_tests.outcome }}
+      - name: Upload small phone review first
+        if: ${{ always() && steps.phone_review.outcome == 'success' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: crossing-lives-world-phone-review
+          retention-days: 7
+          if-no-files-found: error
+          path: ${{ runner.temp }}/phone-review/
+      - name: Install pinned official artifact client
+        id: phone_artifact_client
+        if: always()
+        run: |
+          npm install --prefix "$RUNNER_TEMP/phone-artifact-client" --save-exact --ignore-scripts --no-audit --no-fund @actions/artifact@2.3.2
+          node scripts/phone-evidence.mjs verify-client "$RUNNER_TEMP/phone-artifact-client"
+      - name: Preserve untrimmed phone film and complete failure evidence
+        if: ${{ always() && steps.phone_artifact_client.outcome == 'success' }}
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const { pathToFileURL } = require('node:url');
+            const { resolve } = require('node:path');
+            const { makeBundle, uploadBundle, uploadFilm } = await import(pathToFileURL(resolve('scripts/phone-evidence.mjs')).href);
+            const { DefaultArtifactClient } = require(resolve(process.env.RUNNER_TEMP, 'phone-artifact-client/node_modules/@actions/artifact'));
+            const client = new DefaultArtifactClient();
+            let filmError;
+            try { core.info(`Standalone phone film: ${JSON.stringify(await uploadFilm(process.cwd(), resolve(process.env.RUNNER_TEMP, 'phone-film'), client))}`); }
+            catch (error) { filmError = error; }
+            const out = resolve(process.env.RUNNER_TEMP, 'phone-evidence');
+            await makeBundle(process.cwd(), out);
+            await uploadBundle(out, client);
+            if (filmError) throw filmError;

@@ -1,0 +1,20 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "types": [
+      "node"
+    ],
+    "allowJs": true,
+    "checkJs": false,
+    "typeRoots": [
+      "./node_modules/@types",
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/node_modules/@types"
+    ]
+  },
+  "include": [
+    "playwright.phone.config.ts",
+    "tests/world-phone",
+    "tests/world-browser",
+    "src/vite-env.d.ts"
+  ]
+}

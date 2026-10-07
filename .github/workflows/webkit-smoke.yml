@@ -1,0 +1,46 @@
+# Optional additive workflow: copy to .github/workflows/webkit-smoke.yml.
+# Does not replace desktop or Chromium full-tour jobs.
+name: WebKit phone compatibility smoke
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+  pull_request:
+jobs:
+  webkit_smoke:
+    name: Linux WebKit phone smoke
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npm install --no-save --package-lock=false --ignore-scripts --no-audit --no-fund @types/node@25.9.5
+      - run: npx tsc --noEmit -p tsconfig.webkit-smoke.json
+      - run: npx playwright install --with-deps webkit
+      - run: npm run export:world
+      - run: npx playwright test --config=playwright.webkit-smoke.config.ts
+      - name: Enforce small smoke evidence bound
+        id: evidence_bound
+        if: always()
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          roots = [Path('artifacts/world-webkit'), Path('test-results/world-webkit')]
+          size = sum(p.stat().st_size for root in roots for p in root.rglob('*') if p.is_file())
+          assert size < 32 * 1024 * 1024, f'Smoke review exceeds 32 MiB: {size}'
+          PY
+      - uses: actions/upload-artifact@v4
+        if: ${{ always() && steps.evidence_bound.outcome == 'success' }}
+        with:
+          name: crossing-lives-webkit-phone-smoke
+          retention-days: 7
+          if-no-files-found: warn
+          path: |
+            artifacts/world-webkit/
+            test-results/world-webkit/

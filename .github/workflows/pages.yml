@@ -1,0 +1,83 @@
+name: Publish playable world to Pages
+
+# Publication is intentional: adding this file or pushing code never deploys.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Check out the selected main commit
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Set up Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '24'
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci
+        timeout-minutes: 5
+      - name: Test and build the connected world
+        run: npm run check:world
+      - name: Prepare and validate the public homepage
+        shell: bash
+        run: |
+          node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';
+          import { copyFileSync, lstatSync, readdirSync, readFileSync } from 'node:fs';
+          import { join } from 'node:path';
+          const root = 'dist-world';
+          const allowed = new Set(['world.html', 'assets', 'art', 'source-data', 'THIRD_PARTY_NOTICES.txt']);
+          for (const name of readdirSync(root)) assert(allowed.has(name), `Unexpected public root: ${name}`);
+          function inspect(dir) {
+            for (const name of readdirSync(dir)) {
+              const path = join(dir, name);
+              const stat = lstatSync(path);
+              assert(!stat.isSymbolicLink(), `Refusing symlink: ${path}`);
+              assert(!name.startsWith('.'), `Refusing hidden file: ${path}`);
+              assert(!/\.(?:map|tsx?|jsx|pem|key|env)$/i.test(name), `Refusing source or credential file: ${path}`);
+              if (stat.isDirectory()) inspect(path);
+            }
+          }
+          inspect(root);
+          const html = readFileSync(join(root, 'world.html'), 'utf8');
+          assert(html.includes('id="world-root"'), 'Wrong application entry');
+          assert(/src="\.\/assets\/[^"\s]+\.js"/.test(html), 'Missing relative compiled world bundle');
+          assert(!/(?:src|href)="\/(?!\/)/.test(html), 'Root-relative URL would break project Pages');
+          copyFileSync(join(root, 'world.html'), join(root, 'index.html'));
+          NODE
+      - name: Upload only the compiled public world
+        uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3
+        with:
+          path: dist-world
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Verify the existing Pages configuration
+        uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # v5
+        with:
+          enablement: false
+      - name: Publish the verified world
+        id: deployment
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4

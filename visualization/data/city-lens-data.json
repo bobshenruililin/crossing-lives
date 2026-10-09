@@ -1,0 +1,128 @@
+{
+  "verified_at": "2026-10-09",
+  "framing": {
+    "title": "One border, different signals",
+    "subtitle": "Selected indicators of economic activity and mobility; these are not matched city outcomes or resilience scores.",
+    "display_rule": "Separate charts and labelled units. Never compare bar lengths across different metrics, populations or years; no composite score."
+  },
+  "economy": {
+    "hong_kong": {
+      "label": "Retail company count",
+      "period": "2023–2024",
+      "unit": "companies",
+      "data": [
+        {
+          "year": 2023,
+          "value": 45286
+        },
+        {
+          "year": 2024,
+          "value": 43531
+        }
+      ],
+      "change_pct": -3.9,
+      "source_url": "https://www.censtatd.gov.hk/en/web_table.html?id=630-76003",
+      "verification": "Reused previously verified same-series local economic-evidence.json.",
+      "caveat": "Cross-sectional company counts, not closures or a fixed cohort; no causal attribution to northbound spending."
+    },
+    "shenzhen": {
+      "label": "HK and Macao overnight visitor-trips",
+      "year": 2025,
+      "unit": "visitor-trips",
+      "value": 10449000,
+      "change_pct": 26.6,
+      "comparison": "2024",
+      "status": "preliminary",
+      "source_url": "https://www.sz.gov.cn/cn/xxgk/zfxxgj/tjsj/tjgb/content/post_12805133.html",
+      "source_locator": "Section XI, tourism paragraph; note 1",
+      "source_published": "2026-05-25",
+      "verification": "Primary page read directly in this research pass.",
+      "caveat": "Hong Kong and Macao combined; excludes day visitors. Trips, not unique visitors, spending or gains to local firms.",
+      "chart": "Single count bar from zero with a +26.6% year-on-year annotation; do not invent an exact 2024 count by reversing the rounded rate."
+    },
+    "comparison_caveat": "The Hong Kong chart measures firms in 2023–2024; the Shenzhen chart measures a visitor subgroup in 2025. These illustrate distinct pressures and opportunities, not a measured transfer or net city benefit."
+  },
+  "mobility": {
+    "label": "Hong Kong-resident departures via direct Shenzhen boundary points",
+    "short_label": "HK-resident departures across the Shenzhen boundary",
+    "unit": "million departure movements",
+    "data": [
+      {
+        "year": 2024,
+        "value": 75.333
+      },
+      {
+        "year": 2025,
+        "value": 85.824
+      }
+    ],
+    "control_points_thousand_departures": [
+      {
+        "name": "Lo Wu",
+        "2024": 25907,
+        "2025": 28730
+      },
+      {
+        "name": "Lok Ma Chau Spur Line",
+        "2024": 22094,
+        "2025": 23438
+      },
+      {
+        "name": "Lok Ma Chau",
+        "2024": 4006,
+        "2025": 4631
+      },
+      {
+        "name": "Man Kam To",
+        "2024": 595,
+        "2025": 850
+      },
+      {
+        "name": "Sha Tau Kok",
+        "2024": 0,
+        "2025": 0
+      },
+      {
+        "name": "Shenzhen Bay",
+        "2024": 12212,
+        "2025": 16141
+      },
+      {
+        "name": "Heung Yuen Wai",
+        "2024": 10519,
+        "2025": 12034
+      }
+    ],
+    "derivation": "Analyst sum of the seven named control-point rows, published in thousands. 2025 sum = 85,824 thousand; 2024 sum = 75,333 thousand. Approximately 86 million is valid for this bounded subset.",
+    "source_url": "https://www.censtatd.gov.hk/en/data/stat_report/product/B1010006/att/B10100062026AN26B0100.pdf#page=45",
+    "source_title": "Hong Kong in Figures 2026, Table 13.10",
+    "source_locator": "Printed page 38; PDF page 45 (zero-based 44)",
+    "verification": "Primary PDF table text read directly; screenshot request also completed.",
+    "chart": "Two zero-baseline bars, 75.3m and 85.8m; seven-control-point breakdown can appear on hover.",
+    "caveats": [
+      "Departure movements, not unique people, shoppers or commuters.",
+      "The counted crossings enter Shenzhen; final destinations and trip purposes are unknown.",
+      "Excludes West Kowloon high-speed rail and Hong Kong–Zhuhai–Macao Bridge; do not label this all land departures.",
+      "Counts do not measure waiting time, reliability, fairness, belonging or resilience.",
+      "Totals are sums of rounded published counts."
+    ],
+    "claim_decision": "Replace the vague 86m northbound land departures claim with the precisely bounded short label above."
+  },
+  "connection": {
+    "sample_n": 417,
+    "study_type": "observational pupil study",
+    "verification": "Prior verification supplied by parent; no new effect size researched.",
+    "chart_rule": "Sample size may be a labelled study-sample icon array, never a citywide effect or comparison score. Prefer an explicit evidence-gap treatment for citywide connection/participation."
+  },
+  "design_recommendation": {
+    "layout": "Three graphic scenes/tabs: economy has two clearly independent mini charts; mobility has a two-year count comparison; connection shows bounded study evidence and a visible evidence gap.",
+    "avoid": [
+      "Radar or resilience score",
+      "Common metric axis for retail firms and visitors",
+      "HK loss equals Shenzhen gain",
+      "86 million unique Hongkongers",
+      "Visitor trips establish cohesion",
+      "Unverified numeric effect for 417-pupil study"
+    ]
+  }
+}

@@ -1,0 +1,488 @@
+{
+  "schemaVersion": 1,
+  "title": "A life across the boundary",
+  "introduction": "These are illustrated, fictional scenarios, not interviews. Thoughts and scenes are imagined; source-linked facts appear when we zoom out. Characters can overlap and do not represent measured population shares.",
+  "cityThesis": "More movement can connect two cities, but stronger livelihoods, relationships and participation must be checked separately.",
+  "cityThesisStatus": "Analytical proposition to investigate, not a measured citywide effect.",
+  "fictionLabel": "Imagined thought · fictional scenario",
+  "lensOrder": [
+    "livelihoods",
+    "connection",
+    "mobility",
+    "participation"
+  ],
+  "lensLabels": {
+    "livelihoods": "Economy & livelihoods",
+    "connection": "Everyday connection",
+    "mobility": "Infrastructure & mobility",
+    "participation": "Community participation"
+  },
+  "evidenceStrengthLabels": {
+    "observed": "Observed count or pattern",
+    "association": "Association in a bounded study",
+    "policy": "Official arrangement or future target",
+    "question": "Open question; direction unestablished"
+  },
+  "presentationRules": [
+    "Keep the selected character visible from their three story beats through all four city lenses.",
+    "Display the fiction label with first-person bubbles. Bubbles and personal passages are scenarios, never interview quotations.",
+    "The city passage is the factual zoom-out. Attach its source links and retain each caveat in the evidence view.",
+    "Directions describe only the named measure, arrangement or evidence gap. They are not resilience scores or quantified character outcomes.",
+    "Keep the student a student. Do not use nursing vacancies or adult employment figures as their lived experience.",
+    "Show questions as questions. Do not draw a positive or negative trend for an unmeasured connection or participation outcome.",
+    "Equal-sized characters and schematic links do not encode prevalence, population share, trip volume or effect size.",
+    "Sequence: human stories, aggregate city picture, four dimensions and their evidence, specific frictions and responses, then Singapore–Johor. Future five-year-plan examples belong in the later responses chapter."
+  ],
+  "frameworkSourceIds": [
+    "CITY_RESILIENCE_FRAMEWORK_2024"
+  ],
+  "characters": [
+    {
+      "id": "weekend_user",
+      "title": "The weekend user",
+      "configuration": "Lives and works in Hong Kong; visits Shenzhen for leisure.",
+      "storyBeats": [
+        {
+          "label": "A Saturday in Sheung Shui",
+          "bubble": "Lunch here, or take the train north?",
+          "action": "travel",
+          "context": "At the footbridge between Sheung Shui Centre and the station, local shops and a northbound journey sit side by side.",
+          "fictional": true
+        },
+        {
+          "label": "Before I pay",
+          "bubble": "Which shops do I want to keep coming back to?",
+          "action": "think",
+          "context": "At a café counter, choice becomes a question about where everyday spending lands.",
+          "fictional": true
+        },
+        {
+          "label": "Home for the evening",
+          "bubble": "I’m back. Shall we meet downstairs?",
+          "action": "connect",
+          "context": "Back in Hong Kong, familiar neighbours are still part of this imagined evening.",
+          "fictional": true
+        }
+      ],
+      "lenses": [
+        {
+          "id": "livelihoods",
+          "bubble": "My lunch money crosses the border. What does that mean for local shops?",
+          "personal": "This day out places one purchase in Shenzhen while home and work remain in Hong Kong.",
+          "city": "Hong Kong retail company counts fell 3.9% in 2023–24; Shenzhen’s Hong Kong–Macao overnight visitor-trips rose 26.6% in 2025. Different measures and periods do not establish a spending transfer.",
+          "lesson": "Ask who benefits and who adjusts. A visitor increase and a company-count decline cannot show where one shopper’s money went.",
+          "evidenceStrength": "observed",
+          "direction": "Separate economic signals; no measured transfer",
+          "sourceIds": [
+            "HK_RETAIL_2024",
+            "SZ_STAT_2025"
+          ],
+          "bubbleIsFictional": true,
+          "caveat": "Retail counts are not closures or fixed firms. The visitor series combines Hong Kong and Macao, excludes day visitors and does not measure this fictional day trip."
+        },
+        {
+          "id": "connection",
+          "bubble": "I enjoyed the trip. My familiar faces are still waiting at home.",
+          "personal": "The imagined return home keeps established relationships in view even when a purchase happens elsewhere.",
+          "city": "Do leisure visits change attachment to either city? The reviewed evidence does not establish a citywide direction for weekend visitors.",
+          "lesson": "Follow recurring relationships as well as purchases. Spending across a boundary does not by itself demonstrate weaker belonging.",
+          "evidenceStrength": "question",
+          "direction": "Citywide direction unknown",
+          "sourceIds": [],
+          "bubbleIsFictional": true
+        },
+        {
+          "id": "mobility",
+          "bubble": "Getting across is one thing. Can I count on the journey home?",
+          "personal": "A day out needs an outward route and a return. This scenario makes reliability a question, not an assumed benefit.",
+          "city": "Hong Kong-resident departures through seven direct Shenzhen boundary points rose from 75.3 million in 2024 to 85.8 million in 2025. They count movements, not people or trip purposes.",
+          "lesson": "More crossings show greater use. Check waiting, reliability and accessibility separately before calling the system more resilient.",
+          "evidenceStrength": "observed",
+          "direction": "Departure movements increased",
+          "sourceIds": [
+            "HK_SHENZHEN_DEPARTURES_2025"
+          ],
+          "bubbleIsFictional": true,
+          "caveat": "Analyst sums of rounded control-point counts. Final destinations are unknown; West Kowloon high-speed rail and the Hong Kong–Zhuhai–Macao Bridge are excluded."
+        },
+        {
+          "id": "participation",
+          "bubble": "Where would I make time to help out?",
+          "personal": "After the outing, a neighbourhood invitation raises a different choice: where to give time, attention or help.",
+          "city": "Do weekend visitors join local events, volunteer or offer community feedback differently? The reviewed sources do not establish a direction in either city.",
+          "lesson": "Measure time and contribution directly. Shopping frequency cannot stand in for community participation.",
+          "evidenceStrength": "question",
+          "direction": "Participation direction unknown",
+          "sourceIds": [],
+          "bubbleIsFictional": true
+        }
+      ]
+    },
+    {
+      "id": "northbound_relocator",
+      "title": "The northbound relocator",
+      "configuration": "Moves home from Hong Kong to Shenzhen while retaining Hong Kong ties.",
+      "storyBeats": [
+        {
+          "label": "A different front door",
+          "bubble": "I’ve moved in. I’ll call my friends in Hong Kong tonight.",
+          "action": "travel",
+          "context": "A bag arrives at an imagined Shenzhen home; familiar ties remain across the boundary.",
+          "fictional": true
+        },
+        {
+          "label": "The practical list",
+          "bubble": "Groceries are sorted. Where would I go for follow-up care?",
+          "action": "think",
+          "context": "Unpacking opens a second list: services, appointments and the rules that apply to them.",
+          "fictional": true
+        },
+        {
+          "label": "The next hello",
+          "bubble": "Maybe I’ll stop and chat instead of walking straight upstairs.",
+          "action": "connect",
+          "context": "The relocator pauses beside a neighbour, opening a small possibility for local connection.",
+          "fictional": true
+        }
+      ],
+      "lenses": [
+        {
+          "id": "livelihoods",
+          "bubble": "My address has moved. Which parts of my week will follow?",
+          "personal": "Moving home leaves this character deciding which routines to build in Shenzhen and which connections to keep in Hong Kong.",
+          "city": "In 2017, schooling and work made up 45.4% and 19.8% of trips by Hong Kong residents living in the Mainland. These historical trip purposes do not measure present livelihoods.",
+          "lesson": "Map home, work and learning separately. A residential move need not put every part of a life in the same city.",
+          "evidenceStrength": "observed",
+          "direction": "Historical work and school links documented",
+          "sourceIds": [
+            "PLAND_2017"
+          ],
+          "bubbleIsFictional": true,
+          "caveat": "Trips by the stated resident group, not shares of all relocators or unique people. Do not treat 2017 purpose shares as current."
+        },
+        {
+          "id": "connection",
+          "bubble": "I know the way home. When will this street feel familiar?",
+          "personal": "A new address creates the setting for repeated encounters; this fictional greeting does not guarantee friendship or belonging.",
+          "city": "When does residence become a network of local relationships? The reviewed material does not establish a citywide connection trend among northbound relocators.",
+          "lesson": "Ask about recurring contacts and mutual support. An address or a nearby border cannot measure social connection.",
+          "evidenceStrength": "question",
+          "direction": "Local connection remains unmeasured",
+          "sourceIds": [],
+          "bubbleIsFictional": true
+        },
+        {
+          "id": "mobility",
+          "bubble": "Can my care move with my home?",
+          "personal": "In this scenario, moving home raises another question: which services can follow me, and on what terms?",
+          "city": "The 2026/27 HA pilot subsidises designated follow-up at HKU–Shenzhen Hospital for eligible patients, with a RMB2,000 annual cap; inpatient and A&E care are excluded.",
+          "lesson": "A route between cities is only one layer of access. Eligibility, matching clinics and continuity rules also matter.",
+          "evidenceStrength": "policy",
+          "direction": "A defined care route with eligibility conditions",
+          "sourceIds": [
+            "HA_FOLLOWUP_2026",
+            "HA_FOLLOWUP_PACK_2026"
+          ],
+          "bubbleIsFictional": true,
+          "caveat": "No eligibility is asserted for the fictional character. This pilot is not the elderly voucher scheme. First subsidised service normally cancels the corresponding HA follow-up; specified exceptions and return referral apply."
+        },
+        {
+          "id": "participation",
+          "bubble": "I live here now. How could I take part?",
+          "personal": "A neighbourhood notice becomes an invitation to ask where this new resident could contribute or raise an everyday concern.",
+          "city": "Are cross-border residents joining activities, offering mutual help or giving local feedback in Shenzhen? The reviewed evidence does not establish their participation or its direction.",
+          "lesson": "Distinguish available opportunities from actual involvement. A community space does not tell us who uses it or feels heard.",
+          "evidenceStrength": "question",
+          "direction": "Participation by relocators is unestablished",
+          "sourceIds": [],
+          "bubbleIsFictional": true
+        }
+      ]
+    },
+    {
+      "id": "commuter_student",
+      "title": "The cross-border student",
+      "subtype": "student",
+      "configuration": "Lives in Shenzhen and attends school in Hong Kong.",
+      "storyBeats": [
+        {
+          "label": "Before the school bell",
+          "bubble": "School starts across the boundary. I’ve packed my homework.",
+          "action": "travel",
+          "context": "The fictional student leaves home in Shenzhen with a schoolbag and a route to a Hong Kong classroom.",
+          "fictional": true
+        },
+        {
+          "label": "At the classroom door",
+          "bubble": "I know the route. Do I feel part of the class?",
+          "action": "think",
+          "context": "Arriving at school opens a question about peers and belonging, beyond simply reaching the building.",
+          "fictional": true
+        },
+        {
+          "label": "An after-school invitation",
+          "bubble": "I’d like to join the club. How would getting home work?",
+          "action": "connect",
+          "context": "A classmate’s invitation brings school participation and the journey home into the same imagined decision.",
+          "fictional": true
+        }
+      ],
+      "lenses": [
+        {
+          "id": "livelihoods",
+          "bubble": "My classroom is in Hong Kong. What does that make possible?",
+          "personal": "Learning connects this student to Hong Kong; it does not make them a worker or establish a future wage.",
+          "city": "The September 2024 school survey counted 16,139 cross-boundary students across kindergarten, primary and secondary schools. It measures enrolment, not attainment, household costs or future earnings.",
+          "lesson": "For this character, begin with access to learning. Keep student evidence separate from adult labour and shortage statistics.",
+          "evidenceStrength": "observed",
+          "direction": "Cross-boundary school enrolment documented",
+          "sourceIds": [
+            "EDB_2024"
+          ],
+          "bubbleIsFictional": true
+        },
+        {
+          "id": "connection",
+          "bubble": "Who will I sit with today?",
+          "personal": "A familiar classmate makes connection visible in this imagined school day. The bubble is not a pupil’s recorded testimony.",
+          "city": "In an observational study of 417 cross-border pupils, peer relationships were associated with belonging. The finding concerns that sample, not either city as a whole.",
+          "lesson": "Look beyond arrival at school to relationships within it. An association is a useful clue, not proof of what causes belonging.",
+          "evidenceStrength": "association",
+          "direction": "Peer relationships linked with belonging in one sample",
+          "sourceIds": [
+            "PUPIL_BELONGING_2020"
+          ],
+          "bubbleIsFictional": true,
+          "caveat": "No effect size or citywide direction is established here. The study does not describe every cross-border student."
+        },
+        {
+          "id": "mobility",
+          "bubble": "There’s a route to school. How does a school place get decided?",
+          "personal": "This student’s journey introduces a wider family question: transport and access to a school place are separate practical matters.",
+          "city": "For 2027 P1 admission, eligible cross-boundary applicants retain unrestricted discretionary and Part A choices; Part B uses a dedicated list generally near boundary points.",
+          "lesson": "Put service rules beside transport links. Keep a family’s school-choice options visible rather than drawing the border as the only gate.",
+          "evidenceStrength": "policy",
+          "direction": "School access follows distinct allocation routes",
+          "sourceIds": [
+            "EDB_P1_2027",
+            "EDB_P1_COMMUTERS_2027"
+          ],
+          "bubbleIsFictional": true,
+          "caveat": "A P1 policy example, not a claim that this depicted student is currently applying. One discretionary school and up to three Part A choices; POA covers government and aided schools."
+        },
+        {
+          "id": "participation",
+          "bubble": "Could I stay and join in?",
+          "personal": "The imagined club invitation turns participation into an everyday choice about school life and getting home.",
+          "city": "In the 417-pupil observational study, extracurricular participation was associated with belonging. This school-level finding does not establish citywide volunteering, civic participation or a causal effect.",
+          "lesson": "Ask what makes joining in possible. School activities provide a bounded clue; wider community contribution needs its own evidence.",
+          "evidenceStrength": "association",
+          "direction": "Extracurricular participation linked with belonging in one sample",
+          "sourceIds": [
+            "PUPIL_BELONGING_2020"
+          ],
+          "bubbleIsFictional": true,
+          "caveat": "Commuting hours were not statistically significant in that sample. This does not prove that journeys have no effect or that every student can attend activities."
+        }
+      ]
+    },
+    {
+      "id": "southbound_newcomer",
+      "title": "The southbound newcomer",
+      "configuration": "Moves from the Mainland to Hong Kong for work in this fictional scenario, retaining Mainland ties.",
+      "storyBeats": [
+        {
+          "label": "A new route home",
+          "bubble": "New room, new route. I’ll learn the neighbourhood one walk at a time.",
+          "action": "travel",
+          "context": "The imagined newcomer walks home in Hong Kong; their prior Mainland city is deliberately unspecified.",
+          "fictional": true
+        },
+        {
+          "label": "After the working day",
+          "bubble": "I know where I work. Where do I go after work?",
+          "action": "think",
+          "context": "The route between home and work is taking shape, while social routines remain an open question.",
+          "fictional": true
+        },
+        {
+          "label": "An invitation nearby",
+          "bubble": "Could I come along next time?",
+          "action": "connect",
+          "context": "An invitation to a neighbourhood activity makes a possible connection visible, without assuming it becomes lasting.",
+          "fictional": true
+        }
+      ],
+      "lenses": [
+        {
+          "id": "livelihoods",
+          "bubble": "Starting work is one step. What will help me build a life here?",
+          "personal": "In this fictional work-led move, finding a routine extends beyond the workplace. No visa route or employment outcome is assigned.",
+          "city": "Hong Kong approved 26,714 new ASMTP applications in 2025. Approvals record one admission route; they do not count settled newcomers, identify Shenzhen origins or show employment outcomes.",
+          "lesson": "Separate permission to enter from settlement and a sustainable livelihood. Neither an approval nor this story measures successful integration.",
+          "evidenceStrength": "observed",
+          "direction": "Admission approvals documented; settlement outcomes unknown",
+          "sourceIds": [
+            "IMMD_2025"
+          ],
+          "bubbleIsFictional": true
+        },
+        {
+          "id": "connection",
+          "bubble": "Who will become a familiar face outside work?",
+          "personal": "The imagined newcomer looks for people and places to return to, while retaining relationships elsewhere.",
+          "city": "How do newcomers build recurring relationships in Hong Kong, and what role does Shenzhen proximity play? The reviewed evidence does not establish a citywide direction.",
+          "lesson": "Ask where relationships actually form. A move, a job and a nearby border do not by themselves measure belonging.",
+          "evidenceStrength": "question",
+          "direction": "Newcomer connection remains an open question",
+          "sourceIds": [],
+          "bubbleIsFictional": true
+        },
+        {
+          "id": "mobility",
+          "bubble": "Can I reach the people and places that matter to me?",
+          "personal": "The imagined newcomer learns a route to work while thinking about the relationships and services they want to keep within reach.",
+          "city": "How do daily routes and cross-border ties fit together after a move? The reviewed evidence does not establish newcomers’ journey reliability or access across Hong Kong.",
+          "lesson": "Check the journeys people actually need. Aggregate crossing counts cannot tell us whether a newcomer can reach work, services and relationships reliably.",
+          "evidenceStrength": "question",
+          "direction": "Newcomer mobility outcomes remain unmeasured",
+          "sourceIds": [],
+          "bubbleIsFictional": true
+        },
+        {
+          "id": "participation",
+          "bubble": "Is there a place where I could join in and be heard?",
+          "personal": "A local invitation offers this character a possible first step; the story leaves room for practical barriers and different choices.",
+          "city": "Do newcomers gain opportunities to contribute, volunteer and give neighbourhood feedback? The reviewed sources do not establish their participation or its direction across Hong Kong.",
+          "lesson": "Track invitations, access and repeated involvement separately. Moving in or working locally does not tell us whether someone feels able to contribute.",
+          "evidenceStrength": "question",
+          "direction": "Newcomer participation remains unmeasured",
+          "sourceIds": [],
+          "bubbleIsFictional": true
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "SZ_STAT_2025",
+      "label": "Shenzhen 2025 statistical communiqué",
+      "url": "https://www.sz.gov.cn/cn/xxgk/zfxxgj/tjsj/tjgb/content/post_12805133.html",
+      "verification": "Primary page read, tourism section",
+      "scope": "2025 preliminary statistics; overnight visitor-trips, Hong Kong and Macao combined"
+    },
+    {
+      "id": "PLAND_2017",
+      "label": "Planning Department, Northbound Southbound 2017",
+      "url": "https://www.info.gov.hk/gia/general/201902/28/P2019022800379.htm",
+      "verification": "Primary-source search result read; direct page timed out",
+      "scope": "16–29 November 2017 travel survey; specified trip populations"
+    },
+    {
+      "id": "IMMD_2025",
+      "label": "Immigration Department Review 2025",
+      "url": "https://www.immd.gov.hk/eng/press/press-releases/20260213.html",
+      "verification": "Primary-source search result and official statistics result read",
+      "scope": "ASMTP new application approvals in 2025; not relocations or Shenzhen origins"
+    },
+    {
+      "id": "EDB_2024",
+      "label": "EDB 2026–27 replies · cross-boundary students, PDF page 255",
+      "url": "https://www.edb.gov.hk/attachment/en/about-edb/press/legco/replies-to-fc/edb-e-2627.pdf#page=255",
+      "verification": "Primary table verified in source review",
+      "scope": "September 2024 school survey, kindergarten, primary and secondary combined"
+    },
+    {
+      "id": "HK_RETAIL_2024",
+      "label": "C&SD Table 630-76003, retail company counts, 2023–2024",
+      "url": "https://www.censtatd.gov.hk/en/web_table.html?id=630-76003",
+      "scope": "Cross-sectional company counts, not closures or a fixed cohort; no causal attribution to northbound spending."
+    },
+    {
+      "id": "HK_SHENZHEN_DEPARTURES_2025",
+      "label": "Hong Kong in Figures 2026, Table 13.10, Table 13.10",
+      "url": "https://www.censtatd.gov.hk/en/data/stat_report/product/B1010006/att/B10100062026AN26B0100.pdf#page=45",
+      "scope": "Analyst sum of the seven named control-point rows, published in thousands. 2025 sum = 85,824 thousand; 2024 sum = 75,333 thousand. Approximately 86 million is valid for this bounded subset. Departure movements, not unique people; purposes and final destinations are unknown."
+    },
+    {
+      "id": "PUPIL_BELONGING_2020",
+      "label": "Chan and colleagues, 2020, observational study of 417 cross-border pupils",
+      "url": "https://doi.org/10.1016/j.childyouth.2020.104870",
+      "scope": "Previously vetted exhibition evidence: peer relationships and extracurricular participation associated with belonging; commuting hours were not statistically significant in this sample. No causal or citywide inference; no verified effect size supplied."
+    },
+    {
+      "id": "HK_PLAN_TRANSPORT_2026",
+      "label": "Hong Kong First Five-Year Plan, Part 3, Table 27, 16 September 2026",
+      "url": "https://www.info.gov.hk/gia/general/202609/16/P2026091600196.htm",
+      "scope": "Future commissioning aims, not operational routes, guaranteed delivery or a measured change in accessibility."
+    },
+    {
+      "id": "CITY_RESILIENCE_FRAMEWORK_2024",
+      "label": "City Resilience Framework 2024",
+      "url": "https://resilientcitiesnetwork.org/downloadable_resources/Publications/City%20Resilience%20Framework%202024%20FINAL_.pdf",
+      "scope": "Informs four selected lenses only; this is not a full framework assessment or numerical resilience score."
+    },
+    {
+      "id": "HA_FOLLOWUP_2026",
+      "label": "GBA patient aid extended",
+      "url": "https://www.news.gov.hk/eng/2026/03/20260331/20260331_215256_750.html",
+      "scope": "2026/27 HA pilot eligibility, subsidy and service exclusions",
+      "locator": "Opening paragraph; paragraphs beginning 'Under the extended pilot scheme' and 'The scope of subsidised consultation services'"
+    },
+    {
+      "id": "HA_FOLLOWUP_PACK_2026",
+      "label": "Pilot Scheme participant pack, May 2026, version 4",
+      "url": "https://www.hku-szh.org/attachment/0/103/103440/1137923.pdf",
+      "scope": "Clinic matching, corresponding appointment cancellation, parallel-service restriction and return referral",
+      "locator": "Printed pp. 3–4, measures 1–5; printed p. 8, participant notice items 6–8; printed pp. 19–20, declaration items 9–12"
+    },
+    {
+      "id": "EDB_P1_2027",
+      "label": "Primary One Admission for September 2027",
+      "url": "https://www.edb.gov.hk/attachment/en/edu-system/primary-secondary/spa-systems/primary-1-admission/EDB%20-%20P1Leaflet_EN.pdf",
+      "scope": "General 2027 POA eligibility and school-sector scope",
+      "locator": "PDF page 2, eligibility box; PDF page 3, POA scope and discretionary stage; PDF page 4, Central Allocation"
+    },
+    {
+      "id": "EDB_P1_COMMUTERS_2027",
+      "label": "Addendum: Primary One Admission for September 2027, daily commuters",
+      "url": "https://www.edb.gov.hk/attachment/en/edu-system/primary-secondary/spa-systems/primary-1-admission/EDB_P1Addendum.pdf",
+      "scope": "2027 P1 applicants who intend to commute daily to Hong Kong schools",
+      "locator": "PDF page 2, English panel, numbered notes (1), (3) and (4); print date 8/2026 on PDF page 1"
+    },
+    {
+      "id": "SHEUNG_SHUI_MTR",
+      "label": "MTR: travel through Lo Wu and Lok Ma Chau",
+      "url": "https://www.mtr.com.hk/en/customer/services/to_from_lw_lmc.html"
+    },
+    {
+      "id": "SHEUNG_SHUI_CENTRE",
+      "label": "Sheung Shui Centre: station footbridge",
+      "url": "https://www.sheungshuicentre.com/en/about-us/"
+    },
+    {
+      "id": "SHEUNG_SHUI_REIT",
+      "label": "Sunlight REIT annual report2025,pp16–17",
+      "url": "https://www1.hkexnews.hk/listedco/listconews/sehk/2026/0408/2026040801119.pdf"
+    }
+  ],
+  "sourceProvenance": "Uses only previously vetted sources in archetypes.json, access-cards.json, hongkong-plan-targets.json, city-lens-data.json and exhibition.js. No new external evidence or interview material is introduced.",
+  "responseExamples": [
+    {
+      "id": "planned_transport_links",
+      "bubble": "Which connections can I use now, and which are still plans?",
+      "personal": "A new home makes transport plans feel personal, but a line on a future map cannot determine this newcomer’s actual journey.",
+      "city": "Hong Kong’s 2026–2030 plan aims for the Northern Link Main and Spur lines in 2034 and the Hong Kong–Shenzhen Western Rail Link in 2035. These are future commissioning aims.",
+      "lesson": "Keep today’s routes separate from future plans, then test who can actually reach work, services and people.",
+      "evidenceStrength": "policy",
+      "direction": "Future connectivity planned; outcomes not yet observed",
+      "sourceIds": [
+        "HK_PLAN_TRANSPORT_2026"
+      ],
+      "bubbleIsFictional": true,
+      "caveat": "Targets are not completed routes or guaranteed opening dates. Do not assume the character lives near these projects or originated in Shenzhen.",
+      "characterId": "southbound_newcomer",
+      "label": "A planned response, not a route open today"
+    }
+  ]
+}

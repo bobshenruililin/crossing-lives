@@ -1,0 +1,120 @@
+{
+  "researched_at": "2026-10-09",
+  "recommendation": "Use Hong Kong and Gothenburg as the main evaluated precedents. The Indonesian case is an optional, clearly labelled rural participation precedent, not a comparable border city.",
+  "cross_case_guardrails": [
+    "These are evaluated interventions, not evidence that their effects will transfer to Hong Kong–Shenzhen.",
+    "Keep observed results separate from proposed local pilots. None tests HK–Shenzhen border delays, cross-border entitlement portability, or a change in service eligibility.",
+    "Individual adaptation, employment, service use, social connection, and voice are distinct outcomes. Do not label improvement in one as proof of integration in all four lenses."
+  ],
+  "cases": [
+    {
+      "id": "hk_compound_settlement_support",
+      "project": "FAMILY Project / International Social Service Hong Kong Branch: combined settlement information and wellbeing support",
+      "place": "Hong Kong",
+      "dates": "Fieldwork April 2012–July 2013; published in Behavior Therapy, 2022.",
+      "lenses": [
+        "usable service access: information/navigation only",
+        "connection/cohesion: individual adaptation, not measured community cohesion"
+      ],
+      "intervention": "Social workers delivered four weekly 2.5-hour sessions combining information on education, community resources, health care, employment and housing with self-efficacy, positive thinking, altruism and goal-setting activities.",
+      "design": "Cluster randomized trial of 251 recent mainland Chinese family-reunion immigrants: information-only n=84; wellbeing-only n=80; combined n=87. All three arms were active interventions.",
+      "measured_outcome": "From immediately after the intervention to six months, the combined arm had better sustained knowledge and adaptation-difficulty trajectories than information alone, and better resilience and mental-health trajectories than wellbeing alone.",
+      "denominator_and_time": "251 randomized, not necessarily 251 completing follow-up. Arms 84/80/87; assessments through six months. A follow-up completer denominator and a simple interpretable effect magnitude were not verified; do not invent a percentage improvement.",
+      "strongest_justified_claim": "Combining practical orientation and psychological support performed better on selected sustained adaptation measures than delivering either component alone in this study.",
+      "limits": "Older, selected newcomer sample; no untreated control. Outcomes do not demonstrate increased completed service use, reduced border friction, or stronger community cohesion.",
+      "plausible_hksz_response_inference": "Test an assisted navigation service for a defined cross-border resident group: one named navigator, a practical task such as completing an appointment or school enquiry, and optional peer support. Measure successful task completion, time/cost, unresolved eligibility problems and follow-up wellbeing separately. The navigator and cross-border components are proposed adaptations, not trial-proven mechanisms.",
+      "suggested_site_copy": "Hong Kong tested practical settlement information together with wellbeing support. In a randomized study of 251 mainland newcomers, the combined programme showed better sustained adaptation on selected measures over six months. A local pilot should check whether people can actually complete the service task, as well as whether they feel more supported.",
+      "sources": [
+        {
+          "title": "Hu et al. (2022), peer-reviewed study",
+          "url": "https://www.sciencedirect.com/science/article/pii/S000578942200051X",
+          "supports": "Randomized arms and six-month comparative outcomes"
+        },
+        {
+          "title": "University-hosted accepted manuscript",
+          "url": "https://scholars.cityu.edu.hk/files/164013432/104618295.pdf",
+          "supports": "Intervention details, fieldwork dates, eligibility and Table 3; indexed text accessible, direct PDF fetch returned 403"
+        },
+        {
+          "title": "HKU publication record",
+          "url": "https://hub.hku.hk/handle/10722/316834",
+          "supports": "Citation and DOI"
+        }
+      ]
+    },
+    {
+      "id": "gothenburg_employer_linked_pathway",
+      "project": "Välkommen till Framtiden",
+      "place": "Gothenburg, Sweden",
+      "dates": "Programme launched 2016; randomized cohort April 2017; initial programme ended Q1 2018. Follow-up through Q4 2021; long-run evaluation published December 2023.",
+      "lenses": [
+        "livelihoods"
+      ],
+      "intervention": "Three months of intensive Swedish, six months of supervised work practice, then professional job-search help; coordinated by the employment service, city and municipal housing group.",
+      "design": "140 low-educated newly arrived refugees randomized 70/70. Of 70 offered the programme, 44 started. Intention-to-treat comparisons retain all 70 offered, rather than comparing only participants with controls.",
+      "measured_outcome": "The original two-year evaluation reported roughly 30% employed per month in the offered group versus 15% in usual services during the year after the programme. A later evaluation using earnings-based employment measures found an approximately 15-percentage-point advantage lasting about three years; controls caught up by the end of follow-up.",
+      "denominator_and_time": "Original result: 70 assigned per arm; monthly employment, second year after April 2017 randomization. Later measure: positive earnings from unsubsidized work or a New Start Job during a month, observed through Q4 2021. Do not splice the two outcome definitions into one chart.",
+      "strongest_justified_claim": "The complete support bundle accelerated entry into employment in this sample.",
+      "limits": "Small, single-city refugee sample. The bundle cannot identify which component caused the gain. Long-run results did not establish broader social integration; gender differences and different job opportunities matter.",
+      "plausible_hksz_response_inference": "Pilot an employer-linked pathway for one defined occupation: role-specific skills/language, supervised placement and a named caseworker. Verify work authorization and credential requirements before referral. Track sustained work, earnings, placement quality and participation barriers separately from belonging.",
+      "suggested_site_copy": "Gothenburg joined language learning to supervised work practice and job-search support. A 140-person randomized trial found faster entry into employment, with an advantage lasting around three years. Broader integration did not automatically follow, so work and belonging need separate measures.",
+      "sources": [
+        {
+          "title": "IFAU initial randomized evaluation, Working Paper 2020:21",
+          "url": "https://www.ifau.se/globalassets/pdf/se/2020/wp-2020-21-labor-market-integration-of-low-educated-refugees.pdf",
+          "supports": "70/70 randomization, 44 starts, programme dates and approximately 30% versus 15% outcome"
+        },
+        {
+          "title": "IFAU long-run evaluation, Working Paper 2023:23",
+          "url": "https://www.ifau.se/globalassets/pdf/se/2023/wp-2023-23-long-run-integration-of-refugees_rct-evidence-from-a-swedish-early-intervention-program.pdf",
+          "supports": "Later outcome definition, follow-up through 2021, catch-up, broader integration limits"
+        },
+        {
+          "title": "IFAU long-run summary",
+          "url": "https://www.ifau.se/Forskning/Publikationer/Working-papers/2023/long-run-integration-of-refugees-rct-evidence-from-a-swedish-early-intervention-program/",
+          "supports": "Approximately 15-percentage-point effect for three years and subsequent catch-up"
+        }
+      ]
+    },
+    {
+      "id": "indonesia_local_project_choice",
+      "project": "Kecamatan Development Program project-selection experiment",
+      "place": "49 rural villages in East Java, North Sumatra and Southeast Sulawesi, Indonesia",
+      "dates": "Fieldwork September 2005–January 2006; published in American Political Science Review, 2010.",
+      "lenses": [
+        "participation/local voice"
+      ],
+      "intervention": "17 villages were assigned direct voting on local infrastructure proposals; 32 used representative meetings. Adults voted on the general proposal; women also selected a women’s proposal.",
+      "design": "Village-level randomized field experiment; intention-to-treat analysis. The intervention changed project selection, not initial proposal generation or final inter-village funding decisions.",
+      "measured_outcome": "Nearly 80% turnout, around 20 times meeting participation, with higher measured satisfaction and project knowledge. The mix of projects changed little. Women's projects were more likely to be located in the poorest hamlet.",
+      "denominator_and_time": "49 randomized villages, split 17/32. The paper's turnout denominator uses eligible voters from the previous village-head election as a proxy for eligible project voters. Satisfaction was surveyed after selection, not after years of completed-project use.",
+      "strongest_justified_claim": "Making a concrete project choice broadly accessible can increase participation and perceived legitimacy even when the selected project mix changes little.",
+      "limits": "Rural, non-migrant setting; no border-city transfer established. Voting at one stage does not establish control over agenda-setting, spending or implementation. Do not describe this as proof of reduced inequality or better completed infrastructure.",
+      "plausible_hksz_response_inference": "For a small, clearly bounded neighbourhood-service budget, test accessible resident choice among feasible improvements and publish how the selected option affects delivery. Include shift workers and cross-border residents in designing the choices. Measure who participates, whose suggestions reach the ballot, and whether promised changes happen.",
+      "suggested_site_copy": "In 49 Indonesian villages, changing infrastructure-project selection from meetings to a public vote brought far more residents into the decision and raised satisfaction. It also exposed a limit: choosing from a list is only one part of having a voice. This is a rural participation precedent, not a tested HK–Shenzhen solution.",
+      "sources": [
+        {
+          "title": "Olken (2010), primary peer-reviewed study",
+          "url": "https://doi.org/10.1017/S0003055410000079",
+          "supports": "Trial and study interpretation"
+        },
+        {
+          "title": "J-PAL evaluation summary",
+          "url": "https://www.povertyactionlab.org/evaluation/direct-democracy-and-local-public-goods-indonesia",
+          "supports": "Turnout, participation, project-choice and agenda-setting limits"
+        },
+        {
+          "title": "Primary paper text on ResearchGate",
+          "url": "https://www.researchgate.net/publication/229020547_Direct_democracy_and_local_public_goods_evidence_from_a_field_experiment_in_Indonesia",
+          "supports": "Fieldwork dates, randomization counts, and turnout-denominator footnote"
+        }
+      ]
+    }
+  ],
+  "implementation_guidance": [
+    "A compact card can use: what was tried; what changed; how it was tested; what this does not show; a local idea to test.",
+    "Avoid a big 'success rate' number for the Hong Kong case: allocation and follow-up duration are verified, but a plain percentage effect is not.",
+    "For a strict city-only edit, omit the Indonesian case and say local voice remains a question requiring a bounded pilot, rather than stretching the two city trials.",
+    "Current policy or eligibility facts in any proposed HK–Shenzhen service must be verified independently at the point of design."
+  ]
+}

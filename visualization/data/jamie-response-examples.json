@@ -1,0 +1,48 @@
+[
+  {
+    "name": "Home Market (Hong Kong)",
+    "scene_safe_description": "A Hong Kong nonprofit chain that sells food and everyday goods near cost to eligible disadvantaged residents, and offers jobs to people with disabilities.",
+    "lens": "Social/community infrastructure: affordable neighborhood retail. Participation in value creation: inclusive employment, not evidence that all customers co-own or co-govern the business.",
+    "verified_output_or_outcome": "Its official About Us page reports 17 branches. This establishes operating scale; it does not establish a causal reduction in poverty, isolation or distress.",
+    "scene_safe_line": "Home Market makes everyday necessities more affordable through nonprofit neighborhood shops, while creating employment opportunities for people with disabilities.",
+    "primary_url": "https://www.homemarket.hk/en/about_us.php",
+    "evidence_type": "Organization-reported operations and output; no causal evaluation verified in this targeted check.",
+    "checked_date": "2026-10-09"
+  },
+  {
+    "name": "Food Angel (Hong Kong)",
+    "scene_safe_description": "Food Angel converts safe surplus food, supplemented by purchased ingredients, into free meals and food packages distributed through charity partners and its own community services.",
+    "lens": "Social/community infrastructure: collection, kitchens and distribution connect resources to needs. Contribution/local feedback: volunteers and donors can contribute to a visible local service; this is an interpretive mechanism, not a measured psychological effect.",
+    "verified_output_or_outcome": "Its official service page reports approximately 300 charity partners and says they distribute 70% of its meals. Its community centre offers two onsite meals daily plus activities; outreach pairs food delivery with contact for homebound elders.",
+    "scene_safe_line": "Food Angel connects donated food, kitchens and neighborhood partners, turning surplus into meals and regular human contact.",
+    "primary_url": "https://foodangel.org.hk/en/food-assistance",
+    "additional_primary_url": "https://foodangel.org.hk/en/our-work",
+    "evidence_type": "Organization-reported service outputs. Do not present meals served as proof of reduced loneliness, improved health or restored agency.",
+    "checked_date": "2026-10-09"
+  },
+  {
+    "name": "Preston community wealth-building (England)",
+    "scene_safe_description": "Preston's council and other anchor institutions use procurement and local ownership initiatives to retain more economic activity locally.",
+    "lens": "Contribution/local feedback: institutional spending supports local suppliers and employment. Participation in value creation: wider ownership is part of the model, but procurement and cooperative development should not be conflated.",
+    "verified_output_or_outcome": "Beyond descriptive procurement figures, Rose et al. (2025) evaluated employment using 2011–2019 individual survey data, difference-in-differences and entropy balancing (95,476 responses; 16 comparison local authorities). The estimated absolute employment-rate increase associated with the programme was 4 percentage points (95% CI 2.4–5.7).",
+    "scene_safe_line": "Preston shows how major local institutions can direct purchasing toward local suppliers so that more of their spending supports the surrounding economy.",
+    "causal_caution": "Quasi-experimental evidence, not a randomized trial. Unobserved changing local factors may remain; the study evaluates a multicomponent place-based programme and does not isolate each mechanism. It does not directly measure individual alignment or agency. The article writes '4%' but uses an absolute-rate linear-model estimate; avoid '4% relative growth'.",
+    "primary_url": "https://www.preston.gov.uk/article/13210/The-Preston-Model",
+    "evaluation_url": "https://knowledge.lancashire.ac.uk/id/eprint/55542/1/55542%20Rose%20et%20al.%20VOR.pdf",
+    "evaluation_doi": "https://doi.org/10.1136/jech-2024-223499",
+    "evidence_type": "Official programme description plus primary quasi-experimental evaluation.",
+    "checked_date": "2026-10-09"
+  },
+  {
+    "name": "MONDRAGON cooperatives (Spain)",
+    "scene_safe_description": "MONDRAGON is a group of self-governing cooperatives. Its stated principles give cooperative members one vote each on governing bodies and major issues, participation in management, and profit allocation related to members' work.",
+    "lens": "Participation in value creation: member ownership, democratic governance and participation in results. Contribution/local feedback: work, voice and shared returns are institutionally linked.",
+    "verified_output_or_outcome": "MONDRAGON's 2025 annual report reports more than 71,400 people employed and more than 1,300 new jobs. These are corporate-reported employment results, not proof that the cooperative structure caused them or improved well-being.",
+    "scene_safe_line": "In MONDRAGON's cooperatives, members can share in ownership, decisions and results, giving participation an institutional form.",
+    "primary_url": "https://www.mondragon-corporation.com/en/about-us/",
+    "outcome_url": "https://www.mondragon-corporation.com/en/anual-report/letters-for-the-president/",
+    "evidence_type": "Primary organizational principles and annual-report outputs.",
+    "scope_caution": "Use 'cooperative members', not 'every employee worldwide': the stated membership rights do not establish that all employees of every subsidiary are member-owners. The annual-report webpage title says 2024, but its text and footer explicitly identify the 2025 report.",
+    "checked_date": "2026-10-09"
+  }
+]

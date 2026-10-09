@@ -1,0 +1,343 @@
+{
+  "schema_version": 1,
+  "title": "Four ways to live across a border",
+  "framing": {
+    "question": "When work, spending, home and participation move at different speeds, what happens to the cities on either side?",
+    "notice": "Analytical archetypes, not measured population categories. People can fit more than one; their size and overlap are unknown.",
+    "lens": [
+      "Live",
+      "Work / study",
+      "Spend",
+      "Relate",
+      "Participate"
+    ],
+    "display_rule": "Equal-size cards and categorical directions only. Arrows show a described configuration, not a measured flow or share."
+  },
+  "evidence_tags": [
+    {
+      "id": "official_statistics",
+      "label": "Official statistics",
+      "meaning": "Counts or surveys with a stated population and period; not automatically causal."
+    },
+    {
+      "id": "official_assessment",
+      "label": "Official assessment",
+      "meaning": "A government interpretation, distinguished from a measured effect."
+    },
+    {
+      "id": "academic_study",
+      "label": "Academic study",
+      "meaning": "A specific research design and population; findings do not transfer automatically."
+    },
+    {
+      "id": "corporate_case",
+      "label": "Corporate / property case",
+      "meaning": "A bounded business or place example, not a citywide estimate."
+    },
+    {
+      "id": "qualitative",
+      "label": "Exploratory conversations",
+      "meaning": "Exploratory themes, not representative frequencies or causal findings."
+    },
+    {
+      "id": "hypothesis",
+      "label": "Question to test",
+      "meaning": "A plausible mechanism without a demonstrated outcome."
+    },
+    {
+      "id": "evidence_gap",
+      "label": "Evidence gap",
+      "meaning": "The reviewed material does not establish the direction or magnitude."
+    }
+  ],
+  "archetypes": [
+    {
+      "id": "weekend_user",
+      "title": "The weekend user",
+      "configuration": "Lives and works in Hong Kong; spends some leisure time and money in Shenzhen.",
+      "change": "Spending moves before home or work.",
+      "hk": "Some local SMEs face adjustment pressure; family and established relationships may still anchor everyday life.",
+      "shenzhen": "Visitor demand creates opportunities for shops and services.",
+      "evidence": [
+        {
+          "text": "Hong Kong’s government acknowledged challenges for some SMEs from changed visitor consumption and residents’ increased Mainland spending.",
+          "source_ids": [
+            "HK_GOV_CONSUMPTION_2024"
+          ],
+          "tags": [
+            "official_assessment"
+          ]
+        },
+        {
+          "text": "Shenzhen recorded 10.449 million overnight visitor-trips from Hong Kong and Macao combined in 2025, up 26.6%.",
+          "source_ids": [
+            "SZ_STAT_2025"
+          ],
+          "tags": [
+            "official_statistics"
+          ]
+        }
+      ],
+      "uncertainty": "Tourism figures combine Hong Kong and Macao and exclude day-trippers. Neither source shows that northbound shopping weakens Hong Kong belonging or participation.",
+      "prompt": "What moves north, and what stays rooted in Hong Kong?"
+    },
+    {
+      "id": "northbound_relocator",
+      "title": "The northbound relocator",
+      "configuration": "Hong Kong origin; moves home and more routines to Shenzhen while keeping Hong Kong ties.",
+      "change": "Home moves, but work, family and long-standing connections may remain split.",
+      "hk": "Work, schooling and established relationships can remain important anchors.",
+      "shenzhen": "Residence creates opportunities for repeated local routines; social embedding is not automatic.",
+      "evidence": [
+        {
+          "text": "In the 2017 travel survey, 90.8% of trips by Hong Kong residents living in the Mainland originated in Shenzhen; schooling and work were major purposes.",
+          "source_ids": [
+            "PLAND_2017"
+          ],
+          "tags": [
+            "official_statistics"
+          ]
+        },
+        {
+          "text": "A 2025 official reply recorded 8,486 recipients of specified elderly cash-assistance schemes in Shenzhen.",
+          "source_ids": [
+            "ELDERLY_2025"
+          ],
+          "tags": [
+            "official_statistics"
+          ]
+        }
+      ],
+      "uncertainty": "Trip patterns are historical. Welfare recipients are a narrow subgroup, not a count of all relocators. Retirement intentions are not actual moves.",
+      "prompt": "What helps residence become relationships and contribution?"
+    },
+    {
+      "id": "commuter_student",
+      "title": "The cross-border commuter / student",
+      "configuration": "Lives in Shenzhen; works or studies in Hong Kong.",
+      "change": "Economic or educational participation is in Hong Kong while home and family routines remain in Shenzhen.",
+      "hk": "Access to workers and learners can support institutions; employment effects depend on occupation and conditions.",
+      "shenzhen": "Home and family life remain locally anchored while daily access depends on the border.",
+      "evidence": [
+        {
+          "text": "The September 2024 school survey counted 16,139 cross-boundary students: 388 kindergarten, 2,577 primary and 13,174 secondary.",
+          "source_ids": [
+            "EDB_2024"
+          ],
+          "tags": [
+            "official_statistics"
+          ]
+        },
+        {
+          "text": "In 2017, trips by Hong Kong residents living in the Mainland were mainly for schooling (45.4%) or work (19.8%).",
+          "source_ids": [
+            "PLAND_2017"
+          ],
+          "tags": [
+            "official_statistics"
+          ]
+        },
+        {
+          "text": "At end-2025, the Hospital Authority reported 3,284 nurse vacancies and 36 non-locally trained nurses commencing long-term service under the newer pathways.",
+          "source_ids": [
+            "NURSING_2026"
+          ],
+          "tags": [
+            "official_statistics"
+          ]
+        }
+      ],
+      "uncertainty": "The nursing example is a bounded shortage case, not Shenzhen-commuter data. No current occupation-by-wage commuter dataset is established here.",
+      "prompt": "Where do wages, time, relationships and community effort go?"
+    },
+    {
+      "id": "southbound_newcomer",
+      "title": "The southbound newcomer",
+      "configuration": "Mainland-origin resident moves to Hong Kong for work, education, family or longer-term residence, retaining Mainland ties.",
+      "change": "Home and work may relocate faster than social networks and routines.",
+      "hk": "Economic participation may precede repeated local relationships and contribution.",
+      "shenzhen": "Proximity may support retained routines, but the role of Shenzhen depends on the person.",
+      "evidence": [
+        {
+          "text": "26,714 new applications were approved under the Admission Scheme for Mainland Talents and Professionals in 2025.",
+          "source_ids": [
+            "IMMD_2025"
+          ],
+          "tags": [
+            "official_statistics"
+          ]
+        }
+      ],
+      "uncertainty": "Approvals are not a count of settled newcomers. Prior Mainland city is not identified by this figure; do not attribute the inflow to Shenzhen or the GBA.",
+      "prompt": "Does proximity to Shenzhen change life after the move?"
+    }
+  ],
+  "matrix": {
+    "title": "What is strengthening, and what remains uncertain?",
+    "subtitle": "A qualitative synthesis of the reviewed evidence. These labels are not scores, and do not imply equal evidence strength.",
+    "rows": [
+      {
+        "id": "livelihoods",
+        "label": "Economy & livelihoods",
+        "hk": {
+          "direction": "Mixed",
+          "text": "Pressure on some local SMEs sits alongside accessibility value and sector-specific workforce needs.",
+          "tags": [
+            "official_assessment",
+            "academic_study",
+            "official_statistics"
+          ],
+          "source_ids": [
+            "HK_GOV_CONSUMPTION_2024",
+            "HKU_RENT_2025",
+            "NURSING_2026"
+          ],
+          "caveat": "A rent premium benefits some owners while increasing costs for renters. Imported labour effects cannot be isolated from wider demand changes."
+        },
+        "shenzhen": {
+          "direction": "Opportunity; distribution unclear",
+          "text": "Visitor demand supports retail and services, but citywide gains do not show who benefits.",
+          "tags": [
+            "official_statistics"
+          ],
+          "source_ids": [
+            "SZ_STAT_2025"
+          ],
+          "caveat": "Tourism data combine Hong Kong and Macao overnight trips. Effects on local rents, small firms and displacement remain unestablished."
+        }
+      },
+      {
+        "id": "cohesion",
+        "label": "Everyday connection & cohesion",
+        "hk": {
+          "direction": "Unclear / uneven",
+          "text": "Family and established ties may anchor home even when spending moves.",
+          "tags": [
+            "hypothesis"
+          ],
+          "source_ids": [],
+          "caveat": "A question to investigate, not a measured citywide trend or a causal claim about shopping."
+        },
+        "shenzhen": {
+          "direction": "Unclear / uneven",
+          "text": "Repeated residence and routines may create connections, but proximity alone does not demonstrate social embedding.",
+          "tags": [
+            "hypothesis"
+          ],
+          "source_ids": [],
+          "caveat": "A question to investigate, not a measured citywide trend or a causal claim about shopping."
+        }
+      },
+      {
+        "id": "mobility",
+        "label": "Infrastructure & mobility",
+        "hk": {
+          "direction": "Cross-border access documented",
+          "text": "Cross-boundary infrastructure supports access to work, services and leisure.",
+          "tags": [
+            "official_assessment",
+            "official_statistics"
+          ],
+          "source_ids": [
+            "HK_GOV_CONSUMPTION_2024",
+            "PLAND_2017"
+          ],
+          "caveat": "Connectivity and trip volumes do not by themselves establish reliability, fair access or resilience to border disruption."
+        },
+        "shenzhen": {
+          "direction": "Cross-border access documented",
+          "text": "The connected region supports access to Hong Kong institutions and cross-border customers.",
+          "tags": [
+            "official_statistics",
+            "official_assessment"
+          ],
+          "source_ids": [
+            "PLAND_2017",
+            "HK_GOV_CONSUMPTION_2024"
+          ],
+          "caveat": "The 2017 survey describes historical usage. Do not read historical purpose shares as current ones."
+        }
+      },
+      {
+        "id": "participation",
+        "label": "Community participation & local feedback",
+        "hk": {
+          "direction": "Evidence gap",
+          "text": "No demonstrated direction for volunteering, local events, mutual help or constructive feedback.",
+          "tags": [
+            "evidence_gap"
+          ],
+          "source_ids": [],
+          "caveat": "The reviewed sources do not isolate the effect of cross-border routines from wider social changes."
+        },
+        "shenzhen": {
+          "direction": "Evidence gap",
+          "text": "Opportunities for participation need to be distinguished from observed participation by cross-border residents.",
+          "tags": [
+            "evidence_gap"
+          ],
+          "source_ids": [],
+          "caveat": "Visible community spaces or activities cannot establish who participates or feels attached."
+        }
+      }
+    ]
+  },
+  "source_register": [
+    {
+      "id": "HK_GOV_CONSUMPTION_2024",
+      "label": "Hong Kong Government, local consumption market, 5 June 2024",
+      "url": "https://www.info.gov.hk/gia/general/202406/05/P2024060500442.htm",
+      "verification": "Primary page read",
+      "scope": "Government assessment; no formal study of reasons for Mainland spending"
+    },
+    {
+      "id": "SZ_STAT_2025",
+      "label": "Shenzhen 2025 statistical communiqué",
+      "url": "https://www.sz.gov.cn/cn/xxgk/zfxxgj/tjsj/tjgb/content/post_12805133.html",
+      "verification": "Primary page read, tourism section",
+      "scope": "2025 preliminary statistics; overnight visitor-trips, Hong Kong and Macao combined"
+    },
+    {
+      "id": "PLAND_2017",
+      "label": "Planning Department, Northbound Southbound 2017",
+      "url": "https://www.info.gov.hk/gia/general/201902/28/P2019022800379.htm",
+      "verification": "Primary-source search result read; direct page timed out",
+      "scope": "16–29 November 2017 travel survey; specified trip populations"
+    },
+    {
+      "id": "ELDERLY_2025",
+      "label": "Hong Kong Government, elderly residents retiring in the Mainland, 21 May 2025",
+      "url": "https://www.info.gov.hk/gia/general/202505/21/P2025052100248p.htm",
+      "verification": "Primary-source search result and Legislative Council corroboration read",
+      "scope": "Specified social-security beneficiaries, not all Hong Kong residents in Shenzhen"
+    },
+    {
+      "id": "NURSING_2026",
+      "label": "Hong Kong Government, admission of non-locally trained nurses, 1 April 2026",
+      "url": "https://www.info.gov.hk/gia/general/202604/01/P2026040100496.htm",
+      "verification": "Primary page read",
+      "scope": "Hospital Authority positions and admissions through specified pathways at 31 December 2025; not commuter counts"
+    },
+    {
+      "id": "IMMD_2025",
+      "label": "Immigration Department Review 2025",
+      "url": "https://www.immd.gov.hk/eng/press/press-releases/20260213.html",
+      "verification": "Primary-source search result and official statistics result read",
+      "scope": "ASMTP new application approvals in 2025; not relocations or Shenzhen origins"
+    },
+    {
+      "id": "HKU_RENT_2025",
+      "label": "Guo et al., cross-border shopping accessibility and housing rents",
+      "url": "https://hub.hku.hk/handle/10722/362307",
+      "verification": "University repository abstract read; full paper not read",
+      "scope": "Difference-in-differences rental study around 2023 reopening; do not extrapolate to cohesion"
+    },
+    {
+      "id": "EDB_2024",
+      "label": "EDB 2026–27 replies · cross-boundary students, PDF page 255",
+      "url": "https://www.edb.gov.hk/attachment/en/about-edb/press/legco/replies-to-fc/edb-e-2627.pdf#page=255",
+      "verification": "Primary table verified in source review",
+      "scope": "September 2024 school survey, kindergarten, primary and secondary combined"
+    }
+  ]
+}

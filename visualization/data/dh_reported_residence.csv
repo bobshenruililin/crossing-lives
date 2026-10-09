@@ -1,0 +1,10 @@
+city,reported_persons,source_printed_percent,all_reported_users_denominator,calculated_percent_all_reported_users,gba_usual_residents_denominator,calculated_percent_gba_usual_residents,source_id,printed_page,pdf_page
+Guangzhou,593,6.54,9064,6.54,1681,35.28,DH2025_HHB246,191,195
+Shenzhen,130,1.43,9064,1.43,1681,7.73,DH2025_HHB246,191,195
+Zhuhai,20,0.22,9064,0.22,1681,1.19,DH2025_HHB246,191,195
+Foshan,47,0.52,9064,0.52,1681,2.8,DH2025_HHB246,191,195
+Huizhou,18,0.2,9064,0.2,1681,1.07,DH2025_HHB246,191,195
+Dongguan,289,3.19,9064,3.19,1681,17.19,DH2025_HHB246,191,195
+Zhongshan,567,6.26,9064,6.26,1681,33.73,DH2025_HHB246,191,195
+Jiangmen,15,0.17,9064,0.17,1681,0.89,DH2025_HHB246,191,195
+Zhaoqing,2,0.02,9064,0.02,1681,0.12,DH2025_HHB246,191,195

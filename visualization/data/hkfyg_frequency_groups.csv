@@ -1,0 +1,4 @@
+record_id,category,count,denominator,calculated_percent,source_id,table,printed_page,pdf_page
+HKFYG-F1,At least monthly,316,600,52.7,HKFYG2024,5.6,42,54
+HKFYG-F2,Less than monthly,170,600,28.3,HKFYG2024,5.6,42,54
+HKFYG-F3,No northbound consumption in past year,114,600,19.0,HKFYG2024,5.6,42,54

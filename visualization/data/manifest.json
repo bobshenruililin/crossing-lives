@@ -1,0 +1,102 @@
+{
+  "version": "1.0.0",
+  "snapshot_date": "2026-10-08",
+  "snapshot_kind": "Frozen delivery snapshot",
+  "build_ready": true,
+  "build_ready_condition": "Only the allowed descriptive charts in claim_visual_contracts.json; no unrestricted inference.",
+  "source_epochs": {
+    "HKFYG2024": "2024-11-09 to 2024-11-14 interviews, preceding-year recall",
+    "DH2025_HHB246": "Provider inception dates in 2024 through 2024-12-31; publication in 2025–26 budget cycle",
+    "DH2026_HHB248": "Calendar-year 2025 annual claims; staggered provider entry",
+    "DH2026_HHB217": "Complaints through end-2025; investigation status 2026-02-28"
+  },
+  "validation": {
+    "json_parse": "PASS",
+    "hkfyg_row_percent_recalculation": "PASS",
+    "hkfyg_frequency_total": 600,
+    "hkfyg_medical_use_total": 600,
+    "hkfyg_age_rows_total": 600,
+    "dh_claim_total": 15468,
+    "dh_amount_total_hkd_thousand": 19782,
+    "dh_residence_total": 1681,
+    "dh_printed_residence_denominator_reconciliation": "PASS: 9064",
+    "dh_2025_claim_total": 51384,
+    "dh_2025_published_amount_hkd_thousand": 51811,
+    "dh_2025_sum_rounded_amount_hkd_thousand": 51812,
+    "rounding_difference_hkd_thousand": 1,
+    "complaint_status_counts": "4+2=6",
+    "source_table_audit": "PASS: 2024 and 2025 provider rows/dates visually checked; HKFYG methods and counts verified"
+  },
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 3805,
+      "sha256": "5839a99f041ba28a9221a46582bf48ffd3c1d121e117d27355d8111e9a174dec"
+    },
+    {
+      "path": "checks_before_next_data.json",
+      "bytes": 881,
+      "sha256": "b30d61c023a9688df50a2d894d6efebfb595c99b360143f887befc3ea86ead4c"
+    },
+    {
+      "path": "claim_visual_contracts.json",
+      "bytes": 8463,
+      "sha256": "c536df0194abec5a72e1aa41a8d5fedf66e0960def939993448987d3714ade86"
+    },
+    {
+      "path": "dh_complaint_status.json",
+      "bytes": 689,
+      "sha256": "28a311e0be4b74404dc0fb338a670364aaabb9c5c00df210253111dfc89b54de"
+    },
+    {
+      "path": "dh_provider_claims.csv",
+      "bytes": 801,
+      "sha256": "265c6756a44557fdec49bc16b8e25b406158647fa3b575024fd3e750abec87f2"
+    },
+    {
+      "path": "dh_provider_claims.json",
+      "bytes": 2222,
+      "sha256": "dc4d92c2aa19087a53a08f8c3d75f8d22f5fba8195caa217bfbdea5760d1fc4f"
+    },
+    {
+      "path": "dh_provider_claims_2025_annual.csv",
+      "bytes": 2860,
+      "sha256": "f8b62fdc5699c2396a66c30827db154af5d0603ef2c7e27e2f5d66abe1ffc2f5"
+    },
+    {
+      "path": "dh_provider_claims_2025_annual.json",
+      "bytes": 8007,
+      "sha256": "3b9eeaebb0bc2d0c503497440e467b0290880fa9d52f6087b678c56b020b4ba0"
+    },
+    {
+      "path": "dh_reported_residence.csv",
+      "bytes": 758,
+      "sha256": "2ea3672e7be52032b64894a25d4165d7e4023ac0ff462f790adee92c3f4b971d"
+    },
+    {
+      "path": "hkfyg_frequency_groups.csv",
+      "bytes": 298,
+      "sha256": "10759a1b063f10feea275ea25acb1da943771841d38c6efdb033e0a1f9644639"
+    },
+    {
+      "path": "hkfyg_survey.csv",
+      "bytes": 18508,
+      "sha256": "e576b0baa37c3ca223da9283c18247ee3f3683a7688b7ca55e5c01cc2755eca9"
+    },
+    {
+      "path": "hkfyg_survey.json",
+      "bytes": 44860,
+      "sha256": "b8cfe2c2308e5777ff6ed44f0d722a21b3a93b1b8c0c4bf1747355aed2f83a5b"
+    },
+    {
+      "path": "methods_and_caveats.json",
+      "bytes": 5452,
+      "sha256": "8f643a3bbdb1bfa1414dd75e534d0cf9416f2a2ce5c91f25604c3d722f2e8827"
+    },
+    {
+      "path": "sources.json",
+      "bytes": 2410,
+      "sha256": "8a3ef27d1997ba7a8e4141ede2f55f3b7d455522a8e37787278b8fdee6870fa5"
+    }
+  ]
+}

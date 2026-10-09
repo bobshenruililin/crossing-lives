@@ -1,0 +1,41 @@
+{
+  "verified_at": "2026-10-09",
+  "sbf": {
+    "source": "https://www.sbf.org.sg/newsroom/media/press-releases/detail/rts-link-could-reshape-cross-border-consumer-spending--spotlighting-both-opportunities-and-challenges-for-singapore-retail-and-f-b",
+    "factsheet": "https://www.sbf.org.sg/docs/default-source/press-releases/annex-c---factsheet-on-rts-study.pdf?sfvrsn=9e72e20e_3",
+    "publication_date": "2026-07-16",
+    "chart_title": "RTS retail and F&B spending: annual base-case scenario",
+    "unit": "SGD million per year",
+    "status": "Scenario-based estimates, not observed outcomes or guaranteed forecasts",
+    "flows": [
+      {"label": "Additional Singapore spending in Johor", "value": 1050, "direction": "outbound"},
+      {"label": "Additional Johor spending in Singapore", "value": 756, "direction": "inbound"},
+      {"label": "Net additional outbound spending", "value": 290, "approximate": true}
+    ],
+    "rounding_note": "Use published approximately S$290m; rounded component values subtract to S$294m.",
+    "outbound_trip_growth_percent": 51,
+    "trip_warning": "51% is projected growth, not a share of people or spending.",
+    "period": "Annual post-RTS scenario; pre-RTS spending comparator is 2025.",
+    "sample": "March 2026 survey: about 1,700 Singapore and 400 Johor respondents. JB sample covers 2025 visitors and/or intended 2027 visitors; Singapore workers excluded.",
+    "method": "Mastercard transactions, surveys, official statistics, consultations and travel/spending modelling.",
+    "caveat": "Sensitive to adoption, trips, spending and substitution. Exchange rates, fares, macroeconomy and sentiment are not explicitly quantified; adaptation is incompletely captured. Net sector impact does not imply universal business decline.",
+    "evidence": "Press-release opening paragraphs; factsheet Q1, Q3–9, Q14."
+  },
+  "aci": {
+    "source": "https://lkyspp.nus.edu.sg/docs/default-source/aci/acirp202606.pdf",
+    "publication": "Song and Romzi, ACI Research Paper 06-2026, May 2026",
+    "chart_title": "Modelled corridor real-wage gains under distinct policy scenarios",
+    "unit": "Percent change versus policy-absent baseline",
+    "status": "Counterfactual spatial-equilibrium simulations, not observed growth",
+    "series": [
+      {"policy": "JS-SEZ only", "johor": 1.65, "singapore": 1.28, "corridor_average": 1.47, "table": 1, "pdf_page": 19},
+      {"policy": "JS-SEZ and RTS", "johor": 3.43, "singapore": 1.39, "corridor_average": 2.41, "table": 3, "pdf_page": 22, "year": 2030}
+    ],
+    "scenario_label": "Both tables explicitly label results lower-bound scenarios.",
+    "period_caution": "Joint table explicitly says 2030; Table 1 itself does not print a horizon. Avoid an unqualified 2030 label on the standalone value.",
+    "model": "Singapore plus 13 Peninsular Malaysian regions, two sectors; calibrated from 2019. JS-SEZ starts 2025, RTS 2027; baseline fundamentals fixed.",
+    "assumptions": "Productivity benchmark +1.5%; RTS service-trade and migration costs -10%. Manufacturing trade-cost prose says benchmark -10%, but lower-bound robustness text says -5%; preserve this inconsistency.",
+    "limitations": "No explicit daily commuting, endogenous interregional capital or local housing markets; road-only trade.",
+    "display_warning": "1.47% is a corridor average real-wage gain, not Singapore GDP growth. Keep separate from spending-flow estimates."
+  }
+}

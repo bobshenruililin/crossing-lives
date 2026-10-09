@@ -1,0 +1,49 @@
+[
+  {
+    "source_id": "HKFYG2024",
+    "title": "Enabling Robust Cross-border Health Services for Hong Kong Residents",
+    "publisher": "The Hong Kong Federation of Youth Groups, Youth Research Centre",
+    "researchers": [
+      "Christa Cheung",
+      "Chan Shui Ching",
+      "Sharon Cheung",
+      "Joanne Luk",
+      "Eva Lee"
+    ],
+    "publication_date": "2024-12",
+    "url": "https://yrc.hkfyg.org.hk/wp-content/uploads/sites/56/2024/12/YI079_Report-1.pdf",
+    "locators": "Methods: printed p4 / PDF p16. Tables 5.6–5.14: printed pp42–46 / PDF pp54–58. Instrument V11–V18: printed pp70–71 / PDF pp82–83.",
+    "observation_epoch": "Fieldwork 2024-11-09 to 2024-11-14; recalled preceding year",
+    "date_precision": "Publication month; exact day not supplied"
+  },
+  {
+    "source_id": "DH2025_HHB246",
+    "title": "Examination of Estimates of Expenditure 2025–26, Reply HHB246",
+    "publisher": "Hong Kong SAR Government, Department of Health",
+    "controlling_officer": "Director of Health (Dr. Ronald LAM)",
+    "url": "https://www.dh.gov.hk/english/budget/files/2025-26_eng.pdf",
+    "publication_epoch": "2025–26 budget cycle",
+    "locators": "HHB246 printed pp189–191 / PDF pp193–195 (one-based)",
+    "observation_epoch": "Each provider inception date through 2024-12-31",
+    "date_precision": "Exact publication day not supplied"
+  },
+  {
+    "source_id": "DH2026_HHB248",
+    "title": "Examination of Estimates of Expenditure 2026–27, Reply HHB248, part 2",
+    "publisher": "Hong Kong SAR Government, Department of Health",
+    "url": "https://www.dh.gov.hk/english/budget/files/2026-27_eng.pdf",
+    "publication_epoch": "2026–27 budget cycle",
+    "locators": "Annual 2025 table: printed pp273–274 / PDF pp275–276 (one-based)",
+    "observation_epoch": "2025-01-01 to 2025-12-31, or later provider launch date",
+    "date_precision": "Exact publication day not supplied"
+  },
+  {
+    "source_id": "DH2026_HHB217",
+    "title": "Examination of Estimates of Expenditure 2026–27, Reply HHB217, part 4",
+    "publisher": "Hong Kong SAR Government, Department of Health",
+    "url": "https://www.dh.gov.hk/english/budget/files/2026-27_eng.pdf",
+    "publication_epoch": "2026–27 budget cycle",
+    "locators": "Printed p143 / PDF p145 (one-based)",
+    "observation_epoch": "Complaints received by end-2025; investigation status as at 2026-02-28"
+  }
+]

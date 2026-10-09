@@ -1,0 +1,192 @@
+{
+  "global_rules": [
+    "Keep both source populations and epochs distinct.",
+    "No row-level joint microdata, invented personas, identity conclusions, causality or matched individuals.",
+    "No Sankey/flow diagram from separate marginals.",
+    "Always show source link, observation dates, denominator, unit and multiple-response status.",
+    "This package does not supply current 2026 rates."
+  ],
+  "contracts": [
+    {
+      "claim_id": "H1",
+      "claim": "316 of 600 respondents reported northbound consumption at least monthly; 170 less often; 114 none.",
+      "evidence_file": "hkfyg_frequency_groups.csv",
+      "evidence_filter": "All rows",
+      "allowed_visual": "Three-category bars or 100% stacked bar",
+      "required_label": "November 2024 interview sample of 600 Hong Kong residents aged 18–74; transport-node intercepts. Descriptive sample percentages only. Preceding-year recall. Detailed monthly percentage source typo corrected from count.",
+      "forbidden": [
+        "Population extrapolation",
+        "Trip-frequency totals",
+        "Trend joined to PlanD"
+      ]
+    },
+    {
+      "claim_id": "H2",
+      "claim": "Respondents reported overlapping consumption activities.",
+      "evidence_file": "hkfyg_survey.csv",
+      "evidence_filter": "table=5.7",
+      "allowed_visual": "Independent bars",
+      "required_label": "n=486 respondents reporting northbound consumption; multiple responses; shares need not sum to 100%.",
+      "forbidden": [
+        "Pie or stacked composition",
+        "Expenditure shares",
+        "Trip purpose shares"
+      ]
+    },
+    {
+      "claim_id": "H3",
+      "claim": "181 of 600 respondents reported Mainland medical services; 419 did not.",
+      "evidence_file": "hkfyg_survey.csv",
+      "evidence_filter": "table=5.8",
+      "allowed_visual": "Two-category bar",
+      "required_label": "November 2024 interview sample of 600 Hong Kong residents aged 18–74; transport-node intercepts. Descriptive sample percentages only.",
+      "forbidden": [
+        "Merge V12 medical main activity (74) with V13 any medical service (181)",
+        "Infer population prevalence"
+      ]
+    },
+    {
+      "claim_id": "H4",
+      "claim": "Reported medical use differs within sampled age groups.",
+      "evidence_file": "hkfyg_survey.csv",
+      "evidence_filter": "table=5.9; show Yes only if charting use",
+      "allowed_visual": "Age-group bars using each row denominator",
+      "required_label": "Within-age sample proportions; show group n; 75+ excluded.",
+      "forbidden": [
+        "Causal age effect",
+        "SRS confidence intervals",
+        "Population estimates"
+      ]
+    },
+    {
+      "claim_id": "H5",
+      "claim": "Medical-service destinations and service types are separately reported marginals.",
+      "evidence_file": "hkfyg_survey.csv",
+      "evidence_filter": "tables=5.11 or 5.12; never combine",
+      "allowed_visual": "Separate bars or destination dots without flow widths",
+      "required_label": "n=181 medical-service users; multiple responses; destination is medical-specific.",
+      "forbidden": [
+        "Shenzhen dental joint count",
+        "Origin-destination flows",
+        "All northbound destination shares",
+        "Pie chart"
+      ]
+    },
+    {
+      "claim_id": "H6",
+      "claim": "Reported motivations and barriers differ between medical users and non-users.",
+      "evidence_file": "hkfyg_survey.csv",
+      "evidence_filter": "table=5.13 users; table=5.14 non-users",
+      "allowed_visual": "Separate bar panels",
+      "required_label": "Users n=181; non-users n=419; up to three selections each.",
+      "forbidden": [
+        "Measured price/quality effects",
+        "Merge denominators",
+        "Stack to 100%",
+        "Causal explanation"
+      ]
+    },
+    {
+      "claim_id": "D1",
+      "claim": "Seven new pilot providers recorded 15,468 claims totaling HK$19.782 million in rounded reported amounts.",
+      "evidence_file": "dh_provider_claims.csv",
+      "evidence_filter": "All seven rows",
+      "allowed_visual": "Separate transaction and claimed-amount bars; total cards",
+      "required_label": "Provider inception through 31 December 2024; unequal operating windows; excludes two existing HKU–SZH service points.",
+      "forbidden": [
+        "Full-calendar-year comparable exposure",
+        "Beneficiaries per provider",
+        "Profit",
+        "Health gains",
+        "Performance ranking",
+        "Cost-effectiveness"
+      ]
+    },
+    {
+      "claim_id": "D2",
+      "claim": "C.K.J accounted for 57.6% of these claims and 77.2% of the rounded claimed amount.",
+      "evidence_file": "dh_provider_claims.csv",
+      "evidence_filter": "institution=Shenzhen C.K.J Stomatological Hospital; totals over seven rows",
+      "allowed_visual": "Two labeled share bars",
+      "required_label": "Descriptive concentration among seven newly added pilot providers through 2024-12-31; unequal start dates.",
+      "forbidden": [
+        "Market share of all cross-border care",
+        "Effectiveness",
+        "Profitability",
+        "Causal dominance"
+      ]
+    },
+    {
+      "claim_id": "D3",
+      "claim": "1,681 reported users usually resided in Mainland GBA cities, including 130 in Shenzhen.",
+      "evidence_file": "dh_reported_residence.csv",
+      "evidence_filter": "All rows or city=Shenzhen",
+      "allowed_visual": "Counts preferred; explicitly denominated percentages optional",
+      "required_label": "9,064 reported users overall; 1,681 GBA usual residents. Deduplication method unspecified. Source percentage header ambiguous.",
+      "forbidden": [
+        "Remaining users all Hong Kong residents",
+        "All GBA elderly prevalence",
+        "Unique-person method assumed",
+        "Join residence with provider choice"
+      ]
+    },
+    {
+      "claim_id": "D4",
+      "claim": "Calendar-year 2025 pilot claims totaled 51,384 and a published HK$51.811 million across 19 providers.",
+      "evidence_file": "dh_provider_claims_2025_annual.csv",
+      "evidence_filter": "All 19 rows",
+      "allowed_visual": "Separate annual transaction and claimed-amount bars; dated total cards",
+      "required_label": "Calendar 2025; 19 providers including 12 midyear entrants. Unequal exposure. Rounded provider amounts sum HK$51.812m versus published total HK$51.811m.",
+      "forbidden": [
+        "Cumulative-since-launch label",
+        "Equal-exposure performance ranking",
+        "Splice with 2024 as comparable population",
+        "Include existing HKU–SZH points",
+        "Service-type breakdown"
+      ]
+    },
+    {
+      "claim_id": "D5",
+      "claim": "C.K.J accounted for 44.5% of 2025 pilot claims and 70.5% of published claimed value.",
+      "evidence_file": "dh_provider_claims_2025_annual.csv",
+      "evidence_filter": "C.K.J row: 22,878 transactions; HK$36.525m",
+      "allowed_visual": "Separate labeled share bars or year selector with changing scope explicit",
+      "required_label": "2025 annual; claims denominator 51,384 and amount denominator HK$51.811m. 19 providers, staggered starts.",
+      "forbidden": [
+        "Causal explanation for share decline from 2024",
+        "Equity improvement",
+        "Quality improvement",
+        "Clinical outcomes",
+        "Profit share"
+      ]
+    },
+    {
+      "claim_id": "D6",
+      "claim": "Six complaints were received by end-2025; four investigations found no agreement noncompliance or aberrant claims and two were open as at 28 February 2026.",
+      "evidence_file": "dh_complaint_status.json",
+      "evidence_filter": "All fields",
+      "allowed_visual": "Dated text note or 4/2 status count card",
+      "required_label": "Cumulative complaints through end-2025; status as at 2026-02-28.",
+      "forbidden": [
+        "All complaints cleared",
+        "Open cases prove misconduct",
+        "Current live status",
+        "Complaint prevalence or provider quality rate",
+        "Attribute complaints to named providers"
+      ]
+    }
+  ],
+  "derived_calculations": {
+    "total_claims": 15468,
+    "total_claimed_hkd_thousand": 19782,
+    "ckj_claim_share_percent": 57.6,
+    "ckj_claimed_amount_share_percent": 77.2,
+    "2025_annual": {
+      "total_claims": 51384,
+      "published_total_claimed_hkd_thousand": 51811,
+      "sum_rounded_provider_amounts_hkd_thousand": 51812,
+      "ckj_claim_share_percent": 44.5,
+      "ckj_claimed_amount_share_percent": 70.5
+    }
+  }
+}

@@ -1,0 +1,86 @@
+[
+  {
+    "institution": "FAH-SYSU",
+    "city": "Guangzhou",
+    "start_date": "2024-06-28",
+    "claim_transactions": 1865,
+    "claimed_hkd_thousand": 931,
+    "record_id": "DH-P1",
+    "period_end": "2024-12-31",
+    "source_id": "DH2025_HHB246",
+    "printed_page": 190,
+    "pdf_page": 194
+  },
+  {
+    "institution": "ZSCXH",
+    "city": "Zhongshan",
+    "start_date": "2024-07-18",
+    "claim_transactions": 2052,
+    "claimed_hkd_thousand": 995,
+    "record_id": "DH-P2",
+    "period_end": "2024-12-31",
+    "source_id": "DH2025_HHB246",
+    "printed_page": 190,
+    "pdf_page": 194
+  },
+  {
+    "institution": "Shenzhen New Frontier United Family Hospital",
+    "city": "Shenzhen",
+    "start_date": "2024-08-14",
+    "claim_transactions": 1402,
+    "claimed_hkd_thousand": 1594,
+    "record_id": "DH-P3",
+    "period_end": "2024-12-31",
+    "source_id": "DH2025_HHB246",
+    "printed_page": 190,
+    "pdf_page": 194
+  },
+  {
+    "institution": "FAH-SYSU Nansha Division",
+    "city": "Guangzhou",
+    "start_date": "2024-09-06",
+    "claim_transactions": 246,
+    "claimed_hkd_thousand": 95,
+    "record_id": "DH-P4",
+    "period_end": "2024-12-31",
+    "source_id": "DH2025_HHB246",
+    "printed_page": 190,
+    "pdf_page": 194
+  },
+  {
+    "institution": "Dongguan Tungwah Hospital",
+    "city": "Dongguan",
+    "start_date": "2024-09-06",
+    "claim_transactions": 790,
+    "claimed_hkd_thousand": 451,
+    "record_id": "DH-P5",
+    "period_end": "2024-12-31",
+    "source_id": "DH2025_HHB246",
+    "printed_page": 190,
+    "pdf_page": 194
+  },
+  {
+    "institution": "Shenzhen C.K.J Stomatological Hospital",
+    "city": "Shenzhen",
+    "start_date": "2024-08-14",
+    "claim_transactions": 8903,
+    "claimed_hkd_thousand": 15264,
+    "record_id": "DH-P6",
+    "period_end": "2024-12-31",
+    "source_id": "DH2025_HHB246",
+    "printed_page": 190,
+    "pdf_page": 194
+  },
+  {
+    "institution": "Dental Bauhinia Shenzhen (combined centers)",
+    "city": "Shenzhen",
+    "start_date": "2024-08-14",
+    "claim_transactions": 210,
+    "claimed_hkd_thousand": 452,
+    "record_id": "DH-P7",
+    "period_end": "2024-12-31",
+    "source_id": "DH2025_HHB246",
+    "printed_page": 190,
+    "pdf_page": 194
+  }
+]

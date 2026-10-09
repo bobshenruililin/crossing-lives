@@ -1,0 +1,18 @@
+Map data credits and scope
+
+Base geography: Made with Natural Earth (public domain), 1:10 million Admin 0 Countries. Simplified and clipped for regional overview display; not a legal boundary or navigation map.
+https://www.naturalearthdata.com/about/
+
+Northern Metropolis development geometry: © HKSAR Government / Development Bureau, via CSDI Portal. October 2023 planning geography; metadata revised February 2025. Reuse with attribution under CSDI terms.
+https://portal.csdi.gov.hk/csdi-webpage/doc/TNC
+
+Statutory scheme geometry: © HKSAR Government / Town Planning Board. S/LMCL/2 (2018) and S/STT/2 (2024). Reference-only digital data; original gazetted plans prevail. Scheme boundaries are not campus or construction footprints.
+https://data.gov.hk/en-data/dataset/tpd-tpb1-digital-planning-data-of-statutory-plans
+
+map-place-anchors.json: © OpenStreetMap contributors; coordinate lookup via Mapcarta. This coordinate dataset is made available under the Open Database License (ODbL). Every record retains its original coordinate source and caveats. The points are approximate locality markers, never official development boundaries, survey points or entrances.
+https://www.openstreetmap.org/copyright
+https://opendatacommons.org/licenses/odbl/1-0/
+
+map-reference-points.json: Official-geometry-derived label points and separately attributed community geographic station coordinates; see each feature for the source and limitations.
+
+Policy descriptions use separately attributed government/agency sources, linked in map-evidence.json. No personal-location data are collected. No third-party map tiles are downloaded or bundled.

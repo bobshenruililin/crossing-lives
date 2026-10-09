@@ -1,0 +1,443 @@
+{
+  "as_of": "2026-10-08",
+  "purpose": "Source-located development-locality markers for both comparison maps",
+  "coordinate_source_policy": "Community map geography kept separate from official policy claims. No generated or token-geocoded coordinates. No satellite imagery or basemap artwork copied.",
+  "display_rules": [
+    "Always show locality/vicinity qualification in the details panel.",
+    "Do not derive an extent, circle radius, acreage or eligibility boundary from these points.",
+    "Prefer the Futian Bonded Area locality marker for the broad Shenzhen Hetao card. Keep the nearby-station marker optional rather than claiming it is the HKSTP branch.",
+    "Use one default locality marker per flagship; Kulai and Sedenak are alternatives for the same flagship F.",
+    "Mainland points are OSM coordinates; no GCJ-02 or BD-09 coordinates were mixed in."
+  ],
+  "anchors": [
+    {
+      "id": "qianhai_locality",
+      "display_label": "Qianhai",
+      "region": "hk-shenzhen",
+      "related_evidence_feature_id": "qianhai",
+      "coordinates": [
+        113.89298,
+        22.52671
+      ],
+      "coordinate_order": "longitude,latitude",
+      "coordinate_reference": "WGS84 / EPSG:4326 (OSM-derived latitude/longitude)",
+      "geometry_role": "locality_marker_not_site_or_project_boundary",
+      "coordinate_source": {
+        "name": "Qianhai Cooperation Zone locality",
+        "publisher": "OpenStreetMap contributors, displayed by Mapcarta",
+        "url": "https://mapcarta.com/N2643843384",
+        "osm_object": "node 2643843384",
+        "osm_classification": "place=suburb",
+        "verification": "Coordinates and object identity read from the linked public source on 2026-10-08",
+        "licence": "Open Database License (ODbL)",
+        "licence_url": "https://www.openstreetmap.org/copyright",
+        "attribution": "© OpenStreetMap contributors; coordinate lookup via Mapcarta"
+      },
+      "policy_source": {
+        "url": "https://qh.sz.gov.cn/ljszqh/",
+        "scope": "Government/agency evidence for project or policy identity only; not the coordinate provider."
+      },
+      "precision_warning": "Approximate locality marker only. Decimal digits are source precision, not verified positional accuracy. Not a boundary, exact entrance or navigation instruction.",
+      "scope_warning": "Named locality in the original Qianhai core; not the centroid or footprint of the expanded 120.56km² policy zone."
+    },
+    {
+      "id": "hetao_sz_futian_locality",
+      "display_label": "Hetao Shenzhen: Futian Bonded Area",
+      "region": "hk-shenzhen",
+      "related_evidence_feature_id": "hetao_sz",
+      "coordinates": [
+        114.05148,
+        22.50788
+      ],
+      "coordinate_order": "longitude,latitude",
+      "coordinate_reference": "WGS84 / EPSG:4326 (OSM-derived latitude/longitude)",
+      "geometry_role": "locality_marker_not_site_or_project_boundary",
+      "coordinate_source": {
+        "name": "Futian Bonded Area locality",
+        "publisher": "OpenStreetMap contributors, displayed by Mapcarta",
+        "url": "https://mapcarta.com/N8147035827",
+        "osm_object": "node 8147035827",
+        "osm_classification": "place=suburb",
+        "verification": "Coordinates and object identity read from the linked public source on 2026-10-08",
+        "licence": "Open Database License (ODbL)",
+        "licence_url": "https://www.openstreetmap.org/copyright",
+        "attribution": "© OpenStreetMap contributors; coordinate lookup via Mapcarta"
+      },
+      "policy_source": {
+        "url": "https://htcz.sz.gov.cn/ht/",
+        "scope": "Government/agency evidence for project or policy identity only; not the coordinate provider."
+      },
+      "precision_warning": "Approximate locality marker only. Decimal digits are source precision, not verified positional accuracy. Not a boundary, exact entrance or navigation instruction.",
+      "scope_warning": "Futian Bonded Area is one component of Hetao Shenzhen Park. Pin does not represent the entire park or the HKSTP Branch entrance."
+    },
+    {
+      "id": "hkstp_sz_branch_vicinity",
+      "display_label": "HKSTP Shenzhen Branch vicinity: Fubao station",
+      "region": "hk-shenzhen",
+      "related_evidence_feature_id": "hkstp_sz_branch",
+      "coordinates": [
+        114.05108,
+        22.51078
+      ],
+      "coordinate_order": "longitude,latitude",
+      "coordinate_reference": "WGS84 / EPSG:4326 (OSM-derived latitude/longitude)",
+      "geometry_role": "locality_marker_not_site_or_project_boundary",
+      "coordinate_source": {
+        "name": "Futian Bonded Area / Fubao metro station",
+        "publisher": "OpenStreetMap contributors, displayed by Mapcarta",
+        "url": "https://mapcarta.com/N8058139791",
+        "osm_object": "node 8058139791",
+        "osm_classification": "railway=station",
+        "verification": "Coordinates and object identity read from the linked public source on 2026-10-08",
+        "licence": "Open Database License (ODbL)",
+        "licence_url": "https://www.openstreetmap.org/copyright",
+        "attribution": "© OpenStreetMap contributors; coordinate lookup via Mapcarta"
+      },
+      "policy_source": {
+        "url": "https://www.hkstp.org/discover/sites/hong-kong-science-park-shenzhen-branch",
+        "scope": "Government/agency evidence for project or policy identity only; not the coordinate provider."
+      },
+      "precision_warning": "Approximate locality marker only. Decimal digits are source precision, not verified positional accuracy. Not a boundary, exact entrance or navigation instruction.",
+      "scope_warning": "Station reference only. HKSTP states the branch is about 500m from this station at 32 Shihua Road. Do not label this coordinate as the branch itself."
+    },
+    {
+      "id": "woodlands_gateway_vicinity",
+      "display_label": "Woodlands Gateway vicinity",
+      "region": "singapore-johor",
+      "related_evidence_feature_id": "woodlands_gateway",
+      "coordinates": [
+        103.78213,
+        1.44947
+      ],
+      "coordinate_order": "longitude,latitude",
+      "coordinate_reference": "WGS84 / EPSG:4326 (OSM-derived latitude/longitude)",
+      "geometry_role": "locality_marker_not_site_or_project_boundary",
+      "coordinate_source": {
+        "name": "Woodlands North Coast locality",
+        "publisher": "OpenStreetMap contributors, displayed by Mapcarta",
+        "url": "https://mapcarta.com/38581960",
+        "osm_object": "node 12304693021",
+        "osm_classification": "place=quarter",
+        "verification": "Coordinates and object identity read from the linked public source on 2026-10-08",
+        "licence": "Open Database License (ODbL)",
+        "licence_url": "https://www.openstreetmap.org/copyright",
+        "attribution": "© OpenStreetMap contributors; coordinate lookup via Mapcarta"
+      },
+      "policy_source": {
+        "url": "https://www.jtc.gov.sg/find-land/jtc-key-estates/woodlands-gateway?story-estate=woodlands-north-coast",
+        "scope": "Government/agency evidence for project or policy identity only; not the coordinate provider."
+      },
+      "precision_warning": "Approximate locality marker only. Decimal digits are source precision, not verified positional accuracy. Not a boundary, exact entrance or navigation instruction.",
+      "scope_warning": "Woodlands North Coast locality marker. The proposed Gateway district is a separate up-to-35ha development; its boundary and centroid are not asserted."
+    },
+    {
+      "id": "jb_waterfront_vicinity",
+      "display_label": "Johor Bahru Waterfront / city centre vicinity",
+      "region": "singapore-johor",
+      "related_evidence_feature_id": "js_flagship_a",
+      "coordinates": [
+        103.76399,
+        1.4617
+      ],
+      "coordinate_order": "longitude,latitude",
+      "coordinate_reference": "WGS84 / EPSG:4326 (OSM-derived latitude/longitude)",
+      "geometry_role": "locality_marker_not_site_or_project_boundary",
+      "coordinate_source": {
+        "name": "Johor Bahru City Square shopping centre",
+        "publisher": "OpenStreetMap contributors, displayed by Mapcarta",
+        "url": "https://mapcarta.com/W106590697",
+        "osm_object": "way 106590697",
+        "osm_classification": "shop=mall",
+        "verification": "Coordinates and object identity read from the linked public source on 2026-10-08",
+        "licence": "Open Database License (ODbL)",
+        "licence_url": "https://www.openstreetmap.org/copyright",
+        "attribution": "© OpenStreetMap contributors; coordinate lookup via Mapcarta"
+      },
+      "policy_source": {
+        "url": "https://www.mida.gov.my/wp-content/uploads/2025/04/Guideline-JSSEZ-V2.pdf",
+        "scope": "Government/agency evidence for project or policy identity only; not the coordinate provider."
+      },
+      "precision_warning": "Approximate locality marker only. Decimal digits are source precision, not verified positional accuracy. Not a boundary, exact entrance or navigation instruction.",
+      "scope_warning": "City-centre landmark for locating flagship A; not the flagship boundary or its official centroid. This is the shopping centre on Jalan Wong Ah Fook, not Dataran Bandaraya public square."
+    },
+    {
+      "id": "iskandar_puteri_locality",
+      "display_label": "Iskandar Puteri",
+      "region": "singapore-johor",
+      "related_evidence_feature_id": "js_flagship_b",
+      "coordinates": [
+        103.6145,
+        1.4523
+      ],
+      "coordinate_order": "longitude,latitude",
+      "coordinate_reference": "WGS84 / EPSG:4326 (OSM-derived latitude/longitude)",
+      "geometry_role": "locality_marker_not_site_or_project_boundary",
+      "coordinate_source": {
+        "name": "Iskandar Puteri locality",
+        "publisher": "OpenStreetMap contributors, displayed by Mapcarta",
+        "url": "https://mapcarta.com/Iskandar_Puteri",
+        "osm_object": "node 1911019511",
+        "osm_classification": "place=city",
+        "verification": "Coordinates and object identity read from the linked public source on 2026-10-08",
+        "licence": "Open Database License (ODbL)",
+        "licence_url": "https://www.openstreetmap.org/copyright",
+        "attribution": "© OpenStreetMap contributors; coordinate lookup via Mapcarta"
+      },
+      "policy_source": {
+        "url": "https://www.mida.gov.my/wp-content/uploads/2025/04/Guideline-JSSEZ-V2.pdf",
+        "scope": "Government/agency evidence for project or policy identity only; not the coordinate provider."
+      },
+      "precision_warning": "Approximate locality marker only. Decimal digits are source precision, not verified positional accuracy. Not a boundary, exact entrance or navigation instruction.",
+      "scope_warning": "City/place marker. Does not delineate Iskandar Puteri administrative limits, JS-SEZ flagship B or the larger Iskandar Malaysia region."
+    },
+    {
+      "id": "tanjung_pelepas_locality",
+      "display_label": "Tanjung Pelepas",
+      "region": "singapore-johor",
+      "related_evidence_feature_id": "js_flagship_c",
+      "coordinates": [
+        103.55419,
+        1.35505
+      ],
+      "coordinate_order": "longitude,latitude",
+      "coordinate_reference": "WGS84 / EPSG:4326 (OSM-derived latitude/longitude)",
+      "geometry_role": "locality_marker_not_site_or_project_boundary",
+      "coordinate_source": {
+        "name": "Port of Tanjung Pelepas named industrial site",
+        "publisher": "OpenStreetMap contributors, displayed by Mapcarta",
+        "url": "https://mapcarta.com/W180657424",
+        "osm_object": "way 180657424",
+        "osm_classification": "landuse=industrial",
+        "verification": "Coordinates and object identity read from the linked public source on 2026-10-08",
+        "licence": "Open Database License (ODbL)",
+        "licence_url": "https://www.openstreetmap.org/copyright",
+        "attribution": "© OpenStreetMap contributors; coordinate lookup via Mapcarta"
+      },
+      "policy_source": {
+        "url": "https://www.mida.gov.my/wp-content/uploads/2025/04/Guideline-JSSEZ-V2.pdf",
+        "scope": "Government/agency evidence for project or policy identity only; not the coordinate provider."
+      },
+      "precision_warning": "Approximate locality marker only. Decimal digits are source precision, not verified positional accuracy. Not a boundary, exact entrance or navigation instruction.",
+      "scope_warning": "Representative point for the named port, not its entrance, surveyed port limits or the flagship C boundary."
+    },
+    {
+      "id": "kong_kong_locality",
+      "display_label": "Tanjung Langsat–Kong Kong vicinity",
+      "region": "singapore-johor",
+      "related_evidence_feature_id": "js_flagship_d",
+      "coordinates": [
+        103.9973,
+        1.51745
+      ],
+      "coordinate_order": "longitude,latitude",
+      "coordinate_reference": "WGS84 / EPSG:4326 (OSM-derived latitude/longitude)",
+      "geometry_role": "locality_marker_not_site_or_project_boundary",
+      "coordinate_source": {
+        "name": "Kong Kong locality",
+        "publisher": "OpenStreetMap contributors, displayed by Mapcarta",
+        "url": "https://mapcarta.com/15881978",
+        "osm_object": "node 2216166131",
+        "osm_classification": "place=hamlet",
+        "verification": "Coordinates and object identity read from the linked public source on 2026-10-08",
+        "licence": "Open Database License (ODbL)",
+        "licence_url": "https://www.openstreetmap.org/copyright",
+        "attribution": "© OpenStreetMap contributors; coordinate lookup via Mapcarta"
+      },
+      "policy_source": {
+        "url": "https://www.mida.gov.my/wp-content/uploads/2025/04/Guideline-JSSEZ-V2.pdf",
+        "scope": "Government/agency evidence for project or policy identity only; not the coordinate provider."
+      },
+      "precision_warning": "Approximate locality marker only. Decimal digits are source precision, not verified positional accuracy. Not a boundary, exact entrance or navigation instruction.",
+      "scope_warning": "Named locality within the wider Tanjung Langsat–Kong Kong corridor; not a chemical plant location or flagship boundary."
+    },
+    {
+      "id": "senai_locality",
+      "display_label": "Senai–Skudai vicinity",
+      "region": "singapore-johor",
+      "related_evidence_feature_id": "js_flagship_e",
+      "coordinates": [
+        103.6447,
+        1.6012
+      ],
+      "coordinate_order": "longitude,latitude",
+      "coordinate_reference": "WGS84 / EPSG:4326 (OSM-derived latitude/longitude)",
+      "geometry_role": "locality_marker_not_site_or_project_boundary",
+      "coordinate_source": {
+        "name": "Senai locality",
+        "publisher": "OpenStreetMap contributors, displayed by Mapcarta",
+        "url": "https://mapcarta.com/Senai",
+        "osm_object": "node 254073072",
+        "osm_classification": "place=suburb",
+        "verification": "Coordinates and object identity read from the linked public source on 2026-10-08",
+        "licence": "Open Database License (ODbL)",
+        "licence_url": "https://www.openstreetmap.org/copyright",
+        "attribution": "© OpenStreetMap contributors; coordinate lookup via Mapcarta"
+      },
+      "policy_source": {
+        "url": "https://www.mida.gov.my/wp-content/uploads/2025/04/Guideline-JSSEZ-V2.pdf",
+        "scope": "Government/agency evidence for project or policy identity only; not the coordinate provider."
+      },
+      "precision_warning": "Approximate locality marker only. Decimal digits are source precision, not verified positional accuracy. Not a boundary, exact entrance or navigation instruction.",
+      "scope_warning": "Senai place marker, not the airport, industrial-estate footprint or full Senai–Skudai flagship boundary."
+    },
+    {
+      "id": "kulai_locality",
+      "display_label": "Kulai–Sedenak vicinity: Kulai",
+      "region": "singapore-johor",
+      "related_evidence_feature_id": "js_flagship_f",
+      "coordinates": [
+        103.6059,
+        1.6569
+      ],
+      "coordinate_order": "longitude,latitude",
+      "coordinate_reference": "WGS84 / EPSG:4326 (OSM-derived latitude/longitude)",
+      "geometry_role": "locality_marker_not_site_or_project_boundary",
+      "coordinate_source": {
+        "name": "Kulai locality",
+        "publisher": "OpenStreetMap contributors, displayed by Mapcarta",
+        "url": "https://mapcarta.com/Kulai",
+        "osm_object": "node 254073418",
+        "osm_classification": "place=city",
+        "verification": "Coordinates and object identity read from the linked public source on 2026-10-08",
+        "licence": "Open Database License (ODbL)",
+        "licence_url": "https://www.openstreetmap.org/copyright",
+        "attribution": "© OpenStreetMap contributors; coordinate lookup via Mapcarta"
+      },
+      "policy_source": {
+        "url": "https://www.mida.gov.my/wp-content/uploads/2025/04/Guideline-JSSEZ-V2.pdf",
+        "scope": "Government/agency evidence for project or policy identity only; not the coordinate provider."
+      },
+      "precision_warning": "Approximate locality marker only. Decimal digits are source precision, not verified positional accuracy. Not a boundary, exact entrance or navigation instruction.",
+      "scope_warning": "Kulai town marker. Flagship F is much broader, and this does not locate a specific data centre or industrial park."
+    },
+    {
+      "id": "sedenak_locality",
+      "display_label": "Kulai–Sedenak vicinity: Sedenak",
+      "region": "singapore-johor",
+      "related_evidence_feature_id": "js_flagship_f",
+      "coordinates": [
+        103.52573,
+        1.71266
+      ],
+      "coordinate_order": "longitude,latitude",
+      "coordinate_reference": "WGS84 / EPSG:4326 (OSM-derived latitude/longitude)",
+      "geometry_role": "locality_marker_not_site_or_project_boundary",
+      "coordinate_source": {
+        "name": "Sedenak locality",
+        "publisher": "OpenStreetMap contributors, displayed by Mapcarta",
+        "url": "https://mapcarta.com/N4486473991",
+        "osm_object": "node 4486473991",
+        "osm_classification": "place=village",
+        "verification": "Coordinates and object identity read from the linked public source on 2026-10-08",
+        "licence": "Open Database License (ODbL)",
+        "licence_url": "https://www.openstreetmap.org/copyright",
+        "attribution": "© OpenStreetMap contributors; coordinate lookup via Mapcarta"
+      },
+      "policy_source": {
+        "url": "https://www.mida.gov.my/wp-content/uploads/2025/04/Guideline-JSSEZ-V2.pdf",
+        "scope": "Government/agency evidence for project or policy identity only; not the coordinate provider."
+      },
+      "precision_warning": "Approximate locality marker only. Decimal digits are source precision, not verified positional accuracy. Not a boundary, exact entrance or navigation instruction.",
+      "scope_warning": "Sedenak village marker, not Sedenak Tech Park or any individual data-centre site. Use one F marker by default to avoid double-counting."
+    },
+    {
+      "id": "desaru_locality",
+      "display_label": "Desaru–Penawar vicinity",
+      "region": "singapore-johor",
+      "related_evidence_feature_id": "js_flagship_g",
+      "coordinates": [
+        104.2643,
+        1.541
+      ],
+      "coordinate_order": "longitude,latitude",
+      "coordinate_reference": "WGS84 / EPSG:4326 (OSM-derived latitude/longitude)",
+      "geometry_role": "locality_marker_not_site_or_project_boundary",
+      "coordinate_source": {
+        "name": "Desaru locality",
+        "publisher": "OpenStreetMap contributors, displayed by Mapcarta",
+        "url": "https://mapcarta.com/Desaru",
+        "osm_object": "node 2216136986",
+        "osm_classification": "place=hamlet",
+        "verification": "Coordinates and object identity read from the linked public source on 2026-10-08",
+        "licence": "Open Database License (ODbL)",
+        "licence_url": "https://www.openstreetmap.org/copyright",
+        "attribution": "© OpenStreetMap contributors; coordinate lookup via Mapcarta"
+      },
+      "policy_source": {
+        "url": "https://www.mida.gov.my/wp-content/uploads/2025/04/Guideline-JSSEZ-V2.pdf",
+        "scope": "Government/agency evidence for project or policy identity only; not the coordinate provider."
+      },
+      "precision_warning": "Approximate locality marker only. Decimal digits are source precision, not verified positional accuracy. Not a boundary, exact entrance or navigation instruction.",
+      "scope_warning": "Desaru place marker, not the full resort-development or flagship boundary."
+    },
+    {
+      "id": "pengerang_locality",
+      "display_label": "Pengerang / PIPC vicinity",
+      "region": "singapore-johor",
+      "related_evidence_feature_id": "js_flagship_h",
+      "coordinates": [
+        104.2155,
+        1.3944
+      ],
+      "coordinate_order": "longitude,latitude",
+      "coordinate_reference": "WGS84 / EPSG:4326 (OSM-derived latitude/longitude)",
+      "geometry_role": "locality_marker_not_site_or_project_boundary",
+      "coordinate_source": {
+        "name": "Pengerang locality",
+        "publisher": "OpenStreetMap contributors, displayed by Mapcarta",
+        "url": "https://mapcarta.com/Pengerang",
+        "osm_object": "node 254074053",
+        "osm_classification": "place=town",
+        "verification": "Coordinates and object identity read from the linked public source on 2026-10-08",
+        "licence": "Open Database License (ODbL)",
+        "licence_url": "https://www.openstreetmap.org/copyright",
+        "attribution": "© OpenStreetMap contributors; coordinate lookup via Mapcarta"
+      },
+      "policy_source": {
+        "url": "https://www.mida.gov.my/wp-content/uploads/2025/04/Guideline-JSSEZ-V2.pdf",
+        "scope": "Government/agency evidence for project or policy identity only; not the coordinate provider."
+      },
+      "precision_warning": "Approximate locality marker only. Decimal digits are source precision, not verified positional accuracy. Not a boundary, exact entrance or navigation instruction.",
+      "scope_warning": "Pengerang town/place marker. It is not a surveyed position of the PIPC complex and does not define municipal or project boundaries."
+    },
+    {
+      "id": "forest_city_locality",
+      "display_label": "Forest City",
+      "region": "singapore-johor",
+      "related_evidence_feature_id": "js_flagship_i",
+      "coordinates": [
+        103.5911,
+        1.33473
+      ],
+      "coordinate_order": "longitude,latitude",
+      "coordinate_reference": "WGS84 / EPSG:4326 (OSM-derived latitude/longitude)",
+      "geometry_role": "locality_marker_not_site_or_project_boundary",
+      "coordinate_source": {
+        "name": "Forest City locality",
+        "publisher": "OpenStreetMap contributors, displayed by Mapcarta",
+        "url": "https://mapcarta.com/37846964",
+        "osm_object": "node 7572091534",
+        "osm_classification": "place=suburb",
+        "verification": "Coordinates and object identity read from the linked public source on 2026-10-08",
+        "licence": "Open Database License (ODbL)",
+        "licence_url": "https://www.openstreetmap.org/copyright",
+        "attribution": "© OpenStreetMap contributors; coordinate lookup via Mapcarta"
+      },
+      "policy_source": {
+        "url": "https://www.mida.gov.my/wp-content/uploads/2025/04/Guideline-JSSEZ-V2.pdf",
+        "scope": "Government/agency evidence for project or policy identity only; not the coordinate provider."
+      },
+      "precision_warning": "Approximate locality marker only. Decimal digits are source precision, not verified positional accuracy. Not a boundary, exact entrance or navigation instruction.",
+      "scope_warning": "Named Forest City locality, not all planned reclamation, the golf resort, or the legal Special Financial Zone footprint."
+    }
+  ],
+  "unresolved": [
+    {
+      "feature_id": "hkstp_sz_branch",
+      "exact_coordinates": null,
+      "verified_address": "32 Shihua Road, Futian District, Shenzhen",
+      "vicinity_anchor_id": "hkstp_sz_branch_vicinity",
+      "reason": "Exact branch building coordinate not retrieved; use clearly labelled nearby Fubao station, or omit exact branch pin."
+    }
+  ]
+}

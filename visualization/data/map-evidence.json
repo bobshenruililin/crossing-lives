@@ -1,0 +1,585 @@
+{
+  "as_of": "2026-10-08",
+  "sources": {
+    "hetao_sz": {
+      "title": "Hetao Shenzhen Park official overview",
+      "url": "https://htcz.sz.gov.cn/ht/",
+      "publisher": "Hetao Development Authority / Shenzhen Government",
+      "checked": "2026-10-08"
+    },
+    "hk_opening": {
+      "title": "Official opening of Hetao Hong Kong Park",
+      "url": "https://www.info.gov.hk/gia/general/202512/22/P2025122200696.htm",
+      "publisher": "HKSAR Government",
+      "date": "2025-12-22"
+    },
+    "hk_outline": {
+      "title": "ITIB 2025-26 budget replies",
+      "url": "https://www.itib.gov.hk/assets/files/ITIB-1-e1.pdf",
+      "publisher": "HKSAR ITIB",
+      "date": "2025"
+    },
+    "hk_plan": {
+      "title": "HSITP Planning and Development",
+      "url": "https://www.hsitp.org/en/about-us/planning-and-development/",
+      "publisher": "HSITPL",
+      "checked": "2026-10-08"
+    },
+    "branch": {
+      "title": "Hong Kong Science Park Shenzhen Branch",
+      "url": "https://www.hkstp.org/discover/sites/hong-kong-science-park-shenzhen-branch",
+      "publisher": "HKSTP",
+      "checked": "2026-10-08"
+    },
+    "santin": {
+      "title": "Revised Recommended Outline Development Plan",
+      "url": "https://nm-santintech.hk/en/project-overview-2/rodp/",
+      "publisher": "CEDD and Planning Department",
+      "checked": "2026-10-08"
+    },
+    "nm": {
+      "title": "Northern Metropolis basic information",
+      "url": "https://www.nm.gov.hk/tc/about-nm/basic-information",
+      "publisher": "Northern Metropolis Co-ordination Office",
+      "checked": "2026-10-08"
+    },
+    "nm_2026": {
+      "title": "First Five-Year Plan 2026-2030, Part 3",
+      "url": "https://www.info.gov.hk/gia/general/202609/16/P2026091600196.htm",
+      "publisher": "HKSAR Government",
+      "date": "2026-09-16"
+    },
+    "qianhai": {
+      "title": "About Qianhai",
+      "url": "https://qh.sz.gov.cn/ljszqh/",
+      "publisher": "Qianhai Authority",
+      "checked": "2026-10-08"
+    },
+    "js_faq": {
+      "title": "JS-SEZ FAQ",
+      "url": "https://www.enterprisesg.gov.sg/JS-SEZ/FAQs",
+      "publisher": "Enterprise Singapore",
+      "checked": "2026-10-08"
+    },
+    "js_about": {
+      "title": "About JS-SEZ",
+      "url": "https://www.enterprisesg.gov.sg/JS-SEZ/about",
+      "publisher": "Enterprise Singapore",
+      "checked": "2026-10-08"
+    },
+    "js_mida": {
+      "title": "Guidelines for JS-SEZ tax incentive package",
+      "url": "https://www.mida.gov.my/wp-content/uploads/2025/04/Guideline-JSSEZ-V2.pdf",
+      "publisher": "MIDA",
+      "date": "2025-04"
+    },
+    "js_imfc": {
+      "title": "JS-SEZ areas and map",
+      "url": "https://js-sez.com.my/about-js-sez/",
+      "publisher": "JS-SEZ / IMFC-J portal",
+      "checked": "2026-10-08"
+    },
+    "js_old_area": {
+      "title": "JS-SEZ launch report",
+      "url": "https://www.mida.gov.my/mida-news/100-projects-in-10-years-johor-singapore-special-economic-zone-kicks-off/",
+      "publisher": "MIDA-hosted news report",
+      "date": "2025-01-07"
+    },
+    "iskandar": {
+      "title": "About Iskandar Malaysia",
+      "url": "https://irda.com.my/about-im/",
+      "publisher": "IRDA",
+      "date": "2026-02-23"
+    },
+    "rts_latest": {
+      "title": "RTS service commencement targeted for February 2027",
+      "url": "https://www.lta.gov.sg/content/ltagov/en/newsroom/2026/10/news-releases/grantors-informed-rts-link-service-targeted-feb-2027.html",
+      "publisher": "Malaysia MOT and Singapore LTA",
+      "date": "2026-10-02"
+    },
+    "rts_route": {
+      "title": "RTS Link project",
+      "url": "https://www.lta.gov.sg/content/ltagov/en/upcoming_projects/rail_expansion/JB-Singapore_RTS_link.html",
+      "publisher": "Singapore LTA",
+      "checked": "2026-10-08",
+      "warning": "Opening target on evergreen page is stale; latest joint release supersedes it."
+    },
+    "rts_mrt": {
+      "title": "RTS Link at a glance",
+      "url": "https://rtslink.mymrt.com.my/",
+      "publisher": "Malaysia MRT Corp",
+      "checked": "2026-10-08"
+    },
+    "woodlands": {
+      "title": "Woodlands Gateway",
+      "url": "https://www.jtc.gov.sg/find-land/jtc-key-estates/woodlands-gateway?story-estate=woodlands-north-coast",
+      "publisher": "JTC",
+      "checked": "2026-10-08",
+      "warning": "RTS opening sentence stale; use Oct 2026 joint release."
+    },
+    "csdi_nm": {
+      "title": "Northern Metropolis development areas",
+      "url": "https://portal.csdi.gov.hk/csdi-webpage/dataset/devb_plb_rcd_1701677887173_16270",
+      "publisher": "HKSAR Development Bureau / CSDI",
+      "date": "2025-02-13",
+      "geography_vintage": "October 2023 Action Agenda"
+    },
+    "tpb": {
+      "title": "Digital Planning Data of Statutory Plans",
+      "url": "https://data.gov.hk/en-data/dataset/tpd-tpb1-digital-planning-data-of-statutory-plans",
+      "publisher": "Town Planning Board",
+      "checked": "2026-10-08"
+    },
+    "ura_rail": {
+      "title": "Master Plan 2019 Rail Station layer",
+      "url": "https://data.gov.sg/datasets/d_8d886e3a83934d7447acdf5bc6959999/view",
+      "publisher": "URA / data.gov.sg",
+      "date": "2025-12-05",
+      "geography_vintage": "2019",
+      "warning": "Catalogue verified; download API returned 403 here."
+    },
+    "ne": {
+      "title": "Natural Earth Admin 0 Countries, 1:10m",
+      "url": "https://www.naturalearthdata.com/downloads/10m-cultural-vectors/10m-admin-0-countries/",
+      "publisher": "Natural Earth",
+      "checked": "2026-10-08",
+      "license": "Public domain",
+      "license_url": "https://www.naturalearthdata.com/about/"
+    },
+    "wiki_rts_coords": {
+      "title": "RTS Link map coordinates",
+      "url": "https://en.wikipedia.org/wiki/Johor_Bahru%E2%80%93Singapore_Rapid_Transit_System",
+      "publisher": "Wikipedia contributors",
+      "checked": "2026-10-08",
+      "authority": "Community cartographic data, NOT government-survey coordinates"
+    }
+  },
+  "features": [
+    {
+      "id": "hetao_hk",
+      "name": "Hetao Hong Kong Park / HSITP",
+      "region": "hk-shenzhen",
+      "kind": "innovation_campus",
+      "area_km2": 0.87,
+      "status_as_of": "2026-10-08",
+      "status": "operational_first_stage; expansion_planned",
+      "summary": "Opened 22 December 2025. R&D and pilot production focus; later construction remains phased.",
+      "source_ids": [
+        "hk_opening",
+        "hk_plan",
+        "hk_outline"
+      ],
+      "coordinates": null,
+      "polygon_file": null,
+      "milestones": [
+        {
+          "date": "2027 onwards",
+          "description": "Remaining five first-batch buildings expected to become ready",
+          "type": "target"
+        },
+        {
+          "date": "2030",
+          "description": "Phase 1 completion",
+          "type": "target"
+        },
+        {
+          "date": "2035",
+          "description": "Comprehensive development pattern",
+          "type": "target"
+        }
+      ],
+      "location": "Lok Ma Chau Loop, Hong Kong; south bank of Shenzhen River",
+      "boundary_warning": "87ha campus is not the 104ha statutory plan scheme. Use a pin unless a campus footprint is separately verified."
+    },
+    {
+      "id": "hetao_sz",
+      "name": "Hetao Shenzhen Park",
+      "region": "hk-shenzhen",
+      "kind": "innovation_cooperation_zone",
+      "area_km2": 3.02,
+      "status_as_of": "2026-10-08",
+      "status": "active; continuing_development",
+      "summary": "Includes Futian Free Trade Zone (1.35 km²) and Huanggang Port area (1.67 km²).",
+      "source_ids": [
+        "hetao_sz"
+      ],
+      "coordinates": null,
+      "polygon_file": null,
+      "milestones": [
+        {
+          "date": "2035",
+          "description": "Full collaborative innovation pattern with Hong Kong Park",
+          "type": "target"
+        }
+      ],
+      "location": "Futian District, north bank of Shenzhen River",
+      "boundary_warning": "Do not equate entire Shenzhen Park with the much smaller HKSTP Shenzhen Branch."
+    },
+    {
+      "id": "hkstp_sz_branch",
+      "name": "Hong Kong Science Park Shenzhen Branch",
+      "region": "hk-shenzhen",
+      "kind": "operating_facility",
+      "area_km2": null,
+      "status_as_of": "2026-10-08",
+      "status": "operational",
+      "summary": "Two buildings completed in 2023; 31,000 m² gross floor area.",
+      "source_ids": [
+        "branch"
+      ],
+      "coordinates": null,
+      "polygon_file": null,
+      "location": "32 Shihua Road, Futian District, Shenzhen",
+      "area_warning": "31,000 m² is gross floor area, not land area."
+    },
+    {
+      "id": "san_tin",
+      "name": "San Tin Technopole",
+      "region": "hk-shenzhen",
+      "kind": "mixed_use_development",
+      "area_km2": 6.26,
+      "status_as_of": "2026-10-08",
+      "status": "phased_construction",
+      "summary": "Current project page states 626ha including the 87ha Loop. Around 210ha additional I&T land beyond the Loop.",
+      "source_ids": [
+        "santin",
+        "hk_opening"
+      ],
+      "coordinates": null,
+      "polygon_file": null,
+      "location": "San Tin / Lok Ma Chau, northern New Territories",
+      "boundary_warning": "Not all land is technology campus. Current project total, statutory planning area and older CSDI study boundary are different extents."
+    },
+    {
+      "id": "northern_metropolis",
+      "name": "Northern Metropolis",
+      "region": "hk-shenzhen",
+      "kind": "regional_planning_framework",
+      "area_km2": 300,
+      "status_as_of": "2026-10-08",
+      "status": "mixed_existing_planned_and_construction",
+      "summary": "Regional programme covering Yuen Long and North districts, including existing towns and multiple development areas.",
+      "source_ids": [
+        "nm"
+      ],
+      "coordinates": null,
+      "polygon_file": null,
+      "boundary_warning": "Not 300 km² of newly built technology development. Do not sum nested HSITP/San Tin areas into this total."
+    },
+    {
+      "id": "qianhai",
+      "name": "Qianhai Shenzhen–Hong Kong Modern Service Industry Cooperation Zone",
+      "region": "hk-shenzhen",
+      "kind": "economic_cooperation_zone",
+      "area_km2": 120.56,
+      "status_as_of": "2026-10-08",
+      "status": "operating_policy_zone; continuing_development",
+      "summary": "Western Shenzhen service-industry and institutional cooperation zone.",
+      "source_ids": [
+        "qianhai"
+      ],
+      "coordinates": null,
+      "polygon_file": null,
+      "location": "Western Shenzhen, Pearl River Estuary coast",
+      "boundary_warning": "Expanded Qianhai footprint is much larger than its original 14.92km² core; do not use the old core outline for the expanded total."
+    },
+    {
+      "id": "hung_shui_kiu",
+      "name": "Hung Shui Kiu industry park",
+      "region": "hk-shenzhen",
+      "kind": "industry_development",
+      "area_km2": 0.275,
+      "status_as_of": "2026-10-08",
+      "status": "phased_development_target",
+      "summary": "2026 plan calls for phased development of 27.5ha.",
+      "source_ids": [
+        "nm_2026"
+      ],
+      "coordinates": null,
+      "polygon_file": null,
+      "boundary_warning": "Industry-park land is a subset of the larger Hung Shui Kiu/Ha Tsuen development area."
+    },
+    {
+      "id": "lau_fau_shan",
+      "name": "Lau Fau Shan Digital Technology Hub",
+      "region": "hk-shenzhen",
+      "kind": "planned_digital_hub",
+      "area_km2": 0.3,
+      "status_as_of": "2026-10-08",
+      "status": "planned_reserved_land",
+      "summary": "Approximately 30ha reserved in the 2026 plan.",
+      "source_ids": [
+        "nm_2026"
+      ],
+      "coordinates": null,
+      "polygon_file": null,
+      "boundary_warning": "Reserved hub land is a subset of Lau Fau Shan development; do not use whole district polygon as the hub."
+    },
+    {
+      "id": "sandy_ridge",
+      "name": "Sandy Ridge Data Facility Cluster",
+      "region": "hk-shenzhen",
+      "kind": "data_infrastructure",
+      "area_km2": null,
+      "status_as_of": "2026-10-08",
+      "status": "construction",
+      "summary": "2026 plan targets operation by 2029.",
+      "source_ids": [
+        "nm_2026"
+      ],
+      "coordinates": null,
+      "polygon_file": null
+    },
+    {
+      "id": "js_sez",
+      "name": "Johor–Singapore Special Economic Zone",
+      "region": "singapore-johor",
+      "kind": "economic_policy_zone",
+      "area_km2": null,
+      "status_as_of": "2026-10-08",
+      "status": "agreement_in_effect; phased_implementation",
+      "summary": "Economic partnership with nine designated flagship areas situated wholly within southern Johor.",
+      "source_ids": [
+        "js_faq",
+        "js_about",
+        "js_mida",
+        "js_imfc"
+      ],
+      "coordinates": null,
+      "polygon_file": null,
+      "area_display": "Over 3,500 km²",
+      "area_reported_variants": [
+        {
+          "value": 3588,
+          "unit": "km²",
+          "source_id": "js_imfc"
+        },
+        {
+          "value": 3571.28,
+          "unit": "km²",
+          "source_id": "js_old_area"
+        }
+      ],
+      "boundary_warning": "Do not shade Singapore as inside the JS-SEZ. The partnership connects two economies; its designated land is in Malaysia."
+    },
+    {
+      "id": "iskandar",
+      "name": "Iskandar Malaysia",
+      "region": "singapore-johor",
+      "kind": "economic_development_region",
+      "area_km2": 2300,
+      "status_as_of": "2026-10-08",
+      "status": "established_region; continuing_development",
+      "summary": "Created in 2006; current IRDA overview uses 2,300km². Iskandar is part of the wider JS-SEZ.",
+      "source_ids": [
+        "iskandar"
+      ],
+      "coordinates": null,
+      "polygon_file": null,
+      "boundary_warning": "Overlaps JS-SEZ and Forest City; never add their areas. Historical expanded-area announcements have different extents."
+    },
+    {
+      "id": "woodlands_gateway",
+      "name": "Woodlands Gateway",
+      "region": "singapore-johor",
+      "kind": "mixed_industry_gateway",
+      "area_km2": 0.35,
+      "status_as_of": "2026-10-08",
+      "status": "planned_phased_development",
+      "summary": "Up to 35ha Singapore-side district with industrial, office and transport functions; first phase expected around 2030.",
+      "source_ids": [
+        "woodlands"
+      ],
+      "coordinates": null,
+      "polygon_file": null,
+      "location": "Woodlands North Coast, Singapore, adjacent to Woodlands North MRT/RTS",
+      "boundary_warning": "Up to 35ha is a proposed district, not all of Woodlands North Coast or Woodlands Regional Centre."
+    },
+    {
+      "id": "rts_link",
+      "name": "Johor Bahru–Singapore RTS Link",
+      "region": "singapore-johor",
+      "kind": "transport_project",
+      "area_km2": null,
+      "status_as_of": "2026-10-08",
+      "status": "testing_and_commissioning; not_passenger_operational",
+      "summary": "Latest joint release targets February 2027, conditional on independent safety certification and regulatory approvals. Infrastructure substantially complete.",
+      "source_ids": [
+        "rts_latest",
+        "rts_route",
+        "rts_mrt"
+      ],
+      "coordinates": null,
+      "polygon_file": null,
+      "route_length_km": 4,
+      "capacity_pphpd": 10000,
+      "milestones": [
+        {
+          "date": "2026-12-31",
+          "description": "Final system tests and trial runs expected complete",
+          "type": "target"
+        },
+        {
+          "date": "2027-02",
+          "description": "Passenger service commencement",
+          "type": "conditional_target"
+        }
+      ],
+      "journey_time_note": "LTA older page says about 5 minutes; MRT Corp current page says 6 minutes. Show roughly 5–6 minutes train time, excluding access, queues and border formalities, or omit precise time."
+    },
+    {
+      "id": "js_flagship_a",
+      "name": "Johor Bahru Waterfront",
+      "region": "singapore-johor",
+      "kind": "js_sez_flagship",
+      "area_km2": null,
+      "status_as_of": "2026-10-08",
+      "status": "designated_flagship; project_status_varies",
+      "summary": "Global services",
+      "source_ids": [
+        "js_mida"
+      ],
+      "coordinates": null,
+      "polygon_file": null,
+      "letter": "A",
+      "boundary_warning": "Tax-incentive focus does not describe every existing industry. Exact publicly licensed vector boundary not verified. Use a clearly labelled locality pin or link to the official map."
+    },
+    {
+      "id": "js_flagship_b",
+      "name": "Iskandar Puteri",
+      "region": "singapore-johor",
+      "kind": "js_sez_flagship",
+      "area_km2": null,
+      "status_as_of": "2026-10-08",
+      "status": "designated_flagship; project_status_varies",
+      "summary": "Global services",
+      "source_ids": [
+        "js_mida"
+      ],
+      "coordinates": null,
+      "polygon_file": null,
+      "letter": "B",
+      "boundary_warning": "Tax-incentive focus does not describe every existing industry. Exact publicly licensed vector boundary not verified. Use a clearly labelled locality pin or link to the official map."
+    },
+    {
+      "id": "js_flagship_c",
+      "name": "Tanjung Pelepas",
+      "region": "singapore-johor",
+      "kind": "js_sez_flagship",
+      "area_km2": null,
+      "status_as_of": "2026-10-08",
+      "status": "designated_flagship; project_status_varies",
+      "summary": "Smart logistics",
+      "source_ids": [
+        "js_mida"
+      ],
+      "coordinates": null,
+      "polygon_file": null,
+      "letter": "C",
+      "boundary_warning": "Tax-incentive focus does not describe every existing industry. Exact publicly licensed vector boundary not verified. Use a clearly labelled locality pin or link to the official map."
+    },
+    {
+      "id": "js_flagship_d",
+      "name": "Tanjung Langsat–Kong Kong",
+      "region": "singapore-johor",
+      "kind": "js_sez_flagship",
+      "area_km2": null,
+      "status_as_of": "2026-10-08",
+      "status": "designated_flagship; project_status_varies",
+      "summary": "Downstream specialty chemicals",
+      "source_ids": [
+        "js_mida"
+      ],
+      "coordinates": null,
+      "polygon_file": null,
+      "letter": "D",
+      "boundary_warning": "Tax-incentive focus does not describe every existing industry. Exact publicly licensed vector boundary not verified. Use a clearly labelled locality pin or link to the official map."
+    },
+    {
+      "id": "js_flagship_e",
+      "name": "Senai–Skudai",
+      "region": "singapore-johor",
+      "kind": "js_sez_flagship",
+      "area_km2": null,
+      "status_as_of": "2026-10-08",
+      "status": "designated_flagship; project_status_varies",
+      "summary": "Aerospace manufacturing and MRO",
+      "source_ids": [
+        "js_mida"
+      ],
+      "coordinates": null,
+      "polygon_file": null,
+      "letter": "E",
+      "boundary_warning": "Tax-incentive focus does not describe every existing industry. Exact publicly licensed vector boundary not verified. Use a clearly labelled locality pin or link to the official map."
+    },
+    {
+      "id": "js_flagship_f",
+      "name": "Kulai–Sedenak",
+      "region": "singapore-johor",
+      "kind": "js_sez_flagship",
+      "area_km2": null,
+      "status_as_of": "2026-10-08",
+      "status": "designated_flagship; project_status_varies",
+      "summary": "AI/quantum supply chain, medical devices, pharmaceuticals",
+      "source_ids": [
+        "js_mida"
+      ],
+      "coordinates": null,
+      "polygon_file": null,
+      "letter": "F",
+      "boundary_warning": "Tax-incentive focus does not describe every existing industry. Exact publicly licensed vector boundary not verified. Use a clearly labelled locality pin or link to the official map."
+    },
+    {
+      "id": "js_flagship_g",
+      "name": "Desaru–Penawar",
+      "region": "singapore-johor",
+      "kind": "js_sez_flagship",
+      "area_km2": null,
+      "status_as_of": "2026-10-08",
+      "status": "designated_flagship; project_status_varies",
+      "summary": "Integrated tourism",
+      "source_ids": [
+        "js_mida"
+      ],
+      "coordinates": null,
+      "polygon_file": null,
+      "letter": "G",
+      "boundary_warning": "Tax-incentive focus does not describe every existing industry. Exact publicly licensed vector boundary not verified. Use a clearly labelled locality pin or link to the official map."
+    },
+    {
+      "id": "js_flagship_h",
+      "name": "Pengerang / PIPC",
+      "region": "singapore-johor",
+      "kind": "js_sez_flagship",
+      "area_km2": null,
+      "status_as_of": "2026-10-08",
+      "status": "designated_flagship; project_status_varies",
+      "summary": "Petrochemical and related industrial activities",
+      "source_ids": [
+        "js_mida"
+      ],
+      "coordinates": null,
+      "polygon_file": null,
+      "letter": "H",
+      "boundary_warning": "Tax-incentive focus does not describe every existing industry. Exact publicly licensed vector boundary not verified. Use a clearly labelled locality pin or link to the official map."
+    },
+    {
+      "id": "js_flagship_i",
+      "name": "Forest City",
+      "region": "singapore-johor",
+      "kind": "js_sez_flagship",
+      "area_km2": null,
+      "status_as_of": "2026-10-08",
+      "status": "designated_flagship; project_status_varies",
+      "summary": "Special Financial Zone",
+      "source_ids": [
+        "js_mida"
+      ],
+      "coordinates": null,
+      "polygon_file": null,
+      "letter": "I",
+      "boundary_warning": "Tax-incentive focus does not describe every existing industry. Exact publicly licensed vector boundary not verified. Use a clearly labelled locality pin or link to the official map."
+    }
+  ],
+  "important_scope_note": "Coordinates remain null where not retrieved and checked; absence is intentional. Never fill them with invented precision. See source_located_anchors.geojson for the separately-qualified verified subset."
+}

@@ -1,0 +1,236 @@
+{
+  "title": "What can people actually use?",
+  "researched_at": "2026-10-08",
+  "purpose": "Four primary-source access cards for a short HK–Shenzhen-centred presentation, with a bounded Singapore–Johor comparison.",
+  "framing": "A transport link can connect places; each service still has its own eligibility, provider, allocation or permission rules.",
+  "evidence_rule": "The cards describe official arrangements, not measured outcomes. They do not estimate exclusion, wellbeing, take-up, delay or causal effects.",
+  "cards": [
+    {
+      "id": "care_followup_pathway",
+      "jurisdiction": "Hong Kong / Shenzhen",
+      "person": "An eligible Hospital Authority patient considering follow-up care in Shenzhen",
+      "question": "Can I move my follow-up care across the boundary?",
+      "title": "Care follows a specified pathway",
+      "copy": "The 2026/27 HA pilot supports designated follow-up care at HKU–Shenzhen Hospital, with a RMB2,000 annual subsidy cap. It does not cover inpatient or A&E care.",
+      "status": "Operational pilot, 1 April 2026–31 March 2027",
+      "evidence_type": "official_arrangement",
+      "facts": [
+        "Eligibility requires scheduled follow-up at designated HA Specialist Out-patient or Family Medicine Clinics; the Shenzhen service must correspond to that follow-up category.",
+        "For consultations costing at least RMB100, the normal patient co-payment is RMB100; specified HA-verified fee-waiver holders are excepted. The annual subsidy cap is RMB2,000.",
+        "The first subsidised HKU-SZH outpatient service cancels the corresponding HA follow-up appointment. Referral back is available on clinical grounds or withdrawal; the parallel-follow-up restriction has an exception when the subsidy is exhausted."
+      ],
+      "visual": "Patient → eligible HA follow-up → corresponding HKU-SZH clinic. Place 'RMB2,000 / scheme year' beside the subsidy gate, with a return-referral arrow. Keep excluded services in a small scope note rather than depicting a general ban on care.",
+      "caveats": [
+        "This is not the Elderly Health Care Voucher scheme; do not merge its cap or eligibility with voucher-claim statistics.",
+        "This does not mean all medical care in Shenzhen is unavailable outside this pathway; it defines this particular Hong Kong subsidy.",
+        "The appointment cancellation concerns corresponding outpatient services, not every HA service or the patient's general entitlement.",
+        "No causal claim about health outcomes, unmet need or cost saving is established."
+      ],
+      "sources": [
+        {
+          "title": "GBA patient aid extended",
+          "publisher": "Hong Kong Government, news.gov.hk",
+          "url": "https://www.news.gov.hk/eng/2026/03/20260331/20260331_215256_750.html",
+          "published": "2026-03-31",
+          "locator": "Opening paragraph; paragraphs beginning 'Under the extended pilot scheme' and 'The scope of subsidised consultation services'",
+          "scope": "2026/27 HA pilot eligibility, subsidy and service exclusions",
+          "verified": "2026-10-08"
+        },
+        {
+          "title": "Pilot Scheme participant pack, May 2026, version 4",
+          "publisher": "University of Hong Kong–Shenzhen Hospital / Pilot Scheme Designated Office",
+          "url": "https://www.hku-szh.org/attachment/0/103/103440/1137923.pdf",
+          "published": "2026-05",
+          "locator": "Printed pp. 3–4, measures 1–5; printed p. 8, participant notice items 6–8; printed pp. 19–20, declaration items 9–12",
+          "scope": "Clinic matching, corresponding appointment cancellation, parallel-service restriction and return referral",
+          "verified": "2026-10-08"
+        }
+      ]
+    },
+    {
+      "id": "school_allocation",
+      "jurisdiction": "Hong Kong, for cross-boundary P1 applicants",
+      "person": "A family living across the boundary with a Hong Kong-resident child",
+      "question": "Which school can my child actually attend?",
+      "title": "A school place needs an allocation",
+      "copy": "For 2027 P1 admission, an eligible cross-boundary child can apply to one discretionary school. Central Allocation offers up to three unrestricted Part A choices; Part B uses a dedicated list generally near boundary points.",
+      "status": "Published August 2026 guidance for September 2027 admission; not an observed 2027 outcome",
+      "evidence_type": "official_arrangement",
+      "facts": [
+        "General POA eligibility includes Hong Kong resident status, the stated minimum age and no previous P1 allocation or current primary-school attendance.",
+        "The commuter addendum preserves unrestricted discretionary and Part A choices; Part B choices come from the EDB list.",
+        "EDB asks parents to arrange adults to accompany young children and consider cross-boundary coaches or local school vehicles."
+      ],
+      "visual": "Family → eligibility → two admission routes. Draw discretionary and Central Allocation separately; split Central Allocation into Part A and Part B so the unrestricted choices remain visible. A small accompanying-adult/transport icon can show the family logistics layer.",
+      "caveats": [
+        "Do not say cross-boundary children can attend only schools near the border; that overstates the Part B rule.",
+        "Hong Kong-resident status is an eligibility category, not a claim that all eligible children live in Hong Kong.",
+        "POA covers government and aided primary schools; DSS, private and ESF schools have other application routes.",
+        "These rules do not establish school belonging, attainment or commute duration. Keep the 417-student study separate."
+      ],
+      "sources": [
+        {
+          "title": "Primary One Admission for September 2027",
+          "publisher": "Hong Kong Education Bureau",
+          "url": "https://www.edb.gov.hk/attachment/en/edu-system/primary-secondary/spa-systems/primary-1-admission/EDB%20-%20P1Leaflet_EN.pdf",
+          "published": "2026-08",
+          "locator": "PDF page 2, eligibility box; PDF page 3, POA scope and discretionary stage; PDF page 4, Central Allocation",
+          "scope": "General 2027 POA eligibility and school-sector scope",
+          "verified": "2026-10-08"
+        },
+        {
+          "title": "Addendum: Primary One Admission for September 2027, daily commuters",
+          "publisher": "Hong Kong Education Bureau",
+          "url": "https://www.edb.gov.hk/attachment/en/edu-system/primary-secondary/spa-systems/primary-1-admission/EDB_P1Addendum.pdf",
+          "published": "2026-08",
+          "locator": "PDF page 2, English panel, numbered notes (1), (3) and (4); print date 8/2026 on PDF page 1",
+          "scope": "2027 P1 applicants who intend to commute daily to Hong Kong schools",
+          "verified": "2026-10-08",
+          "verification_method": "Downloaded official PDF and visually read both rendered pages because its text layer is empty",
+          "local_evidence": "edb-poa-2027-commuters.pdf"
+        }
+      ]
+    },
+    {
+      "id": "visiting_work_rights",
+      "jurisdiction": "Shenzhen → Hong Kong",
+      "person": "A Shenzhen resident using the multiple-entry Individual Visit Scheme",
+      "question": "Does easier visiting let me take a job?",
+      "title": "Visiting and working have different permissions",
+      "copy": "Eligible Shenzhen residents can obtain a one-year multiple-entry visit endorsement, with stays of up to seven days. Visitor status does not authorise paid or unpaid employment in Hong Kong.",
+      "status": "Multiple-entry arrangement effective 1 December 2024; current Tourism Commission page revised 7 July 2026",
+      "evidence_type": "official_arrangement",
+      "facts": [
+        "The specific multiple-entry route covers Shenzhen permanent residents and non-permanent residents holding Shenzhen residence permits.",
+        "Hong Kong's visitor conditions prohibit employment, including unpaid work; a suitable employment route is separate."
+      ],
+      "visual": "One person with two distinct document gates: 'visit endorsement' → visiting, and 'employment permission' → work. Do not use one universal open-border icon.",
+      "caveats": [
+        "This describes visitors using this endorsement, not Hong Kong permanent residents or people who already possess an appropriate work entitlement.",
+        "Do not infer that no Mainland resident can work in Hong Kong; other admission schemes exist.",
+        "This is a public-policy illustration, not individual immigration advice."
+      ],
+      "sources": [
+        {
+          "title": "Individual Visit Scheme",
+          "publisher": "Hong Kong Tourism Commission",
+          "url": "https://www.tourism.gov.hk/en/visitor_ind.php",
+          "updated": "2026-07-07",
+          "locator": "Asterisked paragraph immediately after general endorsement duration; page footer records revision date",
+          "scope": "Current Shenzhen multiple-entry eligibility and seven-day stay limit",
+          "verified": "2026-10-08"
+        },
+        {
+          "title": "12月1日起，深圳赴香港旅游“一签多行”！",
+          "publisher": "Shenzhen Municipal Government Port Office",
+          "url": "https://ka.sz.gov.cn/xxgk/qt/gzdt/content/post_11838775.html",
+          "locator": "Opening announcement and Q&A on commencement, eligibility and validity",
+          "scope": "1 December 2024 commencement",
+          "verified": "2026-10-08"
+        },
+        {
+          "title": "Visit Visa / Entry Permit Requirements",
+          "publisher": "Hong Kong Immigration Department",
+          "url": "https://www.immd.gov.hk/eng/services/visas/visit-transit/visit-visa-entry-permit.html",
+          "locator": "Part I, paragraph 3 for exceptions; Part II, paragraphs 4 and 6 for work/visitor conditions",
+          "scope": "Visitor status; exceptions must be preserved",
+          "verified": "2026-10-08"
+        }
+      ]
+    },
+    {
+      "id": "sg_johor_clearance_work",
+      "jurisdiction": "Singapore side of the Singapore–Johor land crossings",
+      "person": "A cross-border traveller considering work in Singapore",
+      "question": "What does faster clearance actually change?",
+      "title": "Clearance and employment are separate gates",
+      "copy": "QR clearance can simplify Singapore's land-checkpoint process. A first-time foreign visitor or someone returning with a different passport must first present that passport. Taking a job still requires the relevant work authorisation.",
+      "status": "Current ICA FAQ checked 8 October 2026; motorcycle process corroborated by 26 March 2026 announcement",
+      "evidence_type": "official_arrangement",
+      "facts": [
+        "QR eligibility generally covers all ages and traveller categories, with the stated first-visit/new-passport exceptions; automated-lane use also requires biometric enrolment.",
+        "ICA's March 2026 motorcycle guidance says travellers must carry their passports and update their QR profile after a passport change.",
+        "MOM's work-pass guidance separately requires a valid work pass before foreigners start work."
+      ],
+      "visual": "Two independent gates on a short journey strip: 'identity and clearance' then 'permission to work'. Treat this as a small comparison inset, not a ranked city score.",
+      "caveats": [
+        "ICA evidence concerns Singapore clearance only; it does not describe Malaysian entry rules.",
+        "QR eligibility is not guaranteed entry, employment permission, an end-to-end journey time, or proof of a congestion reduction.",
+        "The work-pass statement is MOM's general foreign-worker guidance, not a personal eligibility assessment or a claim about Singapore citizens/permanent residents.",
+        "No same-population outcome comparison with HK–Shenzhen is available from these rules."
+      ],
+      "sources": [
+        {
+          "title": "Who is eligible to use the QR code for immigration clearance?",
+          "publisher": "Singapore Immigration & Checkpoints Authority, AskGov",
+          "url": "https://ask.gov.sg/ica/questions/cltpefla400d710z37vcp52ju",
+          "locator": "Answer paragraphs 1–3",
+          "scope": "Singapore land checkpoints, cars/motorcycles/lorries/buses; passport history and biometric conditions",
+          "verified": "2026-10-08"
+        },
+        {
+          "title": "Facial Image to be Progressively Rolled out as Primary Biometric Identifier for Motorcyclist Immigration Clearance",
+          "publisher": "Singapore Immigration & Checkpoints Authority",
+          "url": "https://www.ica.gov.sg/news-and-publications/newsroom/media-release/facial-image-to-be-progressively-rolled-out-as-primary-biometric-identifier-for-motorcyclist-immigration-clearance-at-the-land-checkpoints",
+          "published": "2026-03-26",
+          "locator": "Paragraphs 4–6",
+          "scope": "Motorcyclists/pillion riders at Singapore land checkpoints; do not treat announced future rollout stages as completed",
+          "verified": "2026-10-08"
+        },
+        {
+          "title": "Work passes",
+          "publisher": "Singapore Ministry of Manpower",
+          "url": "https://www.mom.gov.sg/passes-and-permits",
+          "locator": "Opening paragraph directly below page title",
+          "scope": "General work-pass requirement; pass-specific exceptions and conditions require the relevant detailed guidance",
+          "verified": "2026-10-08"
+        }
+      ]
+    }
+  ],
+  "context_anchor": {
+    "title": "Officially bounded health portability",
+    "finding": "In a 17 June 2026 LegCo reply, the Health Secretary states that GBA measures add subsidised choices at designated Mainland service points and are not designed to meet every healthcare need of Hong Kong people who settle in the Mainland.",
+    "url": "https://www.info.gov.hk/gia/general/202606/17/P2026061700586p.htm",
+    "locator": "Reply to parts (2) and (3), opening two paragraphs before the Elderly Health Care Voucher subheading",
+    "use": "An official scope statement supporting the move from regional plans to individual service gates."
+  },
+  "freshness_note": {
+    "finding": "The June 2026 reply reports, as at end-May 2026, over 40,600 eligible elderly persons, about 101,000 claims and approximately HK$103.28 million at institutions launched under the GBA Pilot Scheme.",
+    "use": "Context footnote only. Do not replace the 2025 annual provider table or derive a growth rate, uptake rate, per-person average or chart splice.",
+    "url": "https://www.info.gov.hk/gia/general/202606/17/P2026061700586p.htm",
+    "locator": "Elderly Health Care Voucher Greater Bay Area Pilot Scheme subsection, paragraph beginning 'As at end-May 2026'",
+    "cohort_audit": {
+      "institutions": "The May aggregate wording refers to pilot institutions. The same reply separately adds two existing HKU-SZH points to the 19-provider pilot to describe 21 total service points. The April budget reply explicitly labels the analogous February aggregate as 19 pilot institutions. This strongly supports exclusion of the older two HKU-SZH points, but the May sentence does not restate the number 19.",
+      "period": "No exact observation start date is specified beside the May aggregate. Programme history places the initial seven launches in June–September 2024 and the additional twelve in June–August 2025; these staggered dates must not be turned into a single common exposure window.",
+      "people": "The release says eligible elderly persons, separately from claim transactions. It does not publish a deduplication protocol across providers or years. Preserve the official label; do not label it a verified count of unique residents or sum provider counts.",
+      "comparison": "The 2025 annual provider table and this as-at snapshot have different time definitions and potentially different institutional scope. No like-for-like comparison has been established."
+    },
+    "supporting_sources": [
+      {
+        "title": "2026–27 Estimates: Health Bureau replies",
+        "url": "https://www.healthbureau.gov.hk/download/legco/replies/260415_sfc/hhb-e.pdf",
+        "locator": "Session 1 HHB printed pp. 28–29, question serial 1554; reply 1, paragraph beginning 'As at end-February 2026'",
+        "scope": "Explicit 19-institution cohort for February aggregate; distinguishes two pre-existing HKU-SZH points",
+        "verified": "2026-10-08",
+        "verification_method": "Official PDF downloaded and text-extracted because web fetch exceeded size limit",
+        "local_evidence": "hhb-budget-replies-2026-27.pdf"
+      },
+      {
+        "title": "Health Care Voucher background",
+        "url": "https://www.hcv.gov.hk/en/hcvs/background.html",
+        "locator": "2015, April 2023, 2024 and 2025 chronology entries",
+        "scope": "Separate HKU-SZH history and staggered GBA pilot institution launch windows",
+        "verified": "2026-10-08"
+      }
+    ]
+  },
+  "optional_replacement_for_sg_card": {
+    "finding": "MOM specifically requires employers to buy a Primary Care Plan for Work Permit or S Pass holders in construction, marine shipyard or process sectors, including Malaysian daily commuters without a Singapore residential address. The employer may select the work zone or an accessible zone.",
+    "url": "https://www.mom.gov.sg/faq/primary-care-plan/do-i-have-to-get-the-pcp-for-my-malaysian-worker-who-commutes-daily-to-work-in-singapore",
+    "locator": "Entire FAQ answer",
+    "verified": "2026-10-08",
+    "caveat": "Use only for the specified pass/sector group, not all Malaysians or all Singapore–Johor commuters. This arrangement is not equivalent to Hong Kong's HA subsidy."
+  }
+}
+

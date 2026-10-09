@@ -1,0 +1,110 @@
+{
+  "snapshot": "Frozen delivery snapshot of historical evidence, not a claim of latest available statistics or final scientific authority.",
+  "HKFYG2024": {
+    "dataset": "HKFYG_YI079",
+    "title": "Enabling Robust Cross-border Health Services for Hong Kong Residents",
+    "publisher": "Hong Kong Federation of Youth Groups, Youth Research Centre",
+    "published": "2024-12",
+    "source_url": "https://yrc.hkfyg.org.hk/wp-content/uploads/sites/56/2024/12/YI079_Report-1.pdf",
+    "n": 600,
+    "population_description": "Interviewed Hong Kong residents aged 18–74",
+    "fieldwork": [
+      "2024-11-09",
+      "2024-11-14"
+    ],
+    "method": "Face-to-face computer-assisted interviews by Social Policy Research Limited at 10 randomly selected locations drawn from over 150 MTR, light rail and principal bus terminals; eligible passers-by invited.",
+    "instrument": "Appendix 1 printed pp69–73; V11–V18 relevant. Interview opens with healthcare before consumption questions.",
+    "weighting": "No weighting or response-rate information located in methods section or text search.",
+    "limits": [
+      "Random location selection does not by itself produce a probability sample of all residents. People using transport nodes may differ systematically from less-mobile residents.",
+      "Ages over 74 excluded. Street-intercept selection and healthcare priming may affect answers.",
+      "Cross-sectional recalled past-year experiences, not trips, expenditure shares, or a trend.",
+      "Destination item is medical-services-specific; never label as all northbound destinations.",
+      "Multiple-response activities do not form a 100% partition. Medical main-consumption item V12 (74 people) differs from any-medical-experience V13 (181 people); do not merge."
+    ],
+    "derived_groups": [
+      {
+        "label": "At least monthly",
+        "count": 316,
+        "denominator": 600,
+        "percent": 52.7
+      },
+      {
+        "label": "Less than monthly",
+        "count": 170,
+        "denominator": 600,
+        "percent": 28.3
+      },
+      {
+        "label": "No northbound consumption in past year",
+        "count": 114,
+        "denominator": 600,
+        "percent": 19.0
+      }
+    ]
+  },
+  "DH2025_HHB246": {
+    "scope": "Seven newly added pilot providers; excludes two pre-existing HKU–Shenzhen Hospital service points.",
+    "observations": "Administrative claim transactions and rounded amounts, inception through 2024-12-31; not equal exposure periods.",
+    "start_dates": [
+      "2024-06-28",
+      "2024-07-18",
+      "2024-08-14",
+      "2024-09-06"
+    ],
+    "units": {
+      "claim_transactions": "Transactions, not unique people",
+      "claimed_hkd_thousand": "HKD thousands; source-rounded amounts",
+      "reported_persons": "Reported users/persons; deduplication method not documented"
+    },
+    "reported_users": 9064,
+    "reported_gba_usual_residents": 1681,
+    "reported_shenzhen_usual_residents": 130,
+    "residence_warning": "Table header implies GBA usual residents, but printed city percentages arithmetically use all 9,064 reported users. Both calculated bases are explicit. Remaining users must not be labeled Hong Kong residents.",
+    "inference_limits": [
+      "Not all cross-border medical use, costs, provider income or profits.",
+      "Unequal operating windows and case/service mix prevent performance rankings.",
+      "Residence reports cannot establish commuter status, identity, motivation or household arrangements.",
+      "No population non-user denominator or deduplication method supplied."
+    ]
+  },
+  "corrections": [
+    {
+      "source_id": "HKFYG2024",
+      "table": "5.6",
+      "category": "1–3 times per month",
+      "count": 182,
+      "denominator": 600,
+      "published_percent": 40.3,
+      "calculated_percent": 30.3,
+      "handling": "Display calculated percentage only with correction note; coarse groups preferred."
+    },
+    {
+      "source_id": "HKFYG2024",
+      "table": "5.9",
+      "issue": "65–74 total percentage printed 10.0% rather than 100.0%. Counts reconcile; supplied rows omit erroneous total."
+    },
+    {
+      "source_id": "DH2025_HHB246",
+      "issue": "Residence table denominator ambiguity",
+      "handling": "Use counts or explicitly named denominator, never silently inherit header."
+    }
+  ],
+  "DH2026_HHB248": {
+    "scope": "19 pilot providers reporting calendar-year 2025 claims; 12 joined during 2025. Excludes pre-existing HKU–SZH service points.",
+    "period_start": "2025-01-01",
+    "period_end": "2025-12-31",
+    "annual_not_cumulative": true,
+    "total_transactions": 51384,
+    "published_total_claimed_hkd_thousand": 51811,
+    "sum_rounded_provider_amounts_hkd_thousand": 51812,
+    "rounding_reconciliation": "Provider rounded rows sum HK$1,000 above published total. Use published total for shares; do not alter any row to force reconciliation.",
+    "share_denominator_hkd_thousand": 51811,
+    "comparability": "2024 includes seven providers with partial-year exposure; 2025 includes those seven plus twelve midyear additions. No causal or performance conclusion from changes in shares.",
+    "limits": [
+      "Provider totals only. Service-category allocation discrepancies across report vintages are not resolved.",
+      "Do not substitute nearby cumulative-since-launch data.",
+      "2024 residence findings have not been refreshed by this annual provider table."
+    ]
+  }
+}

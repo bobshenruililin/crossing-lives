@@ -1,0 +1,93 @@
+{
+  "checked": "2026-10-09",
+  "geometry_note": "IDs and names match the CSDI October 2023 Action Agenda polygons. These are historical planning extents, not verified current project boundaries or completed development footprints.",
+  "status_note": "The binary status describes the proposed development programme, not every existing building or activity inside a polygon. Planned includes phased construction; none of these whole development areas should be presented as a completed operating technology campus.",
+  "status_source": "https://www.cedd.gov.hk/eng/our-projects/northern-metropolis/index.html",
+  "areas": [
+    {
+      "id": 1,
+      "name": "Ngau Tam Mei",
+      "purpose": "A planned academic and research district combining university facilities, medical teaching and research, and housing near San Tin’s technology industries.",
+      "primary_url": "https://www.nm-ntm.hk/en/",
+      "status": "planned"
+    },
+    {
+      "id": 2,
+      "name": "Sandy Ridge",
+      "purpose": "A data-centre development intended to expand Hong Kong’s computing infrastructure and support artificial intelligence, research and related digital industries.",
+      "primary_url": "https://www.info.gov.hk/gia/general/202604/22/P2026042200281.htm",
+      "status": "planned",
+      "stage": "Under construction; not yet operating.",
+      "boundary_note": "The historical polygon is not verified as the current tender-site boundary."
+    },
+    {
+      "id": 3,
+      "name": "Yuen Long South New Development Area",
+      "purpose": "An extension of Yuen Long New Town that redevelops brownfield land for housing, community facilities and improved transport connections.",
+      "primary_url": "https://www.yls.hk/en/yuen-long-south-development-area/2-positioning-of-yuen-long-south-development-area",
+      "status": "planned",
+      "stage": "Phased construction."
+    },
+    {
+      "id": 4,
+      "name": "Lau Fau Shan",
+      "purpose": "A planned extension of Hung Shui Kiu combining a digital technology hub, tourism and supporting facilities linked to nearby Shenzhen districts.",
+      "primary_url": "https://nm-lfs.hk/en/Highlights/Digital_Technology_Hub/",
+      "additional_source": "https://nm-lfs.hk/en/Study_Overview/",
+      "status": "planned",
+      "boundary_note": "The digital hub is one component of the wider development area, not the entire polygon."
+    },
+    {
+      "id": 6,
+      "name": "Fanling North",
+      "purpose": "A riverside residential extension providing public and private housing, shops, community services and recreational spaces alongside the existing Fanling area.",
+      "primary_url": "https://www.ktnfln-ndas.gov.hk/en/2-1-4-about_project.php",
+      "status": "planned",
+      "stage": "Phased construction; existing communities remain within the wider area."
+    },
+    {
+      "id": 7,
+      "name": "San Tin Technopole (Outside the Loop)",
+      "purpose": "A mixed district pairing innovation and technology sites with a new town centre, housing, community facilities and logistics uses outside the Loop.",
+      "primary_url": "https://nm-santintech.hk/en/project-overview-2/rodp/",
+      "status": "planned",
+      "stage": "Phased construction.",
+      "boundary_note": "Do not label the historical polygon as the current project boundary. The current 626-hectare project total includes the Loop; the older 609-hectare figure is not current."
+    },
+    {
+      "id": 8,
+      "name": "Hung Shui Kiu /Ha Tsuen",
+      "purpose": "A new district combining high-end professional services and modern logistics with housing and community facilities in the western Northern Metropolis.",
+      "primary_url": "https://hskhtnda.hk/en/",
+      "status": "planned",
+      "stage": "Phased construction.",
+      "boundary_note": "The industry park is a subset of the wider development area."
+    },
+    {
+      "id": 9,
+      "name": "Kwu Tung North",
+      "purpose": "A mixed new town district centred on rail access, with housing, shops, community facilities, recreation, agriculture and nature conservation.",
+      "primary_url": "https://www.ktnfln-ndas.gov.hk/en/2-1-3-about_project.php",
+      "additional_source": "https://www.ktnfln-ndas.gov.hk/en/2-1-about_project.php",
+      "status": "planned",
+      "stage": "Phased development; do not imply all existing housing or facilities are unoccupied.",
+      "purpose_note": "The official overview says the former Business and Technology Park land-use function shifted to San Tin; avoid presenting Kwu Tung as that technology park."
+    },
+    {
+      "id": 10,
+      "name": "Ma Tso Lung",
+      "purpose": "A planned residential extension of Kwu Tung North, providing homes and everyday services for people working at the Loop’s technology park.",
+      "primary_url": "https://nm-mtl.hk/en/index.html",
+      "status": "planned"
+    },
+    {
+      "id": 11,
+      "name": "New Territories North New Town",
+      "purpose": "A planned border-linked district combining commerce, modern logistics and emerging industries with housing, university facilities, culture and sports.",
+      "primary_url": "https://nm-ntnorth.hk/en/index.html",
+      "status": "planned",
+      "name_note": "Historical polygon name retained. The current Northern Metropolis basic-information page identifies this programme as Ta Kwu Ling New Development Area, formerly New Territories North New Town.",
+      "name_source": "https://www.nm.gov.hk/tc/about-nm/basic-information"
+    }
+  ]
+}

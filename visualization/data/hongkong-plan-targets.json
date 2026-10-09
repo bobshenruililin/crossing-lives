@@ -1,0 +1,26 @@
+{
+  "verified_as_of": "2026-10-08",
+  "plan": "First Five-Year Plan for Economic and Social Development of the Hong Kong Special Administrative Region (2026–2030)",
+  "authority": "Hong Kong Special Administrative Region Government",
+  "issued": "2026-09-16",
+  "status": "Published government guiding plan; statutory enactment not established by these sources",
+  "source": "https://www.info.gov.hk/gia/general/202609/16/P2026091600143.htm",
+  "locator": "Part 1, Chapter 5, Major Indicators",
+  "series": [
+    {"id":"nm_spade_ready","label":"Spade-ready land available in Northern Metropolis","unit":"hectares","geography":"Northern Metropolis","baseline":120,"baseline_period":"FY2021–22 to FY2025–26","target":900,"target_period":"FY2026–27 to FY2030–31","baseline_status":"Plan-reported historical output","target_status":"Binding target","row":11,"denominator":"Not applicable: period total area, not share of total Northern Metropolis land","caveat":"Source growth label ambiguous; use raw figures or calculated 7.5x ratio"},
+    {"id":"nm_homes","label":"Completed domestic units in Northern Metropolis","unit":"units","geography":"Northern Metropolis","baseline":11000,"baseline_period":"FY2021–22 to FY2025–26","target":70000,"target_period":"FY2026–27 to FY2030–31","baseline_status":"Plan-reported historical output","target_status":"Anticipatory target","row":12,"denominator":"Not applicable: five-year completion count, not total stock or occupied units","caveat":"Source growth label ambiguous; use raw figures or calculated 6.36x ratio"},
+    {"id":"doctors","label":"Doctor density","unit":"doctors per 1000 population","geography":"Hong Kong, territory-wide","baseline":2.25,"baseline_period":"2025","target":2.43,"target_period":"2030","baseline_status":"Plan-reported baseline","target_status":"Anticipatory target","row":17,"denominator":"1000 population","caveat":"Cannot establish Northern Metropolis access or cross-boundary access"},
+    {"id":"zero_carbon","label":"Zero-carbon energy share in electricity generation fuel mix","unit":"percent","geography":"Hong Kong, territory-wide","baseline":25,"baseline_period":"2024","target":30,"target_period":"2030","baseline_status":"Plan-reported baseline","target_status":"Binding target","row":20,"denominator":"Electricity generation fuel mix","caveat":"Not renewable share; not total final energy consumption"}
+  ],
+  "transport_source": "https://www.info.gov.hk/gia/general/202609/16/P2026091600196.htm",
+  "transport_locator": "Part 3, Table 27",
+  "transport_milestones": [
+    {"project":"Kwu Tung Station, East Rail Line","year":2027,"status":"Commissioning target; construction works"},
+    {"project":"Hung Shui Kiu Station, Tuen Ma Line","year":2030,"status":"Commissioning target; construction works"},
+    {"project":"Northern Link Main Line and Spur Line","year":2034,"status":"Simultaneous commissioning aim; Spur gazettal targeted within 2026, tunnel boring progressively from 2028"},
+    {"project":"Hong Kong–Shenzhen Western Rail Link","year":2035,"status":"Simultaneous Hong Kong/Shenzhen commissioning aim; Hong Kong detailed design/construction tender invitation targeted 2027"},
+    {"project":"Northern Metropolis Highway, San Tin section","year":2034,"status":"Commissioning target; gazettal targeted 2027"},
+    {"project":"Tsing Lung Bridge, southern Route 11","year":2033,"status":"Commissioning target"}
+  ],
+  "design_rules":["Keep targets visually distinct from observations","Use fiscal-year windows exactly","No population/jobs/home/land sum across incompatible units","No inferred border flows from equal-width conceptual edges","No percentage-growth label copied without checking arithmetic","Reverify milestone status before publication after the as-of date"]
+}

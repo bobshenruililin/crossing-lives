@@ -1,0 +1,11 @@
+{
+  "status": "Future extension checks; not included evidence",
+  "checks": [
+    "Recheck any newly found release against the original report, instrument, fieldwork dates and population before updating.",
+    "Do not merge new HKFYG/PlanD or payment-platform sources unless sampling unit, destination, question, period and population are demonstrably compatible.",
+    "Obtain provider-matched exposure, service/case mix and deduplication documentation before comparing rates or outcomes.",
+    "Clarify DH residence percentage header with source owner before using it without explicit recalculated denominator.",
+    "Resolve CUHK report/release category and cohort discrepancies before any category-share chart; all CUHK data excluded here.",
+    "Verify weighted sampling, response rate and joint microdata before any population or joint identity/destination inference."
+  ]
+}

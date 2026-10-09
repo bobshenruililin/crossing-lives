@@ -1,0 +1,97 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          114.0796399361761,
+          22.521240675893896
+        ]
+      },
+      "properties": {
+        "name": "Lok Ma Chau Loop planning-area reference point",
+        "source": "Town Planning Board",
+        "source_url": "https://www.ozp.tpb.gov.hk/arcgis2/rest/services/DATA/OZP_PLAN_CSDI/FeatureServer/0",
+        "method": "Computed polygon centroid of largest exterior ring",
+        "role": "area_label_anchor_not_entrance_or_campus_boundary",
+        "plan_no": "S/LMCL/2",
+        "precision": "Indicative label point derived from authoritative geometry; not an official surveyed point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          114.07701702857027,
+          22.50141046658402
+        ]
+      },
+      "properties": {
+        "name": "San Tin Technopole planning-area reference point",
+        "source": "Town Planning Board",
+        "source_url": "https://www.ozp.tpb.gov.hk/arcgis2/rest/services/DATA/OZP_PLAN_CSDI/FeatureServer/0",
+        "method": "Computed polygon centroid of largest exterior ring",
+        "role": "area_label_anchor_not_entrance_or_campus_boundary",
+        "plan_no": "S/STT/2",
+        "precision": "Indicative label point derived from authoritative geometry; not an official surveyed point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.76219,
+          1.46646
+        ]
+      },
+      "properties": {
+        "name": "Bukit Chagar RTS station",
+        "source": "Wikipedia map coordinates",
+        "source_url": "https://en.wikipedia.org/wiki/Johor_Bahru%E2%80%93Singapore_Rapid_Transit_System",
+        "role": "approximate_locality_pin",
+        "precision": "Community-source approximate pin; not a government survey",
+        "not_boundary": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.78665,
+          1.4478
+        ]
+      },
+      "properties": {
+        "name": "Woodlands North MRT station",
+        "source": "Wikipedia map coordinates",
+        "source_url": "https://en.wikipedia.org/wiki/Johor_Bahru%E2%80%93Singapore_Rapid_Transit_System",
+        "role": "approximate_locality_pin",
+        "precision": "Community-source approximate pin; not a government survey",
+        "not_boundary": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.76071,
+          1.47154
+        ]
+      },
+      "properties": {
+        "name": "Wadi Hana depot",
+        "source": "Wikipedia map coordinates",
+        "source_url": "https://en.wikipedia.org/wiki/Johor_Bahru%E2%80%93Singapore_Rapid_Transit_System",
+        "role": "approximate_locality_pin",
+        "precision": "Community-source approximate pin; not a government survey",
+        "not_boundary": true
+      }
+    }
+  ]
+}

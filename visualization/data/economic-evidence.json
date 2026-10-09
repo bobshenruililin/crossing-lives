@@ -1,0 +1,211 @@
+{
+  "schema_version": 1,
+  "verified_at": "2026-10-08",
+  "scope": "Selected script evidence, not a latest-quarter economic update. Analytical archetypes are not statistical population categories.",
+  "sources": {
+    "retail": {
+      "title": "C&SD Table 630-76003, Annual Survey of Economic Activities",
+      "url": "https://www.censtatd.gov.hk/en/web_table.html?id=630-76003",
+      "verification": "Live primary-source API retrieved successfully; raw response saved alongside this file. Both years are in the same current series."
+    },
+    "labour": {
+      "title": "C&SD: Statistics on persons engaged and vacancies for December 2025, tables 1–2",
+      "url": "https://www.info.gov.hk/gia/general/202603/20/P2026032000329.htm",
+      "table_url": "https://gia.info.gov.hk/general/202603/20/P2026032000329_536543_1_1773981871703.pdf",
+      "published": "2026-03-20",
+      "verification": "Primary PDF downloaded and text extracted; 4 pages."
+    },
+    "nursing": {
+      "title": "LCQ20: Admission of non-locally trained nurses",
+      "url": "https://www.info.gov.hk/gia/general/202604/01/P2026040100496.htm",
+      "published": "2026-04-01",
+      "verification": "Official reply read with web tool."
+    },
+    "wages": {
+      "title": "C&SD Quarterly Report of Wage and Payroll Statistics, December 2025",
+      "url": "https://www.censtatd.gov.hk/wbr/B1050009/B10500092025QQ04/att/en/B10500092025QQ04.pdf",
+      "published": "2026-03-27",
+      "locator": "Table 2.1, PDF page 4; Table 2.4, PDF page 6",
+      "verification": "Primary PDF text read with web tool."
+    }
+  },
+  "retail_comparison": {
+    "title": "Retail company counts fell overall, while middle receipt bands grew",
+    "subtitle": "Change in company counts by annual receipts, Hong Kong, 2023–2024",
+    "chart": "Diverging percentage-change bars, common scale -20% to +60%; all-retail reference separate",
+    "unit": "Percent change in company count",
+    "data": [
+      {
+        "band_code": "<1000",
+        "label": "Below HK$1m",
+        "year2023": 26280,
+        "year2024": 24276,
+        "change_companies": -2004,
+        "change_pct": -7.6,
+        "share_2023_pct": 58.03,
+        "share_2024_pct": 55.77,
+        "share_change_percentage_points": -2.26,
+        "reference": false
+      },
+      {
+        "band_code": "1000-4999",
+        "label": "HK$1m to below HK$5m",
+        "year2023": 13714,
+        "year2024": 12273,
+        "change_companies": -1441,
+        "change_pct": -10.5,
+        "share_2023_pct": 30.28,
+        "share_2024_pct": 28.19,
+        "share_change_percentage_points": -2.09,
+        "reference": false
+      },
+      {
+        "band_code": "5000-9999",
+        "label": "HK$5m to below HK$10m",
+        "year2023": 2889,
+        "year2024": 4417,
+        "change_companies": 1528,
+        "change_pct": 52.9,
+        "share_2023_pct": 6.38,
+        "share_2024_pct": 10.15,
+        "share_change_percentage_points": 3.77,
+        "reference": false
+      },
+      {
+        "band_code": "10000-19999",
+        "label": "HK$10m to below HK$20m",
+        "year2023": 947,
+        "year2024": 1271,
+        "change_companies": 324,
+        "change_pct": 34.2,
+        "share_2023_pct": 2.09,
+        "share_2024_pct": 2.92,
+        "share_change_percentage_points": 0.83,
+        "reference": false
+      },
+      {
+        "band_code": "20000-49999",
+        "label": "HK$20m to below HK$50m",
+        "year2023": 675,
+        "year2024": 560,
+        "change_companies": -115,
+        "change_pct": -17.0,
+        "share_2023_pct": 1.49,
+        "share_2024_pct": 1.29,
+        "share_change_percentage_points": -0.2,
+        "reference": false
+      },
+      {
+        "band_code": "50000_and_over",
+        "label": "HK$50m and above",
+        "year2023": 781,
+        "year2024": 734,
+        "change_companies": -47,
+        "change_pct": -6.0,
+        "share_2023_pct": 1.72,
+        "share_2024_pct": 1.69,
+        "share_change_percentage_points": -0.04,
+        "reference": false
+      },
+      {
+        "band_code": "",
+        "label": "All retail companies",
+        "year2023": 45286,
+        "year2024": 43531,
+        "change_companies": -1755,
+        "change_pct": -3.9,
+        "share_2023_pct": 100.0,
+        "share_2024_pct": 100.0,
+        "share_change_percentage_points": 0.0,
+        "reference": true
+      }
+    ],
+    "source_id": "retail",
+    "takeaway": "Retail company counts fell 3.9% overall.",
+    "caveats": [
+      "2023–2024 retail company counts by annual receipts, C&SD Table 630-76003. Receipt bands are cross-sectional, not fixed cohorts or closure rates.",
+      "The distribution shift is an observed change in cross-sectional counts. It is consistent with multiple combinations of entry, exit and movement between receipts bands; this table alone does not identify those flows.",
+      "Nominal receipt thresholds do not identify ownership, chain affiliation, employment size, or a fixed cohort. Do not infer that locally owned shops closed or that larger chains gained.",
+      "No causal attribution to northbound spending, retail leakage, rents, tourism, inflation or any other mechanism is supported by these counts alone.",
+      "Use company terminology consistently with the current same-series table. Do not mix the older establishment-labelled PDF with these counts."
+    ],
+    "arithmetic_checks": {
+      "band_sum_2023": 45286,
+      "band_sum_2024": 43531,
+      "totals_match_band_sums": true,
+      "net_change_reconciliation": "-3,445 below HK$5m + 1,852 in HK$5m–<20m - 162 at HK$20m and above = -1,755 overall"
+    }
+  },
+  "labour_contrast": {
+    "title": "Labour conditions differ by sector",
+    "chart": "Two adjacent evidence cards; F&B can use a two-date vacancy slope. Do not put nursing stock and F&B percentage changes on one scale.",
+    "pressure": {
+      "label": "Food and beverage services: softer labour demand",
+      "period": "December 2024 to December 2025",
+      "source_id": "labour",
+      "series": [
+        {
+          "metric": "Persons engaged",
+          "unit": "persons",
+          "start": 220900,
+          "end": 217600,
+          "change_pct": -1.5
+        },
+        {
+          "metric": "Vacancies",
+          "unit": "posts",
+          "start": 5480,
+          "end": 3510,
+          "change_pct": -36
+        }
+      ],
+      "interpretation": "Fewer persons engaged and fewer unfilled posts suggest a softer sectoral labour market; no causal attribution to imported labour."
+    },
+    "shortage": {
+      "label": "Public nursing: substantial unfilled need",
+      "as_of": "2025-12-31",
+      "source_id": "nursing",
+      "metrics": [
+        {
+          "metric": "Hospital Authority nurse vacancies",
+          "unit": "posts",
+          "value": 3284
+        },
+        {
+          "metric": "Non-locally trained nurses commenced long-term service under new pathways",
+          "unit": "nurses",
+          "value": 36
+        },
+        {
+          "metric": "GBA one-year exchange nurses",
+          "unit": "nurses",
+          "value": 141
+        }
+      ],
+      "interpretation": "Large remaining HA vacancies alongside limited long-term recruitment through the newer pathways support a bounded shortage case."
+    },
+    "wage_guardrail": {
+      "label": "Accommodation and food service activities (broader than F&B)",
+      "period": "December 2025, year-on-year",
+      "source_id": "wages",
+      "nominal_wage_change_pct": 3.9,
+      "real_wage_change_pct": 2.3,
+      "average_monthly_salary_hkd": 17995,
+      "caveat": "These figures cover accommodation plus food service activities and full-time employees up to supervisory level in selected industries. Do not label them F&B-only or total earnings including overtime."
+    },
+    "caveats": [
+      "Cross-sector evidence is a contrast, not a causal estimate of labour importation.",
+      "F&B is a surveyed industry; HA is one public employer. Populations and measures differ.",
+      "The 36 nurses are new long-term starters under the newer channels, not all non-local nurses employed by HA. Exchange nurses are a distinct short-term programme.",
+      "No Shenzhen-specific daily commuter count or occupation/wage model is inferred.",
+      "Employment/vacancy percentages are official published changes from unrounded figures; retain them rather than recomputing from rounded counts."
+    ]
+  },
+  "excluded_from_verified_dataset": [
+    "JS-SEZ wage/population projections",
+    "RTS spending model",
+    "Causal claims connecting shopping to belonging or community participation",
+    "Citywide spending leakage estimate",
+    "Daily Shenzhen-to-Hong Kong occupational commuter totals"
+  ]
+}
